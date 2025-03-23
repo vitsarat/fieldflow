@@ -221,12 +221,16 @@
             const today = new Date().toISOString().split('T')[0];
             const isAdmin = userData.isAdmin;
 
-            const userTasks = isAdmin ? data.tasks.list : data.tasks.list.filter(t => t.assignedTo === userData.id && t.branch === userData.teamZone);
+            console.log('User Data:', userData); // Debug userData
+            console.log('Tasks from /data:', data.tasks.list); // Debug tasks from API
+            const userTasks = isAdmin ? data.tasks.list : data.tasks.list.filter(t => t.assignedTo.toUpperCase() === userData.id.toUpperCase()); // เปรียบเทียบแบบไม่สนใจตัวพิมพ์
+            console.log('Filtered userTasks:', userTasks); // Debug filtered tasks
+
             const urgentTasks = userTasks.filter(t => t.urgent && t.scheduledDate === today).length;
             const completedTasks = userTasks.filter(t => t.status === "จบงานสำเร็จ").length;
             const vehicles = userTasks.filter(t => t.brand && t.model).length;
 
-            const userIncome = isAdmin ? data.income.list : data.income.list.filter(i => i.employeeId === userData.id);
+            const userIncome = isAdmin ? data.income.list : data.income.list.filter(i => i.employeeId.toUpperCase() === userData.id.toUpperCase());
             const totalIncome = userIncome.reduce((sum, i) => sum + i.amount, 0);
 
             const perf = data.performance[userData.id] || {};
@@ -362,7 +366,7 @@
         }
 
         function login() {
-            const id = document.getElementById('employeeId').value;
+            const id = document.getElementById('employeeId').value.toUpperCase(); // แปลงเป็นตัวพิมพ์ใหญ่
             const pass = document.getElementById('password').value;
             if (id && pass === "1234") {
                 userData.id = id;
