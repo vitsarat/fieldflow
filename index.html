@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FieldFlow Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #1e2a44; color: #fff; }
+        #loginScreen { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f0f0; }
+        #mainApp { display: none; height: 100vh; display: flex; flex-direction: column; }
+        .header { background: linear-gradient(to right, #2a5298, #1e3c72); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { margin: 0; font-size: 18px; }
+        .header .icon { font-size: 18px; cursor: pointer; }
+        .content { flex-grow: 1; padding: 15px; overflow-y: auto; }
+        .bottom-menu { background: #2c3e50; padding: 10px; display: flex; justify-content: space-around; align-items: center; }
+        .bottom-menu button { background: none; border: none; color: white; font-size: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .bottom-menu button i { margin-bottom: 5px; font-size: 20px; }
+        .bottom-menu button:hover { color: #f1c40f; }
+        .card { background: #fff; color: #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .task-card { background: #fff; color: #333; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .task-details { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .details-box { background: white; color: #333; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+        .status { padding: 5px 10px; border-radius: 5px; }
+        .status-pending { background: #3498db; color: white; }
+        .status-scheduled { background: #f1c40f; color: black; }
+        .status-completed { background: #2ecc71; color: white; }
+        .status-contact-fail { background: #e74c3c; color: white; }
+        .urgent { color: #e74c3c; font-weight: bold; }
+        .alert { background: #f39c12; color: white; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .alert-critical { background: #e74c3c; color: white; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .menu-item { background: #34495e; padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; }
+        .menu-item i { font-size: 24px; margin-bottom: 10px; }
+        .menu-item:hover { background: #3e5c76; }
+        #map { height: 60vh; width: 100%; margin-bottom: 15px; }
+        .circle-progress { width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto; position: relative; }
+        .circle-progress::before { content: attr(data-percent) "%"; background: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table th { background: #34495e; color: white; }
+        .table td { background: #fff; color: #333; }
+        @media (max-width: 600px) {
+            .header h2 { font-size: 16px; }
+            .bottom-menu button { font-size: 12px; }
+            .bottom-menu button i { font-size: 18px; }
+            .card, .task-card { padding: 10px; }
+            .menu-grid { gap: 10px; }
+            .menu-item { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loginScreen">
+        <div>
+            <h2>ล็อกอิน</h2>
+            <input type="text" id="employeeId" placeholder="รหัสพนักงาน"><br>
+            <input type="password" id="password" placeholder="รหัสผ่าน"><br>
+            <button onclick="login()">เข้าสู่ระบบ</button>
+        </div>
+    </div>
+    <div id="mainApp">
+        <div class="header">
+            <h2 id="pageTitle">แดชบอร์ด</h2>
+            <i class="fas fa-moon icon"></i>
+        </div>
+        <div class="content">
+            <div id="dashboard" class="tab-content">
+                <div id="alerts"></div>
+                <div class="card">
+                    <p><i class="fas fa-exclamation-triangle"></i> งานด่วน: <span id="urgentTasks"></span> งาน</p>
+                    <p><i class="fas fa-check-circle"></i> งานสำเร็จ: <span id="completedTasks"></span> งาน</p>
+                    <p><i class="fas fa-car"></i> รถยนต์: <span id="vehicles"></span> คัน</p>
+                </div>
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="showTab('tasks')"><i class="fas fa-tasks"></i><p>งาน (Tasks)</p></div>
+                    <div class="menu-item" onclick="showTab('income')"><i class="fas fa-money-bill"></i><p>รายได้ (Income)</p></div>
+                    <div class="menu-item" onclick="showTab('report')"><i class="fas fa-chart-bar"></i><p>รายงาน (Report)</p></div>
+                    <div class="menu-item" onclick="showTab('map')"><i class="fas fa-map"></i><p>แผนที่ (Map)</p></div>
+                    <div class="menu-item" onclick="showTab('profile')"><i class="fas fa-user"></i><p>โปรไฟล์ (Profile)</p></div>
+                    <div class="menu-item" onclick="showTab('rating')"><i class="fas fa-star"></i><p>คะแนน (Rating)</p></div>
+                </div>
+            </div>
+            <div id="tasks" class="tab-content" style="display: none;">
+                <div id="todo"></div>
+            </div>
+            <div id="income" class="tab-content" style="display: none;">
+                <div class="card">
+                    <p>ยอดรวม: <span id="totalIncome"></span> บาท</p>
+                    <button onclick="showIncomeHistory()">ประวัติรายได้</button>
+                    <button onclick="downloadIncomeCSV()">ดาวน์โหลด</button>
+                </div>
+                <div class="card" id="incomeHistory" style="display: none;">
+                    <h3>ประวัติรายได้</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>เลขที่สัญญา</th>
+                                <th>Commission</th>
+                                <th>สถานะ</th>
+                                <th>วันที่</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incomeTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="report" class="tab-content" style="display: none;">
+                <div id="reportAlerts"></div>
+                <div class="card">
+                    <p>งาน 60/90 (Target <span id="target6090"></span>%)</p>
+                    <div class="circle-progress" id="progress6090" data-percent="0"></div>
+                </div>
+                <div class="card">
+                    <p>งาน NPL (Target <span id="targetNPL"></span>%)</p>
+                    <div class="circle-progress" id="progressNPL" data-percent="0"></div>
+                </div>
+                <div class="card">
+                    <h3>เปอร์เซ็นต์ % สำเร็จ</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>User</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="perfTable"></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h3>สรุปงาน</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>รหัส</th>
+                                <th>60/90 (สำเร็จ/ทั้งหมด)</th>
+                                <th>NPL (สำเร็จ/ทั้งหมด)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="map" class="tab-content" style="display: none;">
+                <div id="map"></div>
+            </div>
+            <div id="profile" class="tab-content" style="display: none;">
+                <div class="card">
+                    <p>ชื่อ: <span id="profileName"></span></p>
+                    <p>รหัสพนักงาน: <span id="profileId"></span></p>
+                </div>
+            </div>
+            <div id="rating" class="tab-content" style="display: none;">
+                <div class="card">
+                    <p>คะแนน: <span id="ratingScore"></span></p>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-menu">
+            <button onclick="showTab('dashboard')"><i class="fas fa-tachometer-alt"></i> แดชบอร์ด</button>
+            <button onclick="showTab('tasks')"><i class="fas fa-tasks"></i> งาน</button>
+            <button onclick="showTab('income')"><i class="fas fa-money-bill"></i> รายได้</button>
+            <button onclick="showTab('profile')"><i class="fas fa-user"></i> โปรไฟล์</button>
+        </div>
+    </div>
+    <div class="task-details" id="taskDetails">
+        <div class="details-box">
+            <h3><i class="fas fa-info-circle"></i> รายละเอียดงาน</h3>
+            <p><i class="fas fa-file-contract"></i> เลขที่สัญญา: <input type="text" id="contractId" readonly></p>
+            <p><i class="fas fa-user"></i> ชื่อ: <input type="text" id="customerName"></p>
+            <p><i class="fas fa-home"></i> ที่อยู่: <input type="text" id="address"></p>
+            <p><i class="fas fa-calendar-alt"></i> วันที่นัดหมาย: <input type="date" id="scheduledDate"></p>
+            <p><i class="fas fa-map-pin"></i> Latitude: <input type="number" id="lat" step="0.0001"></p>
+            <p><i class="fas fa-map-pin"></i> Longitude: <input type="number" id="lng" step="0.0001"></p>
+            <p><i class="fas fa-info-circle"></i> สถานะ: <span id="taskStatus" class="status"></span></p>
+            <button onclick="saveTaskDetails()">บันทึก</button>
+            <button onclick="closeTaskDetails()">ปิด</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let userData = { id: "", isAdmin: false, teamName: "", teamZone: "" };
+        let currentTask = null;
+        let map;
+        let cachedData = null; // เพิ่มการ cache ข้อมูล
+
+        function initMap() {
+            map = L.map('map').setView([17.4075, 102.7893], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+        }
+
+        function fetchData() {
+            if (cachedData) {
+                updateUI(cachedData);
+                return;
+            }
+            fetch('/data')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch data: ' + response.statusText);
+                return response.json();
+            })
+            .then(data => {
+                cachedData = data;
+                updateUI(data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                alert('เกิดข้อผิดพลาดในการดึงข้อมูล: ' + error.message);
+            });
+        }
+
+        function updateUI(data) {
+            window.sheetData = data;
+
+            const today = new Date().toISOString().split('T')[0];
+            const isAdmin = userData.isAdmin;
+
+            const userTasks = isAdmin ? data.tasks.list : data.tasks.list.filter(t => t.assignedTo === userData.id && t.branch === userData.teamZone);
+            const urgentTasks = userTasks.filter(t => t.urgent && t.scheduledDate === today).length;
+            const completedTasks = userTasks.filter(t => t.status === "จบงานสำเร็จ").length;
+            const vehicles = userTasks.filter(t => t.brand && t.model).length;
+
+            const userIncome = isAdmin ? data.income.list : data.income.list.filter(i => i.employeeId === userData.id);
+            const totalIncome = userIncome.reduce((sum, i) => sum + i.amount, 0);
+
+            const perf = data.performance[userData.id] || {};
+
+            document.getElementById('urgentTasks').textContent = urgentTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('vehicles').textContent = vehicles;
+            document.getElementById('alerts').innerHTML = urgentTasks > 0 ? `<div class="alert">Alert: มีงานด่วน ${urgentTasks} บ.</div>` : '';
+
+            const todoColumn = document.getElementById('todo');
+            todoColumn.innerHTML = '';
+            userTasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = 'task-card';
+                card.innerHTML = `
+                    <p><i class="fas fa-file-contract"></i> ${task.contractId || task.id} ${task.urgent ? '<span class="urgent"><i class="fas fa-exclamation-triangle"></i> ด่วน</span>' : ''}</p>
+                    <p><i class="fas fa-user"></i> ${task.name || 'ไม่ระบุ'}</p>
+                    <p><i class="fas fa-home"></i> ${task.address || 'ไม่ระบุ'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ระยะ: ${task.distance || 'ไม่ระบุ'} กม.</p>
+                    <p><i class="fas fa-clock"></i> เวลา: ${task.postedTime || 'ไม่ระบุ'}</p>
+                    <p><i class="fas fa-money-bill"></i> เงินต้น: ${task.principle ? task.principle.toLocaleString() : 'ไม่ระบุ'} บาท</p>
+                    <p><i class="fas fa-money-bill-wave"></i> ผ่อน: ${task.installment ? task.installment.toLocaleString() : 'ไม่ระบุ'} บาท</p>
+                    <p><i class="fas fa-car"></i> ทะเบียน: ${task.licensePlate || 'ไม่ระบุ'}</p>
+                    <div class="quick-actions">
+                        <button style="background: #2ecc71; color: white;" onclick="updateStatus('${task.id}', 'จบงานสำเร็จ')">จบงาน</button>
+                        <button style="background: #f1c40f; color: black;" onclick="updateStatus('${task.id}', 'นัดหมาย')">นัดหมาย</button>
+                        <button style="background: #3498db; color: white;" onclick='showTaskDetails(${JSON.stringify(task)})'>รายละเอียด</button>
+                    </div>
+                `;
+                todoColumn.appendChild(card);
+            });
+
+            document.getElementById('totalIncome').textContent = totalIncome.toLocaleString();
+            const incomeTable = document.getElementById('incomeTable');
+            incomeTable.innerHTML = '';
+            userIncome.forEach(income => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${income.contractId || 'ไม่ระบุ'}</td>
+                    <td>${income.amount ? income.amount.toLocaleString() : '0'} บาท</td>
+                    <td>${income.status || 'ไม่ระบุ'}</td>
+                    <td>${income.date || 'ไม่ระบุ'}</td>
+                `;
+                incomeTable.appendChild(row);
+            });
+
+            const perfTable = document.getElementById('perfTable');
+            perfTable.innerHTML = '';
+            Object.keys(data.performance).forEach((userId, index) => {
+                const perf = data.performance[userId];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${userId}</td>
+                    <td>${perf.successRate || 0}%</td>
+                `;
+                perfTable.appendChild(row);
+            });
+
+            const summaryTable = document.getElementById('summaryTable');
+            summaryTable.innerHTML = '';
+            let total6090 = 0, completed6090 = 0, totalNPL = 0, completedNPL = 0;
+            userTasks.forEach(task => {
+                if (task.group === "6090") {
+                    total6090++;
+                    if (task.status === "จบงานสำเร็จ") completed6090++;
+                } else if (task.group === "NPL") {
+                    totalNPL++;
+                    if (task.status === "จบงานสำเร็จ") completedNPL++;
+                }
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${task.id}</td>
+                    <td>${task.group === "6090" ? `${task.status === "จบงานสำเร็จ" ? 1 : 0}/1` : "0/0"}</td>
+                    <td>${task.group === "NPL" ? `${task.status === "จบงานสำเร็จ" ? 1 : 0}/1` : "0/0"}</td>
+                `;
+                summaryTable.appendChild(row);
+            });
+
+            // อัปเดตหน้า Report
+            const target6090 = 88; // Target สำหรับ 60/90
+            const targetNPL = 40; // Target สำหรับ NPL
+            const percent6090 = total6090 > 0 ? Math.round((completed6090 / total6090) * 100) : 0;
+            const percentNPL = totalNPL > 0 ? Math.round((completedNPL / totalNPL) * 100) : 0;
+
+            document.getElementById('target6090').textContent = target6090;
+            document.getElementById('targetNPL').textContent = targetNPL;
+            document.getElementById('progress6090').setAttribute('data-percent', percent6090);
+            document.getElementById('progressNPL').setAttribute('data-percent', percentNPL);
+            document.getElementById('progress6090').style.background = `conic-gradient(#2ecc71 0% ${percent6090}%, #e74c3c ${percent6090}% 100%)`;
+            document.getElementById('progressNPL').style.background = `conic-gradient(#2ecc71 0% ${percentNPL}%, #e74c3c ${percentNPL}% 100%)`;
+
+            // เพิ่มการแจ้งเตือนในหน้า Report
+            const reportAlerts = document.getElementById('reportAlerts');
+            reportAlerts.innerHTML = '';
+            if (percent6090 < target6090) {
+                reportAlerts.innerHTML += `<div class="alert-critical">รหัส ${userData.id}: งาน 60/90 ${percent6090}% จาก Target ${target6090}%</div>`;
+            }
+            if (percentNPL < targetNPL) {
+                reportAlerts.innerHTML += `<div class="alert-critical">รหัส ${userData.id}: งาน NPL ${percentNPL}% จาก Target ${targetNPL}%</div>`;
+            }
+
+            document.getElementById('profileName').textContent = userData.teamName;
+            document.getElementById('profileId').textContent = userData.id;
+            document.getElementById('ratingScore').textContent = perf.score || 0;
+
+            if (map && document.getElementById('map').style.display !== 'none') {
+                map.eachLayer(layer => { if (layer instanceof L.Marker) map.removeLayer(layer); });
+                userTasks.forEach(task => {
+                    if (task.lat && task.lng) {
+                        const iconColor = task.status === 'จบงานสำเร็จ' ? 'green' : task.urgent ? 'red' : task.status === 'นัดหมาย' ? 'yellow' : 'blue';
+                        const customIcon = L.icon({
+                            iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${iconColor}.png`,
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34]
+                        });
+                        const marker = L.marker([task.lat, task.lng], { icon: customIcon })
+                            .addTo(map)
+                            .bindPopup(`
+                                <b>${task.contractId || task.id}</b><br>
+                                ${task.name || 'ไม่ระบุ'}<br>
+                                ${task.address || 'ไม่ระบุ'}<br>
+                                สถานะ: ${task.status || 'ไม่ระบุ'}<br>
+                                <button onclick='showTaskDetails(${JSON.stringify(task)})'>รายละเอียด</button><br>
+                                <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${task.lat},${task.lng}', '_blank')">นำทาง</button>
+                            `);
+                        marker.on('click', () => map.setView([task.lat, task.lng], 15));
+                    }
+                });
+                if (userTasks.length > 0 && userTasks[0].lat && userTasks[0].lng) {
+                    map.setView([userTasks[0].lat, userTasks[0].lng], 10);
+                }
+            }
+        }
+
+        function login() {
+            const id = document.getElementById('employeeId').value;
+            const pass = document.getElementById('password').value;
+            if (id && pass === "1234") {
+                userData.id = id;
+                userData.isAdmin = id === "ADMIN";
+                userData.teamZone = id.startsWith("A") ? "อุดรธานี" : id.startsWith("B") ? "ขอนแก่น" : "ไม่ระบุ";
+                userData.teamName = id.startsWith("A") ? "ทีมรุ่งเรือง" : id.startsWith("B") ? "ทีมเอสดี" : "ไม่ระบุ";
+                if (userData.isAdmin) userData.teamName = "แอดมิน";
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                document.getElementById('pageTitle').textContent = userData.isAdmin ? "แอดมิน" : "แดชบอร์ด";
+                fetchData();
+            } else {
+                alert("รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง");
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+            document.getElementById('pageTitle').textContent = tabId === 'dashboard' ? (userData.isAdmin ? "แอดมิน" : "แดชบอร์ด") :
+                tabId === 'tasks' ? "งาน (Tasks)" :
+                tabId === 'income' ? "รายได้ (Income)" :
+                tabId === 'report' ? "รายงาน (Report)" :
+                tabId === 'map' ? "แผนที่ (Map)" :
+                tabId === 'profile' ? "โปรไฟล์ (Profile)" :
+                "คะแนน (Rating)";
+            if (tabId === 'map' && !map) initMap();
+            fetchData();
+        }
+
+        function showTaskDetails(task) {
+            currentTask = task;
+            document.getElementById('taskDetails').style.display = 'flex';
+            document.getElementById('contractId').value = task.contractId || "";
+            document.getElementById('customerName').value = task.name || "";
+            document.getElementById('address').value = task.address || "";
+            document.getElementById('scheduledDate').value = task.scheduledDate || "";
+            document.getElementById('lat').value = task.lat || "";
+            document.getElementById('lng').value = task.lng || "";
+            document.getElementById('taskStatus').textContent = task.status || "";
+            document.getElementById('taskStatus').className = `status status-${task.status === 'ติดต่อไม่ได้' ? 'contact-fail' : task.status === 'นัดหมาย' ? 'scheduled' : task.status === 'จบงานสำเร็จ' ? 'completed' : 'pending'}`;
+        }
+
+        async function saveTaskDetails() {
+            if (currentTask) {
+                currentTask.contractId = document.getElementById('contractId').value;
+                currentTask.name = document.getElementById('customerName').value;
+                currentTask.address = document.getElementById('address').value;
+                currentTask.scheduledDate = document.getElementById('scheduledDate').value;
+                currentTask.lat = parseFloat(document.getElementById('lat').value) || 0;
+                currentTask.lng = parseFloat(document.getElementById('lng').value) || 0;
+
+                try {
+                    const response = await fetch('/saveTask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(currentTask)
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert("บันทึกข้อมูลกลับ Sheet สำเร็จ!");
+                        closeTaskDetails();
+                        fetchData();
+                    } else {
+                        throw new Error(result.error || 'Unknown error');
+                    }
+                } catch (error) {
+                    console.error('Error saving task:', error);
+                    alert("เกิดข้อผิดพลาดในการบันทึก: " + error.message);
+                }
+            }
+        }
+
+        async function updateStatus(taskId, status) {
+            const task = window.sheetData.tasks.list.find(t => t.id === taskId);
+            if (task) {
+                task.status = status;
+                try {
+                    const response = await fetch('/saveTask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(task)
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert("อัปเดตสถานะสำเร็จ!");
+                        fetchData();
+                    } else {
+                        throw new Error(result.error || 'Unknown error');
+                    }
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ: " + error.message);
+                }
+            }
+        }
+
+        function closeTaskDetails() {
+            document.getElementById('taskDetails').style.display = 'none';
+        }
+
+        function showIncomeHistory() {
+            const incomeHistory = document.getElementById('incomeHistory');
+            incomeHistory.style.display = incomeHistory.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function downloadIncomeCSV() {
+            if (!window.sheetData || !window.sheetData.income) {
+                alert("ไม่มีข้อมูลรายได้สำหรับดาวน์โหลด");
+                return;
+            }
+            const userIncome = userData.isAdmin ? window.sheetData.income.list : window.sheetData.income.list.filter(i => i.employeeId === userData.id);
+            const csvRows = [
+                ['เลขที่สัญญา', 'Commission', 'สถานะ', 'วันที่'],
+                ...userIncome.map(income => [
+                    income.contractId || 'ไม่ระบุ',
+                    income.amount ? income.amount.toLocaleString() : '0',
+                    income.status || 'ไม่ระบุ',
+                    income.date || 'ไม่ระบุ'
+                ])
+            ];
+            const csvContent = csvRows.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'income_report.csv';
+            link.click();
+        }
+    </script>
+</body>
+</html>
