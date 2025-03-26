@@ -5,3 +5,4 @@ node_modules/
 credentials.json
 ~$FieldFlowData
 FieldFlowData
+credentials.json.json
