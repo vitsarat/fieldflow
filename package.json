@@ -1,15 +1,18 @@
 {
-  "name": "fieldflow",
-  "version": "1.0.0",
-  "description": "FieldFlow task management app",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.17.1"
-  },
-  "engines": {
-    "node": "20.x"
-  }
+    "name": "fieldflow",
+    "version": "1.0.0",
+    "description": "FieldFlow App for Debt Tracking",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "express": "^4.21.2",
+        "firebase-admin": "^12.0.0"
+    },
+    "devDependencies": {},
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
 }
