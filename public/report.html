@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลงาน - FieldFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="alert">
+            <p>เหลือ <span id="remaining6090">0</span> งานถึง Target 88%</p>
+            <button class="btn" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px;">วางแผน</button>
+        </div>
+
+        <div class="chart-section">
+            <h3>กลุ่มงาน 6090 (Target 88%)</h3>
+            <canvas id="chart6090"></canvas>
+            <p>จำนวนงานที่จบ: <span id="completed6090">0/0</span></p>
+            <p>Principle จบสำเร็จ: <span id="principle6090">0</span> บาท</p>
+        </div>
+        <div class="chart-section">
+            <h3>กลุ่มงาน NPL (Target 40%)</h3>
+            <canvas id="chartNPL"></canvas>
+            <p>จำนวนงานที่จบ: <span id="completedNPL">0/0</span></p>
+            <p>Principle คงเหลือ: <span id="principleNPL">0</span> บาท</p>
+        </div>
+
+        <div class="summary-section">
+            <h3>สรุปผลเรียลไทม์</h3>
+            <p>จำนวนงานที่จบแล้ว (รายวัน): <span id="dailyCompleted">0</span> งาน</p>
+            <p>ยอด Principle คงเหลือ: <span id="totalPrinciple">0</span> บาท</p>
+        </div>
+
+        <div class="summary-section">
+            <h3>Forecast</h3>
+            <p>เหลือ <span id="remaining6090">0</span> งานถึง Target 88% (6090)</p>
+            <p>เหลือ <span id="remainingNPL">0</span> งานถึง Target 40% (NPL)</p>
+        </div>
+
+        <div class="summary-section">
+            <h3>เปอร์เซ็นต์จบงาน</h3>
+            <table>
+                <tr><th>อันดับ</th><th>User</th><th>%</th></tr>
+                <tbody id="completionTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i><br>หน้าแรก</a>
+        <a href="tasks.html"><i class="fas fa-briefcase"></i><br>งาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i><br>รายได้</a>
+        <a href="report.html" class="active"><i class="fas fa-chart-bar"></i><br>ผลงาน</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i><br>โปรไฟล์</a>
+    </div>
+
+    <script type="module" src="js/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - FieldFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <div class="form-group">
+            <h3>อัพโหลดงาน</h3>
+            <input type="file" id="workFile" accept=".xlsx, .csv">
+            <button class="btn" onclick="uploadWork()">อัพโหลด</button>
+            <p id="upload-message" style="color: green; display: none;"></p>
+            <p id="upload-error" style="color: red; display: none;"></p>
+        </div>
+
+        <div class="form-group">
+            <h3>รายการงานที่อัพโหลด</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ชื่อไฟล์</th>
+                        <th>วันที่อัพโหลด</th>
+                        <th>ดาวน์โหลด</th>
+                    </tr>
+                </thead>
+                <tbody id="workList"></tbody>
+            </table>
+        </div>
+
+        <button class="btn" onclick="signOut()">ออกจากระบบ</button>
+    </div>
+
+    <script type="module">
+        import { signOut } from "./js/auth.js";
+        window.signOut = function() {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        };
+    </script>
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

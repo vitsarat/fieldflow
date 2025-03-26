@@ -1,0 +1,99 @@
+.container {
+    padding: 20px;
+    padding-bottom: 60px;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.profile-pic-input {
+    display: none;
+}
+
+.profile-info {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-info p {
+    margin: 5px 0;
+}
+
+.progress-section, .alert-section, .team-section, .rewards-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress {
+    height: 20px;
+    background: linear-gradient(90deg, #28a745, #34d058);
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+
+.alert-section {
+    background: rgba(255, 147, 0, 0.2);
+    color: #ff9300;
+}
+
+canvas {
+    width: 100% !important;
+    height: 200px !important;
+}
+
+.reward-card {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #1a2a44;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+.reward-card:hover {
+    transform: rotateY(180deg);
+}
+
+.share-btn, .settings-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.share-btn:hover, .settings-btn:hover {
+    background: #0056b3;
+}

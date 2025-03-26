@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายได้ - FieldFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/income.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="income-container">
+        <div class="summary-card">
+            <h3>สรุป Commission</h3>
+            <p>รายได้รวม: <span id="totalIncome">0</span> บาท</p>
+            <canvas id="commissionChart"></canvas>
+        </div>
+
+        <div class="dispute-alert" id="disputeAlert">
+            <i class="fas fa-exclamation-circle"></i> มีการโต้แย้ง: <span id="disputeTask"></span>
+        </div>
+
+        <table id="incomeTable">
+            <thead>
+                <tr>
+                    <th>เลขที่สัญญา</th>
+                    <th>Commission</th>
+                    <th>สถานะ</th>
+                    <th>วันที่จ่าย</th>
+                    <th>คอมเมนต์</th>
+                </tr>
+            </thead>
+            <tbody id="incomeTableBody">
+            </tbody>
+        </table>
+
+        <button class="export-btn" onclick="exportReport()"><i class="fas fa-download"></i> ดาวน์โหลดรายงาน</button>
+    </div>
+
+    <div class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i><br>หน้าแรก</a>
+        <a href="tasks.html"><i class="fas fa-briefcase"></i><br>งาน</a>
+        <a href="income.html" class="active"><i class="fas fa-wallet"></i><br>รายได้</a>
+        <a href="report.html"><i class="fas fa-chart-bar"></i><br>ผลงาน</a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i><br>โปรไฟล์</a>
+    </div>
+
+    <script type="module" src="js/income.js"></script>
+</body>
+</html>

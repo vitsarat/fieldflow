@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรไฟล์ - FieldFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-header">
+            <img src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-pic" id="profilePic">
+            <input type="file" accept="image/*" class="profile-pic-input" id="profilePicInput">
+        </div>
+
+        <div class="profile-info" id="profileInfo">
+            <p><i class="fas fa-id-badge"></i> รหัสพนักงาน: <span id="employeeId">A001</span></p>
+            <p><i class="fas fa-user"></i> ชื่อ-นามสกุล: <span id="fullName">พูลทรัพย์ พลชารี</span></p>
+            <p><i class="fas fa-building"></i> สังกัด: <span id="team">F4012 รุ่งเรือง</span></p>
+            <p><i class="fas fa-map-marker-alt"></i> สาขา: <span id="branch">อุดรธานี</span></p>
+            <p><i class="fas fa-check-circle"></i> สถานะ: <span id="status">ว่างงาน</span></p>
+        </div>
+
+        <div class="progress-section">
+            <h3>ประวัติผลงาน (7 วัน)</h3>
+            <canvas id="performanceChart"></canvas>
+        </div>
+
+        <div class="progress-section">
+            <h3>ระดับ: <span id="level">3</span> <i class="fas fa-star"></i></h3>
+            <p>ความคืบหน้าไปยังระดับถัดไป</p>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <p>คะแนน: <span id="score">750/1000</span></p>
+        </div>
+
+        <div class="alert-section">
+            <h3>การแจ้งเตือนส่วนตัว</h3>
+            <p><i class="fas fa-exclamation-triangle"></i> งานด่วน <span id="urgentTasks">0</span> รายการ</p>
+            <p><i class="fas fa-bullseye"></i> ถึง Target 88% ใน <span id="targetDays">0</span> วัน</p>
+        </div>
+
+        <div class="team-section">
+            <h3>ข้อมูลทีมและสาขา</h3>
+            <p><i class="fas fa-users"></i> ทีม: <span id="teamInfo">F4012 รุ่งเรือง</span></p>
+            <p><i class="fas fa-map-marker-alt"></i> สาขา: <span id="branchInfo">อุดรธานี</span></p>
+            <p><i class="fas fa-chart-pie"></i> การจบงานของทีม: <span id="teamCompletion">0%</span></p>
+        </div>
+
+        <div class="progress-section">
+            <button class="share-btn"><i class="fas fa-share-alt"></i> แชร์ผลงาน</button>
+            <button class="settings-btn"><i class="fas fa-cog"></i> ตั้งค่าการแจ้งเตือน</button>
+        </div>
+
+        <div class="progress-section">
+            <h3>เป้าหมายส่วนตัว</h3>
+            <p>ปิดงาน <span id="goalTarget">0</span> รายในสัปดาห์นี้</p>
+            <div class="progress-bar">
+                <div class="progress" id="goalProgress"></div>
+            </div>
+            <p>ความคืบหน้า: <span id="goalProgressText">0/0</span></p>
+        </div>
+
+        <div class="rewards-section">
+            <h3>รางวัลที่ได้รับ</h3>
+            <div class="reward-card">
+                <p>ทีมยอดเยี่ยมประจำเดือน</p>
+            </div>
+            <div class="reward-card">
+                <p>ปิดงาน 10 รายการ</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i><br>หน้าแรก</a>
+        <a href="tasks.html"><i class="fas fa-briefcase"></i><br>งาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i><br>รายได้</a>
+        <a href="report.html"><i class="fas fa-chart-bar"></i><br>ผลงาน</a>
+        <a href="profile.html" class="active"><i class="fas fa-user-circle"></i><br>โปรไฟล์</a>
+    </div>
+
+    <script type="module" src="js/profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FieldFlow - เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        .login-container h1 {
+            margin-bottom: 20px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>เข้าสู่ระบบ FieldFlow</h1>
+        <input
+            type="text"
+            id="employeeId"
+            placeholder="รหัสพนักงาน (เช่น A001, admin)"
+            required
+        />
+        <input type="password" id="password" placeholder="รหัสผ่าน" required />
+        <button onclick="login()">เข้าสู่ระบบ</button>
+        <div id="error-message" class="error-message"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { firebaseConfig } from "./js/firebase-config.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.login = async function () {
+            const employeeId = document
+                .getElementById("employeeId")
+                .value.trim()
+                .toLowerCase();
+            const password = document.getElementById("password").value;
+            const errorMessageDiv = document.getElementById("error-message");
+
+            errorMessageDiv.style.display = "none";
+            errorMessageDiv.textContent = "";
+
+            if (!employeeId || !password) {
+                errorMessageDiv.textContent = "กรุณากรอกรหัสพนักงานและรหัสผ่าน";
+                errorMessageDiv.style.display = "block";
+                return;
+            }
+
+            const email = `${employeeId}@fieldflow.com`;
+            try {
+                const userCredential = await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+                const user = userCredential.user;
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (!userDoc.exists()) {
+                    throw new Error("ไม่พบข้อมูลผู้ใช้ในระบบ");
+                }
+
+                const userData = userDoc.data();
+                if (userData.role === "admin") {
+                    window.location.href = "admin.html";
+                } else {
+                    window.location.href = "dashboard.html";
+                }
+            } catch (error) {
+                let errorMessage = "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง";
+                if (error.code === "auth/user-not-found") {
+                    errorMessage = "ไม่พบผู้ใช้ในระบบ";
+                } else if (error.code === "auth/wrong-password") {
+                    errorMessage = "รหัสผ่านไม่ถูกต้อง";
+                } else if (error.code === "auth/invalid-email") {
+                    errorMessage = "รูปแบบรหัสพนักงานไม่ถูกต้อง";
+                }
+                errorMessageDiv.textContent = errorMessage;
+                errorMessageDiv.style.display = "block";
+            }
+        };
+    </script>
+</body>
+</html>

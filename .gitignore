@@ -1,28 +1,24 @@
 # ไฟล์ที่เกี่ยวข้องกับโปรเจกต์
+# ไฟล์ที่มีข้อมูลสำคัญ (เช่น API Keys, Credentials)
+.env
 credentials.json
 *.json.json
+
+# ไฟล์ชั่วคราวและสำรอง
 *.bak
 ~$*.xlsx
 *.xlsx
-
-# ไฟล์และโฟลเดอร์ของระบบ
-NTUSER.DAT*
-ntuser.dat.*
-ntuser.ini
-AppData/
-3D Objects/
-Contacts/
-Desktop/
-Documents/
-Downloads/
-Favorites/
-Links/
-Music/
-Pictures/
-Saved Games/
-Searches/
-Videos/
-OneDrive/
+~$FieldFlowData
+FieldFlowData
 
 # Node.js
 node_modules/
+package-lock.json
+
+# ไฟล์ที่สร้างโดย IDE หรือ Editor
+.vscode/
+.idea/
+
+# ไฟล์ที่สร้างโดยระบบปฏิบัติการ
+.DS_Store
+Thumbs.db
