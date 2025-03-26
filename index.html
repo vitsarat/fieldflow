@@ -242,7 +242,7 @@
     <div id="loginScreen">
       <div>
         <h2>ล็อกอิน</h2>
-        <input type="text" id="employeeId" placeholder="รหัสพนักงาน" /><br />
+        <input type="text" id="employeeId" placeholder="รหัสพนักงาน (เช่น A001)" /><br />
         <input type="password" id="password" placeholder="รหัสผ่าน" /><br />
         <button onclick="login()">เข้าสู่ระบบ</button>
       </div>
@@ -454,6 +454,7 @@
 
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
       const db = firebase.firestore();
 
       let userData = { id: "", isAdmin: false, teamName: "", teamZone: "" };
@@ -719,31 +720,37 @@
       function login() {
         const id = document.getElementById("employeeId").value.toUpperCase();
         const pass = document.getElementById("password").value;
-        if (id && pass === "1234") {
-          userData.id = id;
-          userData.isAdmin = id === "ADMIN";
-          userData.teamZone = id.startsWith("A")
-            ? "อุดรธานี"
-            : id.startsWith("B")
-            ? "ขอนแก่น"
-            : "ไม่ระบุ";
-          userData.teamName = id.startsWith("A")
-            ? "ทีมรุ่งเรือง"
-            : id.startsWith("B")
-            ? "ทีมเอสดี"
-            : "ไม่ระบุ";
-          if (userData.isAdmin) userData.teamName = "แอดมิน";
-          document.getElementById("loginScreen").style.display = "none";
-          const mainApp = document.getElementById("mainApp");
-          mainApp.style.display = "flex";
-          mainApp.style.flexDirection = "column";
-          document.getElementById("pageTitle").textContent = userData.isAdmin
-            ? "แอดมิน"
-            : "แดชบอร์ด";
-          fetchData();
-        } else {
-          alert("รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง");
-        }
+        const email = `${id.toLowerCase()}@fieldflow.com`; // สร้างอีเมลจากรหัสพนักงาน
+
+        auth.signInWithEmailAndPassword(email, pass)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            userData.id = id;
+            userData.isAdmin = id === "ADMIN";
+            userData.teamZone = id.startsWith("A")
+              ? "อุดรธานี"
+              : id.startsWith("B")
+              ? "ขอนแก่น"
+              : "ไม่ระบุ";
+            userData.teamName = id.startsWith("A")
+              ? "ทีมรุ่งเรือง"
+              : id.startsWith("B")
+              ? "ทีมเอสดี"
+              : "ไม่ระบุ";
+            if (userData.isAdmin) userData.teamName = "แอดมิน";
+            document.getElementById("loginScreen").style.display = "none";
+            const mainApp = document.getElementById("mainApp");
+            mainApp.style.display = "flex";
+            mainApp.style.flexDirection = "column";
+            document.getElementById("pageTitle").textContent = userData.isAdmin
+              ? "แอดมิน"
+              : "แดชบอร์ด";
+            fetchData();
+          })
+          .catch((error) => {
+            console.error("Login error:", error);
+            alert("รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง: " + error.message);
+          });
       }
 
       function showTab(tabId) {
