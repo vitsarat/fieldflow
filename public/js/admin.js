@@ -10,8 +10,10 @@ const storage = getStorage(app);
 
 onAuthStateChanged(auth, (user) => {
     if (!user) {
+        console.log("No user logged in, redirecting to index.html");
         window.location.href = "index.html";
     } else {
+        console.log("Admin logged in:", user.uid);
         loadWorks();
     }
 });
@@ -43,7 +45,7 @@ window.uploadWork = async function() {
             name: file.name,
             url: downloadURL,
             uploadedBy: auth.currentUser.uid,
-            uploadedAt: new Date()
+            uploadedAt: new Date().toISOString()
         });
 
         uploadMessage.textContent = "อัพโหลดงานสำเร็จ!";
@@ -65,14 +67,17 @@ function loadWorks() {
         workList.innerHTML = "";
         snapshot.forEach((doc) => {
             const work = doc.data();
+            const uploadedAt = work.uploadedAt ? new Date(work.uploadedAt).toLocaleString("th-TH") : "N/A";
             const row = `
                 <tr>
-                    <td>${work.name}</td>
-                    <td>${work.uploadedAt ? new Date(work.uploadedAt).toLocaleString() : "N/A"}</td>
-                    <td><a href="${work.url}" target="_blank">ดาวน์โหลด</a></td>
+                    <td>${work.name || "N/A"}</td>
+                    <td>${uploadedAt}</td>
+                    <td><a href="${work.url || "#"}" target="_blank">ดาวน์โหลด</a></td>
                 </tr>
             `;
             workList.innerHTML += row;
         });
+    }, (error) => {
+        console.error("Error loading works:", error);
     });
 }
