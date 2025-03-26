@@ -8,50 +8,68 @@ const db = getFirestore(app);
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
+        console.log("No user logged in, redirecting to index.html");
         window.location.href = "index.html";
         return;
     }
 
-    // ดึงข้อมูลงาน
-    const tasksQuery = query(collection(db, "tasks"), where("assignedTo", "==", user.uid));
-    const tasksSnapshot = await getDocs(tasksQuery);
-    const taskCount = tasksSnapshot.size;
-    document.getElementById("taskCount").textContent = taskCount;
+    console.log("User logged in:", user.uid);
 
-    // ดึงงานด่วน
-    const urgentTasksQuery = query(
-        collection(db, "tasks"),
-        where("assignedTo", "==", user.uid),
-        where("status", "==", "urgent")
-    );
-    const urgentTasksSnapshot = await getDocs(urgentTasksQuery);
-    document.getElementById("urgentTasks").textContent = urgentTasksSnapshot.size;
+    try {
+        // ดึงข้อมูลงานทั้งหมด
+        const tasksQuery = query(collection(db, "tasks"), where("assignedTo", "==", user.email));
+        const tasksSnapshot = await getDocs(tasksQuery);
+        const taskCount = tasksSnapshot.size;
+        document.getElementById("taskCount").textContent = taskCount;
+        console.log("Total tasks:", taskCount);
 
-    // ดึงข้อมูลรายได้
-    const incomesQuery = query(collection(db, "incomes"), where("userId", "==", user.uid));
-    const incomesSnapshot = await getDocs(incomesQuery);
-    let totalIncome = 0;
-    incomesSnapshot.forEach(doc => {
-        totalIncome += doc.data().amount || 0;
-    });
-    document.getElementById("totalIncome").textContent = totalIncome.toLocaleString() + " บาท";
+        // ดึงงานด่วน (รองรับตัวพิมพ์ใหญ่-เล็ก)
+        const urgentTasksQuery = query(
+            collection(db, "tasks"),
+            where("assignedTo", "==", user.email),
+            where("status", "in", ["urgent", "URGENT", "Urgent"])
+        );
+        const urgentTasksSnapshot = await getDocs(urgentTasksQuery);
+        document.getElementById("urgentTasks").textContent = urgentTasksSnapshot.size;
+        console.log("Urgent tasks:", urgentTasksSnapshot.size);
 
-    // ดึงข้อมูลการจบงาน
-    const completedTasksQuery = query(
-        collection(db, "tasks"),
-        where("assignedTo", "==", user.uid),
-        where("status", "==", "completed")
-    );
-    const completedTasksSnapshot = await getDocs(completedTasksQuery);
-    const completionRate = taskCount > 0 ? (completedTasksSnapshot.size / taskCount) * 100 : 0;
-    document.getElementById("completionRate").textContent = completionRate.toFixed(1) + "%";
+        // ดึงข้อมูลรายได้
+        const incomesQuery = query(collection(db, "incomes"), where("userId", "==", user.uid));
+        const incomesSnapshot = await getDocs(incomesQuery);
+        let totalIncome = 0;
+        incomesSnapshot.forEach(doc => {
+            const amount = doc.data().amount;
+            if (typeof amount === "number") {
+                totalIncome += amount;
+            }
+        });
+        document.getElementById("totalIncome").textContent = totalIncome.toLocaleString() + " บาท";
+        console.log("Total income:", totalIncome);
 
-    // ดึงคะแนน
-    const ratingsQuery = query(collection(db, "ratings"), where("userId", "==", user.uid));
-    const ratingsSnapshot = await getDocs(ratingsQuery);
-    let rating = 0;
-    ratingsSnapshot.forEach(doc => {
-        rating = doc.data().score || 0;
-    });
-    document.getElementById("rating").textContent = rating;
+        // ดึงข้อมูลการจบงาน
+        const completedTasksQuery = query(
+            collection(db, "tasks"),
+            where("assignedTo", "==", user.email),
+            where("status", "in", ["completed", "COMPLETED", "Completed"])
+        );
+        const completedTasksSnapshot = await getDocs(completedTasksQuery);
+        const completionRate = taskCount > 0 ? (completedTasksSnapshot.size / taskCount) * 100 : 0;
+        document.getElementById("completionRate").textContent = completionRate.toFixed(1) + "%";
+        console.log("Completion rate:", completionRate);
+
+        // ดึงคะแนน
+        const ratingsQuery = query(collection(db, "ratings"), where("userId", "==", user.uid));
+        const ratingsSnapshot = await getDocs(ratingsQuery);
+        let rating = 0;
+        ratingsSnapshot.forEach(doc => {
+            const score = doc.data().score;
+            if (typeof score === "number") {
+                rating = score;
+            }
+        });
+        document.getElementById("rating").textContent = rating;
+        console.log("Rating:", rating);
+    } catch (error) {
+        console.error("Error in dashboard.js:", error);
+    }
 });
