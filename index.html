@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FieldFlow Dashboard</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- ลบ favicon.ico ที่ไม่พบ -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
@@ -722,6 +722,11 @@
         const pass = document.getElementById("password").value;
         const email = `${id.toLowerCase()}@fieldflow.com`;
 
+        if (!id || !pass) {
+          alert("กรุณากรอกรหัสพนักงานและรหัสผ่าน");
+          return;
+        }
+
         try {
           const userCredential = await auth.signInWithEmailAndPassword(email, pass);
           const user = userCredential.user;
@@ -729,7 +734,7 @@
           // ดึงข้อมูลผู้ใช้จาก Firestore
           const userDoc = await db.collection("users").doc(user.uid).get();
           if (!userDoc.exists) {
-            throw new Error("ไม่พบข้อมูลผู้ใช้ในระบบ");
+            throw new Error("ไม่พบข้อมูลผู้ใช้ในระบบ (Firestore)");
           }
           const userDataFromFirestore = userDoc.data();
 
@@ -758,13 +763,15 @@
           fetchData();
         } catch (error) {
           console.error("Login error:", error);
-          let errorMessage = "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง";
+          let errorMessage = "เกิดข้อผิดพลาดในการล็อกอิน";
           if (error.code === "auth/user-not-found") {
             errorMessage = "ไม่พบผู้ใช้ในระบบ กรุณาตรวจสอบรหัสพนักงาน";
           } else if (error.code === "auth/wrong-password") {
             errorMessage = "รหัสผ่านไม่ถูกต้อง";
           } else if (error.code === "auth/invalid-email") {
             errorMessage = "รูปแบบอีเมลไม่ถูกต้อง";
+          } else if (error.code === "auth/invalid-credential") {
+            errorMessage = "ข้อมูลการล็อกอินไม่ถูกต้อง";
           } else {
             errorMessage = error.message;
           }
