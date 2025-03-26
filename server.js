@@ -1,4 +1,3 @@
-Set-Content -Path server.js -Value @"
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -13,4 +12,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
-"@
