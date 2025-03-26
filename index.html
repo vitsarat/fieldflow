@@ -734,10 +734,12 @@
         }
 
         const email = `${id.toLowerCase()}@fieldflow.com`;
+        console.log("Attempting to login with email:", email); // เพิ่ม log เพื่อตรวจสอบ
 
         try {
           const userCredential = await auth.signInWithEmailAndPassword(email, pass);
           const user = userCredential.user;
+          console.log("User logged in successfully:", user.uid); // เพิ่ม log เพื่อตรวจสอบ
 
           // ดึงข้อมูลผู้ใช้จาก Firestore
           const userDoc = await db.collection("users").doc(user.uid).get();
@@ -745,6 +747,7 @@
             throw new Error("ไม่พบข้อมูลผู้ใช้ในระบบ (Firestore)");
           }
           const userDataFromFirestore = userDoc.data();
+          console.log("User data from Firestore:", userDataFromFirestore); // เพิ่ม log เพื่อตรวจสอบ
 
           userData.id = id;
           userData.isAdmin = userDataFromFirestore.isAdmin || false;
@@ -770,7 +773,7 @@
           alert(`ยินดีต้อนรับ ${userData.teamName}!`);
           fetchData();
         } catch (error) {
-          console.error("Login error:", error);
+          console.error("Login error:", error.code, error.message); // ปรับปรุง log ให้ชัดเจน
           let errorMessage = "เกิดข้อผิดพลาดในการล็อกอิน";
           if (error.code === "auth/user-not-found") {
             errorMessage = "ไม่พบผู้ใช้ในระบบ กรุณาตรวจสอบรหัสพนักงาน";
