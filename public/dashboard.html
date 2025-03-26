@@ -4,22 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>หน้าแรก - FieldFlow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a2a44;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 60px;
+        }
+        .container {
+            padding: 20px;
+        }
+        .alert {
+            background: rgba(255, 147, 0, 0.2);
+            color: #ff9300;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .overview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .task-counter {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .assign-task {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .settings-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .navbar a {
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .navbar a.active {
+            color: #ff9300;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="alert" id="smartAlert">
+        <!-- Smart Alert -->
+        <div class="alert">
             <p><i class="fas fa-exclamation-triangle"></i> งานด่วน <span id="urgentTasks">0</span> งาน</p>
         </div>
 
+        <!-- Task Counter -->
         <div class="task-counter">
             <p>จำนวนงานทั้งหมด: <span id="taskCount">0</span> งาน</p>
         </div>
 
+        <!-- Assign Task Button -->
         <button class="assign-task"><i class="fas fa-plus"></i> มอบหมาย/รับงาน</button>
 
+        <!-- Overview -->
         <div class="overview">
             <a href="tasks.html" class="card">
                 <i class="fas fa-briefcase"></i>
@@ -35,6 +124,11 @@
                 <p>ผลงาน</p>
                 <p>การจบงาน: <span id="completionRate">0%</span></p>
             </a>
+            <a href="map.html" class="card">
+                <i class="fas fa-map"></i>
+                <p>แผนที่</p>
+                <button class="assign-task" style="background: #ff9300;"><i class="fas fa-share"></i> ฝากงาน</button>
+            </a>
             <a href="profile.html" class="card">
                 <i class="fas fa-user-circle"></i>
                 <p>โปรไฟล์</p>
@@ -46,9 +140,11 @@
             </a>
         </div>
 
-        <button class="settings-btn" onclick="alert('ฟังก์ชันตั้งค่ายังไม่พร้อมใช้งาน')"><i class="fas fa-cog"></i> ตั้งค่า</button>
+        <!-- Settings Button -->
+        <button class="settings-btn"><i class="fas fa-cog"></i> ตั้งค่า</button>
     </div>
 
+    <!-- Navigation Bar -->
     <div class="navbar">
         <a href="dashboard.html" class="active"><i class="fas fa-home"></i><br>หน้าแรก</a>
         <a href="tasks.html"><i class="fas fa-briefcase"></i><br>งาน</a>
