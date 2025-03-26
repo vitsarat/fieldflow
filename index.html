@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FieldFlow Dashboard</title>
-    <!-- ลบ favicon.ico ที่ไม่พบ -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
@@ -718,14 +717,23 @@
       }
 
       async function login() {
-        const id = document.getElementById("employeeId").value.toUpperCase();
+        const id = document.getElementById("employeeId").value.trim().toUpperCase();
         const pass = document.getElementById("password").value;
-        const email = `${id.toLowerCase()}@fieldflow.com`;
 
+        // ตรวจสอบว่ากรอกข้อมูลครบหรือไม่
         if (!id || !pass) {
           alert("กรุณากรอกรหัสพนักงานและรหัสผ่าน");
           return;
         }
+
+        // ตรวจสอบรูปแบบรหัสพนักงาน (ต้องเป็นตัวอักษรและตัวเลขเท่านั้น)
+        const idRegex = /^[A-Za-z0-9]+$/;
+        if (!idRegex.test(id)) {
+          alert("รหัสพนักงานต้องประกอบด้วยตัวอักษรและตัวเลขเท่านั้น (เช่น A001)");
+          return;
+        }
+
+        const email = `${id.toLowerCase()}@fieldflow.com`;
 
         try {
           const userCredential = await auth.signInWithEmailAndPassword(email, pass);
