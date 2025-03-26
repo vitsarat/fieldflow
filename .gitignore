@@ -1,9 +1,28 @@
-.env
-node_modules/
-*.log
-.DS_Store
+# ไฟล์ที่เกี่ยวข้องกับโปรเจกต์
 credentials.json
-~$FieldFlowData
-FieldFlowData
-credentials.json.json
+*.json.json
 *.bak
+~$*.xlsx
+*.xlsx
+
+# ไฟล์และโฟลเดอร์ของระบบ
+NTUSER.DAT*
+ntuser.dat.*
+ntuser.ini
+AppData/
+3D Objects/
+Contacts/
+Desktop/
+Documents/
+Downloads/
+Favorites/
+Links/
+Music/
+Pictures/
+Saved Games/
+Searches/
+Videos/
+OneDrive/
+
+# Node.js
+node_modules/
