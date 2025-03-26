@@ -250,7 +250,7 @@
     <div id="mainApp">
       <div class="header">
         <h2 id="pageTitle">แดชบอร์ด</h2>
-        <i class="fas fa-moon icon"></i>
+        <i class="fas fa-sign-out-alt icon" onclick="logout()"></i>
       </div>
       <div class="content">
         <div id="dashboard" class="tab-content">
@@ -490,8 +490,8 @@
           const tasksSnapshot = await db.collection("tasks").get();
           data.tasks.list = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-          const incomesSnapshot = await db.collection("incomes").get();
-          data.income.list = incomesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          const incomeSnapshot = await db.collection("income").get();
+          data.income.list = incomeSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
           const performanceSnapshot = await db.collection("performance").doc(userData.id).get();
           data.performance = performanceSnapshot.exists ? performanceSnapshot.data() : {};
@@ -717,40 +717,71 @@
         }
       }
 
-      function login() {
+      async function login() {
         const id = document.getElementById("employeeId").value.toUpperCase();
         const pass = document.getElementById("password").value;
-        const email = `${id.toLowerCase()}@fieldflow.com`; // สร้างอีเมลจากรหัสพนักงาน
+        const email = `${id.toLowerCase()}@fieldflow.com`;
 
-        auth.signInWithEmailAndPassword(email, pass)
-          .then((userCredential) => {
-            const user = userCredential.user;
-            userData.id = id;
-            userData.isAdmin = id === "ADMIN";
-            userData.teamZone = id.startsWith("A")
-              ? "อุดรธานี"
-              : id.startsWith("B")
-              ? "ขอนแก่น"
-              : "ไม่ระบุ";
-            userData.teamName = id.startsWith("A")
-              ? "ทีมรุ่งเรือง"
-              : id.startsWith("B")
-              ? "ทีมเอสดี"
-              : "ไม่ระบุ";
-            if (userData.isAdmin) userData.teamName = "แอดมิน";
-            document.getElementById("loginScreen").style.display = "none";
-            const mainApp = document.getElementById("mainApp");
-            mainApp.style.display = "flex";
-            mainApp.style.flexDirection = "column";
-            document.getElementById("pageTitle").textContent = userData.isAdmin
-              ? "แอดมิน"
-              : "แดชบอร์ด";
-            fetchData();
-          })
-          .catch((error) => {
-            console.error("Login error:", error);
-            alert("รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง: " + error.message);
-          });
+        try {
+          const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+          const user = userCredential.user;
+
+          // ดึงข้อมูลผู้ใช้จาก Firestore
+          const userDoc = await db.collection("users").doc(user.uid).get();
+          if (!userDoc.exists) {
+            throw new Error("ไม่พบข้อมูลผู้ใช้ในระบบ");
+          }
+          const userDataFromFirestore = userDoc.data();
+
+          userData.id = id;
+          userData.isAdmin = userDataFromFirestore.isAdmin || false;
+          userData.teamZone = id.startsWith("A")
+            ? "อุดรธานี"
+            : id.startsWith("B")
+            ? "ขอนแก่น"
+            : "ไม่ระบุ";
+          userData.teamName = id.startsWith("A")
+            ? "ทีมรุ่งเรือง"
+            : id.startsWith("B")
+            ? "ทีมเอสดี"
+            : "ไม่ระบุ";
+          if (userData.isAdmin) userData.teamName = "แอดมิน";
+
+          document.getElementById("loginScreen").style.display = "none";
+          const mainApp = document.getElementById("mainApp");
+          mainApp.style.display = "flex";
+          mainApp.style.flexDirection = "column";
+          document.getElementById("pageTitle").textContent = userData.isAdmin
+            ? "แอดมิน"
+            : "แดชบอร์ด";
+          alert(`ยินดีต้อนรับ ${userData.teamName}!`);
+          fetchData();
+        } catch (error) {
+          console.error("Login error:", error);
+          let errorMessage = "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง";
+          if (error.code === "auth/user-not-found") {
+            errorMessage = "ไม่พบผู้ใช้ในระบบ กรุณาตรวจสอบรหัสพนักงาน";
+          } else if (error.code === "auth/wrong-password") {
+            errorMessage = "รหัสผ่านไม่ถูกต้อง";
+          } else if (error.code === "auth/invalid-email") {
+            errorMessage = "รูปแบบอีเมลไม่ถูกต้อง";
+          } else {
+            errorMessage = error.message;
+          }
+          alert(errorMessage);
+        }
+      }
+
+      function logout() {
+        auth.signOut().then(() => {
+          userData = { id: "", isAdmin: false, teamName: "", teamZone: "" };
+          document.getElementById("mainApp").style.display = "none";
+          document.getElementById("loginScreen").style.display = "flex";
+          alert("ออกจากระบบสำเร็จ!");
+        }).catch((error) => {
+          console.error("Logout error:", error);
+          alert("เกิดข้อผิดพลาดในการออกจากระบบ: " + error.message);
+        });
       }
 
       function showTab(tabId) {
@@ -876,6 +907,11 @@
 
       // ฟังก์ชันนำเข้าข้อมูลงาน (สำหรับ ADMIN)
       function importTasks() {
+        if (!userData.isAdmin) {
+          alert("เฉพาะแอดมินเท่านั้นที่สามารถนำเข้าข้อมูลได้");
+          return;
+        }
+
         const fileInput = document.getElementById("importFile");
         const file = fileInput.files[0];
         if (!file) {
