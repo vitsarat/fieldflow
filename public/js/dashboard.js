@@ -42,7 +42,7 @@ async function getFirebaseConfig() {
                 document.getElementById("taskCount").textContent = taskCount;
                 console.log("Total tasks:", taskCount);
 
-                // ดึงงานด่วน (รองรับตัวพิมพ์ใหญ่-เล็ก)
+                // ดึงงานด่วน
                 console.log("Fetching urgent tasks...");
                 const urgentTasksQuery = query(
                     collection(db, "tasks"),
