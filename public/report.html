@@ -5,15 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ผลงาน - FieldFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/report.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a2a44;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 60px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .alert {
+            background: rgba(255, 147, 0, 0.2);
+            color: #ff9300;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .alert .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .chart-section, .summary-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .chart-section canvas {
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+        .summary-section p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .navbar a {
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .navbar a.active {
+            color: #ff9300;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
+        <h2>ผลงาน</h2>
         <div class="alert">
             <p>เหลือ <span id="remaining6090">0</span> งานถึง Target 88%</p>
-            <button class="btn" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 5px;">วางแผน</button>
+            <button class="btn">วางแผน</button>
         </div>
 
         <div class="chart-section">
