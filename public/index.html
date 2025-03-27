@@ -65,7 +65,7 @@
 <body>
     <div class="login-container">
         <h2>Login to FieldFlow</h2>
-        <form>
+        <form id="loginForm">
             <div class="form-group">
                 <label for="employeeId">Employee ID</label>
                 <input type="text" id="employeeId" name="employeeId" placeholder="Enter your Employee ID" required>
@@ -75,7 +75,7 @@
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
             </div>
             <div id="error-message"></div>
-            <button type="button" id="loginBtn">Login</button>
+            <button type="submit">Login</button>
         </form>
     </div>
     <script type="module" src="js/auth.js"></script>
