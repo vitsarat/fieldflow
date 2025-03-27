@@ -1,83 +1,146 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FieldFlow - Login</title>
+    <title>เข้าสู่ระบบ - FieldFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #1a2a44;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
         }
         .login-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
             width: 100%;
             max-width: 400px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        h2 {
+        .login-container h2 {
             text-align: center;
-            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
-        input {
+        .login-container input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #1877f2;
-            color: white;
+            padding: 10px;
+            margin: 10px 0;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
             font-size: 1rem;
+        }
+        .login-container input::placeholder {
+            color: #cccccc;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background: #ff9300;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
-        button:hover {
-            background-color: #165db7;
+        .login-container button i {
+            margin-right: 5px;
+            color: #ffffff;
         }
-        #error-message {
-            color: red;
+        .error {
+            color: #ff4d4d;
             text-align: center;
-            margin-top: 1rem;
-            min-height: 1.5rem;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2>Login to FieldFlow</h2>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="employeeId">Employee ID</label>
-                <input type="text" id="employeeId" name="employeeId" placeholder="Enter your Employee ID" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            </div>
-            <div id="error-message"></div>
-            <button type="submit">Login</button>
-        </form>
+        <h2>เข้าสู่ระบบ</h2>
+        <input type="text" id="employeeId" placeholder="รหัสพนักงาน">
+        <input type="password" id="password" placeholder="รหัสผ่าน">
+        <button onclick="login()"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</button>
+        <p id="error" class="error"></p>
     </div>
+
     <script type="module" src="js/auth.js"></script>
+    <script type="module">
+        import { signInWithEmailAndPassword, auth } from './js/auth.js';
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+        async function getFirebaseConfig() {
+            console.log("Fetching firebaseConfig from /firebase-config...");
+            const response = await fetch('/firebase-config');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch firebaseConfig: ${response.status} ${response.statusText}`);
+            }
+            const config = await response.json();
+            console.log("firebaseConfig fetched:", config);
+            return config;
+        }
+
+        const firebaseConfig = await getFirebaseConfig();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.login = async function() {
+            const employeeId = document.getElementById("employeeId").value;
+            const password = document.getElementById("password").value;
+            const errorElement = document.getElementById("error");
+
+            if (!employeeId || !password) {
+                errorElement.textContent = "กรุณากรอกรหัสพนักงานและรหัสผ่าน";
+                return;
+            }
+
+            try {
+                console.log("Fetching user data for employeeId:", employeeId);
+                const userDoc = await getDoc(doc(db, "users", employeeId));
+                if (!userDoc.exists()) {
+                    errorElement.textContent = "ไม่พบรหัสพนักงานนี้";
+                    return;
+                }
+
+                const userData = userDoc.data();
+                console.log("User data:", userData);
+
+                if (userData.password !== password) {
+                    errorElement.textContent = "รหัสผ่านไม่ถูกต้อง";
+                    return;
+                }
+
+                console.log("Attempting to sign in with email:", userData.email);
+                await signInWithEmailAndPassword(auth, userData.email, password);
+                console.log("Sign-in successful, redirecting...");
+
+                if (userData.role === "admin") {
+                    window.location.href = "admin.html";
+                } else {
+                    window.location.href = "dashboard.html";
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                errorElement.textContent = "เกิดข้อผิดพลาด: " + error.message;
+            }
+        };
+    </script>
 </body>
 </html>
