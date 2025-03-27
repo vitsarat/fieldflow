@@ -12,7 +12,7 @@
             color: #fff;
             margin: 0;
             padding: 0;
-            padding-bottom: 80px; /* เพิ่ม padding-bottom เพื่อให้มีที่ว่างสำหรับ navbar */
+            padding-bottom: 80px;
         }
         .container {
             padding: 20px;
@@ -21,14 +21,14 @@
         }
         .alert {
             background: rgba(255, 147, 0, 0.2);
-            color: #ff9300;
+            color: #ffeb3b; /* เปลี่ยนสีเป็นเหลืองอ่อนเพื่อให้เด่นชัด */
             padding: 12px;
             border-radius: 5px;
             margin-bottom: 20px;
             text-align: center;
-            font-size: 1.1rem; /* เพิ่มขนาดตัวอักษร */
-            font-weight: 500; /* เพิ่มน้ำหนักตัวอักษร */
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* เพิ่มเงาให้ตัวอักษร */
+            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 600; /* เพิ่มน้ำหนักตัวอักษร */
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5); /* เพิ่มเงาให้เข้มขึ้น */
         }
         .task-counter {
             background: rgba(255, 255, 255, 0.1);
@@ -36,9 +36,10 @@
             padding: 12px;
             margin-bottom: 20px;
             text-align: center;
-            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            font-size: 1.3rem; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 600;
+            color: #f0f0f0; /* เปลี่ยนสีให้สว่างขึ้น */
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .assign-task {
             background: #28a745;
@@ -48,12 +49,12 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 10px 0;
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 600;
             display: block;
             width: 100%;
             text-align: center;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .overview {
             display: grid;
@@ -73,20 +74,21 @@
             transform: translateY(-5px);
         }
         .card i {
-            font-size: 28px; /* เพิ่มขนาดไอคอน */
+            font-size: 30px; /* เพิ่มขนาดไอคอน */
             margin-bottom: 12px;
-            color: #ff9300; /* เปลี่ยนสีไอคอนให้เด่น */
+            color: #ffeb3b; /* เปลี่ยนสีไอคอนเป็นเหลืองอ่อน */
         }
         .card p {
             margin: 5px 0;
-            font-size: 1.1rem; /* เพิ่มขนาดตัวอักษร */
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 600;
+            color: #f0f0f0; /* เปลี่ยนสีให้สว่างขึ้น */
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .card .assign-task {
             background: #ff9300;
             margin-top: 10px;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
         .settings-btn {
             background: #007bff;
@@ -95,12 +97,12 @@
             padding: 12px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 1.2rem;
+            font-weight: 600;
             display: block;
             width: 100%;
             text-align: center;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .navbar {
             position: fixed;
@@ -116,18 +118,18 @@
             padding: 12px 0;
         }
         .navbar a {
-            color: #fff;
+            color: #f0f0f0; /* เปลี่ยนสีให้สว่างขึ้น */
             text-align: center;
             text-decoration: none;
-            font-size: 14px; /* เพิ่มขนาดตัวอักษร */
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            font-size: 16px; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 600;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .navbar a.active {
-            color: #ff9300;
+            color: #ffeb3b; /* เปลี่ยนสี active เป็นเหลืองอ่อน */
         }
         .navbar i {
-            font-size: 20px; /* เพิ่มขนาดไอคอน */
+            font-size: 22px; /* เพิ่มขนาดไอคอน */
             margin-bottom: 5px;
         }
     </style>
