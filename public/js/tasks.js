@@ -47,6 +47,8 @@ onAuthStateChanged(auth, async (user) => {
         });
     } catch (error) {
         console.error("Error fetching tasks:", error);
+        const taskList = document.getElementById("taskList");
+        taskList.innerHTML = `<p class="error">เกิดข้อผิดพลาดในการดึงข้อมูลงาน: ${error.message}</p>`;
     }
 });
 
