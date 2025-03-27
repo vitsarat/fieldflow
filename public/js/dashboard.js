@@ -1,8 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { auth, onAuthStateChanged } from "./auth.js";
-import { firebaseConfig } from "./firebase-config.js";
 
+// ดึง firebaseConfig จากไฟล์หรือ API
+const firebaseConfig = await (await fetch('/firebase-config')).json();
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
