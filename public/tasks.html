@@ -1,121 +1,52 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>งาน - FieldFlow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a2a44;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            padding-bottom: 80px;
-        }
-        .container {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .task-list {
-            margin-top: 20px;
-        }
-        .task {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .task.urgent {
-            border-left: 5px solid #ff9300;
-        }
-        .task.completed {
-            border-left: 5px solid #28a745;
-        }
-        .task p {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
-        }
-        .task button {
-            background: #ff9300;
-            color: #ffffff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
-        }
-        .task button i {
-            color: #ffffff;
-            margin-right: 5px;
-        }
-        .no-tasks {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #ffffff;
-            margin-top: 20px;
-            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
-        }
-        .navbar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-        }
-        .navbar a {
-            color: #ffffff;
-            text-align: center;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 600;
-            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
-        }
-        .navbar a.active {
-            color: #ffeb3b;
-        }
-        .navbar i {
-            font-size: 24px;
-            margin-bottom: 5px;
-            color: #ffffff;
-            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 style="text-align: center; font-size: 1.5rem; font-weight: 600; text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);">งานทั้งหมด</h1>
-        <div class="task-list" id="taskList">
-            <!-- Tasks will be dynamically added here -->
-        </div>
-    </div>
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, onAuthStateChanged } from "./auth.js";
 
-    <!-- Navigation Bar -->
-    <div class="navbar">
-        <a href="dashboard.html"><i class="fas fa-home"></i><br>หน้าแรก</a>
-        <a href="tasks.html" class="active"><i class="fas fa-briefcase"></i><br>งาน</a>
-        <a href="income.html"><i class="fas fa-wallet"></i><br>รายได้</a>
-        <a href="report.html"><i class="fas fa-chart-bar"></i><br>ผลงาน</a>
-        <a href="profile.html"><i class="fas fa-user-circle"></i><br>โปรไฟล์</a>
-    </div>
+const db = getFirestore();
 
-    <script type="module" src="js/tasks.js"></script>
-</body>
-</html>
+console.log("Setting up onAuthStateChanged...");
+onAuthStateChanged(auth, async (user) => {
+    console.log("onAuthStateChanged triggered:", user);
+    if (!user) {
+        console.log("No user logged in, redirecting to index.html");
+        window.location.href = "index.html";
+        return;
+    }
+
+    console.log("User logged in:", user.uid, "Email:", user.email);
+
+    try {
+        console.log("Fetching tasks...");
+        const tasksQuery = query(collection(db, "tasks"), where("assignedTo", "==", user.email));
+        const tasksSnapshot = await getDocs(tasksQuery);
+        const taskList = document.getElementById("taskList");
+
+        if (tasksSnapshot.empty) {
+            taskList.innerHTML = '<p class="no-tasks">ไม่มีงานในขณะนี้</p>';
+            return;
+        }
+
+        tasksSnapshot.forEach(doc => {
+            const task = doc.data();
+            const taskElement = document.createElement("div");
+            taskElement.classList.add("task");
+
+            if (task.status.toLowerCase() === "urgent") {
+                taskElement.classList.add("urgent");
+            } else if (task.status.toLowerCase() === "completed") {
+                taskElement.classList.add("completed");
+            }
+
+            taskElement.innerHTML = `
+                <p>${task.title}</p>
+                <button onclick="viewTask('${doc.id}')"><i class="fas fa-eye"></i> ดูรายละเอียด</button>
+            `;
+            taskList.appendChild(taskElement);
+        });
+    } catch (error) {
+        console.error("Error fetching tasks:", error);
+    }
+});
+
+window.viewTask = function(taskId) {
+    window.location.href = `task-detail.html?taskId=${taskId}`;
+};
