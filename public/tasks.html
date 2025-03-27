@@ -9,46 +9,63 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #1a2a44;
-            color: #fff;
+            color: #ffffff;
             margin: 0;
-            padding: 20px;
-            padding-bottom: 60px;
+            padding: 0;
+            padding-bottom: 80px;
         }
         .container {
+            padding: 20px;
             max-width: 800px;
             margin: 0 auto;
         }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
         .task-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            margin-top: 20px;
         }
-        .task-card {
+        .task {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s;
         }
-        .task-card:hover {
-            transform: translateY(-5px);
-        }
-        .task-card.urgent {
+        .task.urgent {
             border-left: 5px solid #ff9300;
         }
-        .task-card.completed {
+        .task.completed {
             border-left: 5px solid #28a745;
         }
-        .task-card p {
-            margin: 5px 0;
+        .task p {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
-        .task-card .status {
-            font-weight: bold;
+        .task button {
+            background: #ff9300;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+        }
+        .task button i {
+            color: #ffffff;
+            margin-right: 5px;
+        }
+        .no-tasks {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin-top: 20px;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .navbar {
             position: fixed;
@@ -61,27 +78,36 @@
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            padding: 12px 0;
         }
         .navbar a {
-            color: #fff;
+            color: #ffffff;
             text-align: center;
             text-decoration: none;
-            font-size: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .navbar a.active {
-            color: #ff9300;
+            color: #ffeb3b;
+        }
+        .navbar i {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #ffffff;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>งานทั้งหมด</h2>
-        <div class="task-list" id="tasksContainer">
-            <!-- รายการงานจะถูกเพิ่มโดย JavaScript -->
+        <h1 style="text-align: center; font-size: 1.5rem; font-weight: 600; text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);">งานทั้งหมด</h1>
+        <div class="task-list" id="taskList">
+            <!-- Tasks will be dynamically added here -->
         </div>
     </div>
 
+    <!-- Navigation Bar -->
     <div class="navbar">
         <a href="dashboard.html"><i class="fas fa-home"></i><br>หน้าแรก</a>
         <a href="tasks.html" class="active"><i class="fas fa-briefcase"></i><br>งาน</a>
