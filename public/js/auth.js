@@ -1,11 +1,11 @@
-import { firebaseConfig } from './firebase-config.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { firebaseConfig } from "./firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-document.getElementById('loginBtn').addEventListener('click', () => {
+export { auth, onAuthStateChanged, signInWithEmailAndPassword };
     const employeeId = document.getElementById('employeeId').value;
     const password = document.getElementById('password').value;
     const email = `${employeeId.toLowerCase()}@fieldflow.com`;
