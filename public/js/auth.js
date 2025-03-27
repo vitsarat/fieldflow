@@ -18,6 +18,8 @@ console.log("Auth initialized:", auth);
 
 function login(email, password) {
     console.log("Attempting to login with email:", email);
+    const errorMessageDiv = document.getElementById("error-message");
+    if (errorMessageDiv) errorMessageDiv.textContent = ""; // ล้างข้อความข้อผิดพลาดก่อน
     signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
@@ -26,6 +28,7 @@ function login(email, password) {
         })
         .catch((error) => {
             console.error("Login error:", error.message);
+            if (errorMessageDiv) errorMessageDiv.textContent = "Login failed: " + error.message;
         });
 }
 
