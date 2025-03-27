@@ -84,22 +84,8 @@
     <script type="module">
         import { signInWithEmailAndPassword, auth } from './js/auth.js';
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-        async function getFirebaseConfig() {
-            console.log("Fetching firebaseConfig from /firebase-config...");
-            const response = await fetch('/firebase-config');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch firebaseConfig: ${response.status} ${response.statusText}`);
-            }
-            const config = await response.json();
-            console.log("firebaseConfig fetched:", config);
-            return config;
-        }
-
-        const firebaseConfig = await getFirebaseConfig();
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getFirestore();
 
         window.login = async function() {
             const employeeId = document.getElementById("employeeId").value;
@@ -124,6 +110,11 @@
 
                 if (userData.password !== password) {
                     errorElement.textContent = "รหัสผ่านไม่ถูกต้อง";
+                    return;
+                }
+
+                if (!userData.email || !userData.email.includes('@')) {
+                    errorElement.textContent = "รูปแบบอีเมลไม่ถูกต้อง";
                     return;
                 }
 
