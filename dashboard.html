@@ -9,7 +9,7 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #1a2a44;
-            color: #fff;
+            color: #ffffff; /* เปลี่ยนสีตัวอักษรเป็นสีขาว */
             margin: 0;
             padding: 0;
             padding-bottom: 80px;
@@ -21,14 +21,21 @@
         }
         .alert {
             background: rgba(255, 147, 0, 0.2);
-            color: #ffeb3b; /* เปลี่ยนสีเป็นเหลืองอ่อนเพื่อให้เด่นชัด */
+            color: #ffffff; /* เปลี่ยนสีเป็นขาว */
             padding: 12px;
             border-radius: 5px;
             margin-bottom: 20px;
             text-align: center;
-            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
-            font-weight: 600; /* เพิ่มน้ำหนักตัวอักษร */
-            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5); /* เพิ่มเงาให้เข้มขึ้น */
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+        }
+        .alert i {
+            font-size: 1.3rem;
+            margin-right: 5px;
+            background: linear-gradient(45deg, #ffeb3b, #ff9300); /* เพิ่ม gradient ให้ไอคอน */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .task-counter {
             background: rgba(255, 255, 255, 0.1);
@@ -36,25 +43,32 @@
             padding: 12px;
             margin-bottom: 20px;
             text-align: center;
-            font-size: 1.3rem; /* เพิ่มขนาดตัวอักษร */
+            font-size: 1.3rem;
             font-weight: 600;
-            color: #f0f0f0; /* เปลี่ยนสีให้สว่างขึ้น */
+            color: #ffffff; /* เปลี่ยนสีเป็นขาว */
             text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .assign-task {
             background: #28a745;
-            color: white;
+            color: #ffffff;
             border: none;
             padding: 12px;
             border-radius: 5px;
             cursor: pointer;
             margin: 10px 0;
-            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
+            font-size: 1.2rem;
             font-weight: 600;
             display: block;
             width: 100%;
             text-align: center;
             text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+        }
+        .assign-task i {
+            font-size: 1.3rem;
+            margin-right: 5px;
+            background: linear-gradient(45deg, #ffffff, #28a745);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .overview {
             display: grid;
@@ -74,15 +88,18 @@
             transform: translateY(-5px);
         }
         .card i {
-            font-size: 30px; /* เพิ่มขนาดไอคอน */
+            font-size: 32px; /* เพิ่มขนาดไอคอน */
             margin-bottom: 12px;
-            color: #ffeb3b; /* เปลี่ยนสีไอคอนเป็นเหลืองอ่อน */
+            background: linear-gradient(45deg, #ffeb3b, #ff9300); /* เพิ่ม gradient ให้ไอคอน */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5)); /* เพิ่มเงาให้ไอคอน */
         }
         .card p {
             margin: 5px 0;
-            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
+            font-size: 1.2rem;
             font-weight: 600;
-            color: #f0f0f0; /* เปลี่ยนสีให้สว่างขึ้น */
+            color: #ffffff; /* เปลี่ยนสีเป็นขาว */
             text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .card .assign-task {
@@ -90,9 +107,14 @@
             margin-top: 10px;
             font-size: 1.1rem;
         }
+        .card .assign-task i {
+            background: linear-gradient(45deg, #ffffff, #ff9300);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .settings-btn {
             background: #007bff;
-            color: white;
+            color: #ffffff;
             border: none;
             padding: 12px;
             border-radius: 5px;
@@ -103,6 +125,13 @@
             width: 100%;
             text-align: center;
             text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+        }
+        .settings-btn i {
+            font-size: 1.3rem;
+            margin-right: 5px;
+            background: linear-gradient(45deg, #ffffff, #007bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .navbar {
             position: fixed;
@@ -118,19 +147,23 @@
             padding: 12px 0;
         }
         .navbar a {
-            color: #f0f0f0; /* เปลี่ยนสีให้สว่างขึ้น */
+            color: #ffffff; /* เปลี่ยนสีเป็นขาว */
             text-align: center;
             text-decoration: none;
-            font-size: 16px; /* เพิ่มขนาดตัวอักษร */
+            font-size: 16px;
             font-weight: 600;
             text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
         }
         .navbar a.active {
-            color: #ffeb3b; /* เปลี่ยนสี active เป็นเหลืองอ่อน */
+            color: #ffeb3b; /* ใช้สีเหลืองอ่อนสำหรับ active */
         }
         .navbar i {
-            font-size: 22px; /* เพิ่มขนาดไอคอน */
+            font-size: 24px; /* เพิ่มขนาดไอคอน */
             margin-bottom: 5px;
+            background: linear-gradient(45deg, #ffeb3b, #ff9300);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
         }
     </style>
 </head>
