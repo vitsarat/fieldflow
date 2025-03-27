@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>หน้าแรก - FieldFlow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,17 +12,48 @@
             color: #fff;
             margin: 0;
             padding: 0;
-            padding-bottom: 60px;
+            padding-bottom: 80px; /* เพิ่ม padding-bottom เพื่อให้มีที่ว่างสำหรับ navbar */
         }
         .container {
             padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
         }
         .alert {
             background: rgba(255, 147, 0, 0.2);
             color: #ff9300;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
             margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.1rem; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 500; /* เพิ่มน้ำหนักตัวอักษร */
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* เพิ่มเงาให้ตัวอักษร */
+        }
+        .task-counter {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2rem; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .assign-task {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: block;
+            width: 100%;
+            text-align: center;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         .overview {
             display: grid;
@@ -32,7 +63,7 @@
         .card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -42,32 +73,34 @@
             transform: translateY(-5px);
         }
         .card i {
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 28px; /* เพิ่มขนาดไอคอน */
+            margin-bottom: 12px;
+            color: #ff9300; /* เปลี่ยนสีไอคอนให้เด่น */
         }
-        .task-counter {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 20px;
-            text-align: center;
+        .card p {
+            margin: 5px 0;
+            font-size: 1.1rem; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
-        .assign-task {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px 0;
+        .card .assign-task {
+            background: #ff9300;
+            margin-top: 10px;
+            font-size: 1rem;
         }
         .settings-btn {
             background: #007bff;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: block;
+            width: 100%;
+            text-align: center;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         .navbar {
             position: fixed;
@@ -80,16 +113,22 @@
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            padding: 12px 0;
         }
         .navbar a {
             color: #fff;
             text-align: center;
             text-decoration: none;
-            font-size: 12px;
+            font-size: 14px; /* เพิ่มขนาดตัวอักษร */
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         .navbar a.active {
             color: #ff9300;
+        }
+        .navbar i {
+            font-size: 20px; /* เพิ่มขนาดไอคอน */
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -97,12 +136,12 @@
     <div class="container">
         <!-- Smart Alert -->
         <div class="alert">
-            <p><i class="fas fa-exclamation-triangle"></i> งานด่วน 1 งาน</p>
+            <p><i class="fas fa-exclamation-triangle"></i> งานด่วน <span id="urgentTasks">0</span> งาน</p>
         </div>
 
         <!-- Task Counter -->
         <div class="task-counter">
-            <p>จำนวนงานทั้งหมด: 5 งาน</p>
+            <p>จำนวนงานทั้งหมด: <span id="taskCount">0</span> งาน</p>
         </div>
 
         <!-- Assign Task Button -->
@@ -117,12 +156,12 @@
             <a href="income.html" class="card">
                 <i class="fas fa-wallet"></i>
                 <p>รายได้</p>
-                <p>500,100 บาท</p>
+                <p id="totalIncome">0 บาท</p>
             </a>
             <a href="report.html" class="card">
                 <i class="fas fa-chart-bar"></i>
                 <p>ผลงาน</p>
-                <p>การจบงาน: 71.4%</p>
+                <p>การจบงาน: <span id="completionRate">0%</span></p>
             </a>
             <a href="map.html" class="card">
                 <i class="fas fa-map"></i>
@@ -136,7 +175,7 @@
             <a href="rating.html" class="card">
                 <i class="fas fa-star"></i>
                 <p>คะแนน</p>
-                <p>90</p>
+                <p id="rating">0</p>
             </a>
         </div>
 
@@ -152,5 +191,7 @@
         <a href="report.html"><i class="fas fa-chart-bar"></i><br>ผลงาน</a>
         <a href="profile.html"><i class="fas fa-user-circle"></i><br>โปรไฟล์</a>
     </div>
+
+    <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
