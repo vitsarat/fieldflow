@@ -5,9 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โปรไฟล์ - FieldFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/profile.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a2a44;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 60px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ff9300;
+        }
+        .profile-pic-input {
+            display: block;
+            margin: 10px auto;
+        }
+        .profile-info, .progress-section, .alert-section, .team-section, .rewards-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .profile-info p, .alert-section p, .team-section p {
+            margin: 5px 0;
+            font-size: 1.1rem;
+        }
+        .progress-section canvas {
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            height: 20px;
+            overflow: hidden;
+        }
+        .progress {
+            background: #28a745;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s;
+        }
+        .share-btn, .settings-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .share-btn:hover, .settings-btn:hover {
+            background: #0056b3;
+        }
+        .reward-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .navbar a {
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .navbar a.active {
+            color: #ff9300;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -33,7 +134,7 @@
             <h3>ระดับ: <span id="level">3</span> <i class="fas fa-star"></i></h3>
             <p>ความคืบหน้าไปยังระดับถัดไป</p>
             <div class="progress-bar">
-                <div class="progress" id="progressBar"></div>
+                <div class="progress" id="progressBar" style="width: 75%; background: #ff9300;"></div>
             </div>
             <p>คะแนน: <span id="score">750/1000</span></p>
         </div>
@@ -60,7 +161,7 @@
             <h3>เป้าหมายส่วนตัว</h3>
             <p>ปิดงาน <span id="goalTarget">0</span> รายในสัปดาห์นี้</p>
             <div class="progress-bar">
-                <div class="progress" id="goalProgress"></div>
+                <div class="progress" id="goalProgress" style="background: #28a745;"></div>
             </div>
             <p>ความคืบหน้า: <span id="goalProgressText">0/0</span></p>
         </div>
