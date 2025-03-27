@@ -17,11 +17,16 @@ function login(email, password) {
         });
 }
 
-document.getElementById("loginForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const email = document.getElementById("employeeId").value + "@fieldflow.com";
-    const password = document.getElementById("password").value;
-    login(email, password);
-});
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("employeeId").value + "@fieldflow.com";
+        const password = document.getElementById("password").value;
+        login(email, password);
+    });
+} else {
+    console.log("Login form not found. This script should only run on the login page.");
+}
 
 export { auth, onAuthStateChanged, signInWithEmailAndPassword };
