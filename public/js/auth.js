@@ -5,20 +5,23 @@ import { firebaseConfig } from "./firebase-config.js";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-export { auth, onAuthStateChanged, signInWithEmailAndPassword };
-    const employeeId = document.getElementById('employeeId').value;
-    const password = document.getElementById('password').value;
-    const email = `${employeeId.toLowerCase()}@fieldflow.com`;
+function login(email, password) {
     signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
-            if (employeeId.toLowerCase() === 'admin') {
-                window.location.href = 'admin.html';
-            } else {
-                window.location.href = 'dashboard.html';
-            }
+            console.log("User logged in:", user.uid);
+            window.location.href = user.email === "admin@fieldflow.com" ? "admin.html" : "dashboard.html";
         })
         .catch((error) => {
-            alert('Login failed: ' + error.message);
+            console.error("Login error:", error.message);
         });
+}
+
+document.getElementById("loginForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("employeeId").value + "@fieldflow.com";
+    const password = document.getElementById("password").value;
+    login(email, password);
 });
+
+export { auth, onAuthStateChanged, signInWithEmailAndPassword };
