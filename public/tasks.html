@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ด</title>
+    <title>งาน</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -40,18 +40,43 @@
         .container {
             padding: 20px;
         }
-        .dashboard {
+        .task-list {
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+            flex-direction: column;
+            gap: 10px;
         }
-        .card {
+        .task {
             background-color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex: 1;
-            min-width: 200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task.urgent {
+            border-left: 5px solid red;
+        }
+        .task.completed {
+            border-left: 5px solid green;
+        }
+        .task button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .task button:hover {
+            background-color: #45a049;
+        }
+        .no-tasks {
+            text-align: center;
+            color: #888;
+        }
+        .error {
+            color: red;
             text-align: center;
         }
     </style>
@@ -67,9 +92,9 @@
         </div>
     </div>
     <div class="container">
-        <h1>แดชบอร์ด</h1>
-        <div class="dashboard" id="dashboard">
-            <!-- เนื้อหาแดชบอร์ดจะถูกเพิ่มโดย JavaScript -->
+        <h1>งาน</h1>
+        <div class="task-list" id="taskList">
+            <!-- รายการงานจะถูกเพิ่มโดย JavaScript -->
         </div>
     </div>
     <script type="module">
@@ -84,6 +109,6 @@
             }
         };
     </script>
-    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/tasks.js"></script>
 </body>
 </html>
