@@ -1,141 +1,129 @@
+<!-- task-detail.html -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายละเอียดงาน</title>
+    <title>รายละเอียดงาน - FieldFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #E6E6FA;
-        }
-        .navbar {
-            background-color: #333;
-            overflow: hidden;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            padding: 14px 20px;
-            text-align: center;
-        }
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-        .navbar .logout {
-            background-color: #f44336;
-        }
-        .navbar .logout:hover {
-            background-color: #da190b;
-            color: white;
-        }
-        .container {
-            padding: 20px;
-        }
-        .task-detail {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .task-detail h2 {
-            margin-top: 0;
-        }
-        .task-detail p {
-            margin: 10px 0;
-        }
-        .task-detail.urgent {
-            border-left: 5px solid red;
-        }
-        .task-detail.completed {
-            border-left: 5px solid green;
-        }
-        .error {
-            color: red;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="navbar">
-        <div>
-            <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> แดชบอร์ด</a>
-            <a href="tasks.html"><i class="fas fa-tasks"></i> งาน</a>
-        </div>
-        <div>
-            <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
-        </div>
-    </div>
     <div class="container">
-        <h1>รายละเอียดงาน</h1>
-        <div class="task-detail" id="taskDetail">
-            <!-- รายละเอียดงานจะถูกเพิ่มโดย JavaScript -->
+        <div class="card">
+            <h3>ข้อมูลหลัก</h3>
+            <div class="input-group">
+                <i class="fas fa-building"></i>
+                <select id="affiliation">
+                    <option>F4012 รุ่งเรือง</option>
+                    <option>F3574 เอสดี</option>
+                    <option>F3988 บียอนด์</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-layer-group"></i>
+                <select id="workGroup">
+                    <option>6090</option>
+                    <option>NPL</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" id="branch" placeholder="สาขารับงาน">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-file-contract"></i>
+                <input type="text" id="contractNumber" placeholder="เลขที่สัญญา">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="customerName" placeholder="ชื่อ - นามสกุล">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-coins"></i>
+                <input type="text" id="overdueInstallments" placeholder="จำนวนค้างค่างวด">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-money-bill"></i>
+                <input type="text" id="principle" placeholder="Principle ยอดคงเหลือ">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-home"></i>
+                <input type="text" id="address" placeholder="ที่อยู่">
+                <select id="province">
+                    <option>จ.อุดรธานี</option>
+                </select>
+            </div>
+            <a href="#" class="button green" onclick="acceptTask()"><i class="fas fa-check"></i> รับงาน</a>
+            <a href="#" class="button yellow" onclick="delegateTask()"><i class="fas fa-share"></i> ฝากงาน</a>
+            <a href="#" class="button" onclick="toggleDetails()"><i class="fas fa-plus"></i> แนบรายละเอียด</a>
+        </div>
+
+        <div class="card" id="additionalDetails" style="display: none;">
+            <h3>รายละเอียดเพิ่มเติม</h3>
+            <div class="input-group">
+                <i class="fas fa-coins"></i>
+                <input type="text" id="installmentDetails" placeholder="ค่างวด">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-car"></i>
+                <input type="text" id="brand" placeholder="ยี่ห้อ">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-car"></i>
+                <input type="text" id="model" placeholder="รุ่น">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-paint-brush"></i>
+                <input type="text" id="color" placeholder="สีรถยนต์">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-id-card"></i>
+                <input type="text" id="licensePlate" placeholder="เลขทะเบียน">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-cogs"></i>
+                <input type="text" id="engineNumber" placeholder="เลขเครื่องยนต์">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-cogs"></i>
+                <input type="text" id="chassisNumber" placeholder="เลขตัวถัง">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-sticky-note"></i>
+                <input type="text" id="notes" placeholder="หมายเหตุ">
+            </div>
+            <a href="#" class="button green" onclick="saveDetails()"><i class="fas fa-save"></i> บันทึก</a>
         </div>
     </div>
-    <script type="module">
-        import { auth, signOut, onAuthStateChanged } from './js/auth.js';
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        const db = getFirestore();
-        const taskDetailDiv = document.getElementById("taskDetail");
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="dashboard.html">
+            <i class="fas fa-home"></i>
+            <span>หน้าแรก<br>Dashboard</span>
+        </a>
+        <a href="tasks.html" class="active">
+            <i class="fas fa-briefcase"></i>
+            <span>งาน<br>Tasks</span>
+        </a>
+        <a href="income.html">
+            <i class="fas fa-wallet"></i>
+            <span>รายได้<br>Income</span>
+        </a>
+        <a href="profile.html">
+            <i class="fas fa-user-circle"></i>
+            <span>โปรไฟล์<br>Profile</span>
+        </a>
+        <a href="performance.html">
+            <i class="fas fa-chart-line"></i>
+            <span>ผลงาน<br>Performance</span>
+        </a>
+    </div>
 
-        // ตรวจสอบสถานะการล็อกอิน
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                console.log("No user logged in, redirecting to index.html");
-                window.location.href = "index.html";
-            }
-        });
-
-        // ดึง taskId จาก URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const taskId = urlParams.get("taskId");
-
-        if (!taskId) {
-            taskDetailDiv.innerHTML = '<p class="error">ไม่พบรหัสงาน</p>';
-        } else {
-            loadTaskDetail(taskId);
-        }
-
-        async function loadTaskDetail(taskId) {
-            try {
-                const taskDoc = await getDoc(doc(db, "tasks", taskId));
-                if (!taskDoc.exists()) {
-                    taskDetailDiv.innerHTML = '<p class="error">ไม่พบงานนี้</p>';
-                    return;
-                }
-
-                const task = taskDoc.data();
-                taskDetailDiv.className = `task-detail ${task.status}`;
-                taskDetailDiv.innerHTML = `
-                    <h2>${task.title}</h2>
-                    <p><strong>สถานะ:</strong> ${task.status}</p>
-                    <p><strong>มอบหมายให้:</strong> ${task.assignedTo}</p>
-                    <p><strong>รายละเอียด:</strong> ${task.description || "ไม่มีรายละเอียด"}</p>
-                `;
-            } catch (error) {
-                console.error("Error loading task detail:", error);
-                taskDetailDiv.innerHTML = `<p class="error">เกิดข้อผิดพลาด: ${error.message}</p>`;
-            }
-        }
-
-        window.logout = async function() {
-            try {
-                await signOut(auth);
-                console.log("User signed out successfully");
-                window.location.href = "index.html";
-            } catch (error) {
-                console.error("Error signing out:", error);
-            }
-        };
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/task-detail.js"></script>
 </body>
 </html>
