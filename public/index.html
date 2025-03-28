@@ -58,9 +58,6 @@
         <button onclick="login()">เข้าสู่ระบบ</button>
         <p id="error" class="error"></p>
     </div>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { auth, signInWithEmailAndPassword } from './js/auth.js';
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -78,6 +75,13 @@
             }
 
             try {
+                // ล็อกอินด้วย Firebase Authentication ก่อน
+                console.log("Attempting to sign in with employeeId:", employeeId);
+                const email = `${employeeId.toLowerCase()}@fieldflow.com`; // สร้าง email จาก employeeId
+                await signInWithEmailAndPassword(auth, email, password);
+                console.log("Sign-in successful");
+
+                // หลังจากล็อกอินสำเร็จ ค่อยดึงข้อมูลจาก Firestore
                 console.log("Fetching user data for employeeId:", employeeId);
                 const userDoc = await getDoc(doc(db, "users", employeeId));
                 if (!userDoc.exists()) {
@@ -88,15 +92,7 @@
                 const userData = userDoc.data();
                 console.log("User data:", userData);
 
-                if (userData.password !== password) {
-                    errorElement.textContent = "รหัสผ่านไม่ถูกต้อง";
-                    return;
-                }
-
-                console.log("Attempting to sign in with email:", userData.email);
-                await signInWithEmailAndPassword(auth, userData.email, password);
-                console.log("Sign-in successful, redirecting...");
-
+                // ตรวจสอบ role และ redirect
                 if (userData.role === "admin") {
                     window.location.href = "admin.html";
                 } else {
