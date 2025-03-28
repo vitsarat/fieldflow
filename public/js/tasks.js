@@ -1,5 +1,5 @@
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { auth, onAuthStateChanged } from "./auth.js";
+import { auth, onAuthStateChanged } from './auth.js';
 
 const db = getFirestore();
 
@@ -14,7 +14,24 @@ onAuthStateChanged(auth, async (user) => {
 
     console.log("User logged in:", user.uid, "Email:", user.email);
 
+    // ตรวจสอบ token
+    const tokenResult = await user.getIdTokenResult();
+    console.log("User token email:", tokenResult.claims.email);
+
     try {
+        // ทดสอบดึงข้อมูลทั้งหมดโดยไม่ใช้ where
+        console.log("Fetching all tasks without filter...");
+        const allTasksSnapshot = await getDocs(collection(db, "tasks"));
+        console.log("All tasks snapshot size:", allTasksSnapshot.size);
+        if (!allTasksSnapshot.empty) {
+            allTasksSnapshot.forEach(doc => {
+                console.log("Task (no filter):", doc.data());
+            });
+        } else {
+            console.log("No tasks found in collection (no filter)");
+        }
+
+        // ดึงข้อมูลโดยใช้ where
         console.log("Fetching tasks for email:", user.email);
         const tasksQuery = query(collection(db, "tasks"), where("assignedTo", "==", user.email));
         const tasksSnapshot = await getDocs(tasksQuery);
