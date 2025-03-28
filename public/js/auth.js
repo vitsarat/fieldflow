@@ -1,27 +1,37 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-async function getFirebaseConfig() {
-    console.log("Fetching firebaseConfig from /firebase-config...");
-    const response = await fetch('/firebase-config');
-    if (!response.ok) {
-        throw new Error(`Failed to fetch firebaseConfig: ${response.status} ${response.statusText}`);
-    }
-    const config = await response.json();
-    console.log("firebaseConfig fetched:", config);
-    return config;
-}
+// กำหนดค่า Firebase Config (แทนที่ด้วยค่าจริงจาก Firebase Console > Project Settings)
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
 
-const firebaseConfig = await getFirebaseConfig();
+// เริ่มต้น Firebase App
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+const auth = getAuth(app);
 
-// เพิ่มการรีเฟรช token
-auth.onIdTokenChanged(async (user) => {
+// Export ฟังก์ชันที่จำเป็น
+export { auth, onAuthStateChanged, signInWithEmailAndPassword, signOut };
+
+// ดีบัก: ตรวจสอบว่า auth ถูกกำหนดค่าเรียบร้อย
+console.log("Auth initialized:", auth);
+
+// ดีบัก: ตรวจสอบสถานะการล็อกอินเมื่อมีการเปลี่ยนแปลง
+onAuthStateChanged(auth, (user) => {
     if (user) {
-        console.log("ID token changed, refreshing...");
-        await user.getIdToken(true); // บังคับรีเฟรช token
+        console.log("Auth state changed in auth.js - User logged in:", user.uid, "Email:", user.email);
+        // ตรวจสอบ token
+        user.getIdTokenResult().then((tokenResult) => {
+            console.log("User token email in auth.js:", tokenResult.claims.email);
+        }).catch((error) => {
+            console.error("Error getting token in auth.js:", error);
+        });
+    } else {
+        console.log("Auth state changed in auth.js - No user logged in");
     }
 });
-
-export { signInWithEmailAndPassword, onAuthStateChanged };
