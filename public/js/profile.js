@@ -1,60 +1,57 @@
+// js/profile.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { auth, onAuthStateChanged } from "./auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-async function getFirebaseConfig() {
-    const response = await fetch('/firebase-config');
-    if (!response.ok) {
-        throw new Error(`Failed to fetch firebaseConfig: ${response.status} ${response.statusText}`);
+const firebaseConfig = {
+    // ใส่ Firebase Config ของคุณที่นี่
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function loadProfile() {
+    const userEmail = localStorage.getItem('userEmail');
+    if (!userEmail) {
+        window.location.href = 'index.html';
+        return;
     }
-    return await response.json();
+
+    document.getElementById('userName').textContent = userEmail.split('@')[0];
+
+    const tasksSnapshot = await getDocs(collection(db, 'tasks'));
+    const performanceData = Array(7).fill(0);
+    const today = new Date();
+
+    tasksSnapshot.forEach(doc => {
+        const task = doc.data();
+        if (task.assignedTo === userEmail && task.status === 'completed') {
+            const taskDate = new Date(task.completedDate || today);
+            const dayDiff = Math.floor((today - taskDate) / (1000 * 60 * 60 * 24));
+            if (dayDiff >= 0 && dayDiff < 7) {
+                performanceData[6 - dayDiff]++;
+            }
+        }
+    });
+
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['วัน 1', 'วัน 2', 'วัน 3', 'วัน 4', 'วัน 5', 'วัน 6', 'วัน 7'],
+            datasets: [{
+                label: '% การจบงาน',
+                data: performanceData,
+                borderColor: '#28A745',
+                fill: false
+            }]
+        },
+        options: { responsive: true }
+    });
 }
 
-(async () => {
-    try {
-        const firebaseConfig = await getFirebaseConfig();
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+function logout() {
+    localStorage.removeItem('userEmail');
+    window.location.href = 'index.html';
+}
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = "index.html";
-                return;
-            }
-
-            // ดึงข้อมูลโปรไฟล์
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                document.getElementById("employeeId").textContent = userData.employeeId || "A001";
-                document.getElementById("fullName").textContent = userData.fullName || "พูลทรัพย์ พลชารี";
-                document.getElementById("team").textContent = userData.team || "F4012 รุ่งเรือง";
-                document.getElementById("branch").textContent = userData.branch || "อุดรธานี";
-                document.getElementById("status").textContent = userData.status || "ว่างงาน";
-            }
-
-            // สร้าง Chart (ตัวอย่าง)
-            const ctx = document.getElementById("performanceChart").getContext("2d");
-            new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
-                    datasets: [{
-                        label: "Tasks Completed",
-                        data: [5, 3, 7, 2, 4, 6, 5],
-                        borderColor: "#ff9300",
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        });
-    } catch (error) {
-        console.error("Error in profile.js:", error);
-    }
-})();
+loadProfile();
