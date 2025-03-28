@@ -1,83 +1,35 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { auth, onAuthStateChanged } from "./auth.js";
+// public/js/report.js
+import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.es.min.js";
 
-async function getFirebaseConfig() {
-    const response = await fetch('/firebase-config');
-    if (!response.ok) {
-        throw new Error(`Failed to fetch firebaseConfig: ${response.status} ${response.statusText}`);
-    }
-    return await response.json();
+function exportReport() {
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(16);
+    doc.text("รายงานรายได้ - FieldFlow", 20, 20);
+
+    doc.setFontSize(12);
+    doc.text("วันที่: " + new Date().toLocaleDateString('th-TH'), 20, 30);
+
+    const table = document.getElementById('incomeTable');
+    const rows = table.querySelectorAll('tbody tr');
+    let y = 40;
+
+    doc.setFontSize(10);
+    doc.text("เลขที่สัญญา    Commission    สถานะ    วันที่จ่าย    คอมเมนต์", 20, y);
+    y += 10;
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const rowData = [
+            cells[0].textContent,
+            cells[1].textContent,
+            cells[2].textContent,
+            cells[3].textContent,
+            cells[4].querySelector('input').value
+        ];
+        doc.text(rowData.join("    "), 20, y);
+        y += 10;
+    });
+
+    doc.save('income-report.pdf');
 }
-
-(async () => {
-    try {
-        const firebaseConfig = await getFirebaseConfig();
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = "index.html";
-                return;
-            }
-
-            // ดึงข้อมูลงาน
-            const tasksQuery = query(collection(db, "tasks"), where("assignedTo", "==", user.email));
-            const tasksSnapshot = await getDocs(tasksQuery);
-            const totalTasks = tasksSnapshot.size;
-
-            const completedTasksQuery = query(
-                collection(db, "tasks"),
-                where("assignedTo", "==", user.email),
-                where("status", "in", ["completed", "COMPLETED", "Completed"])
-            );
-            const completedTasksSnapshot = await getDocs(completedTasksQuery);
-            const completedTasks = completedTasksSnapshot.size;
-
-            // อัพเดตข้อมูลในหน้า
-            document.getElementById("completed6090").textContent = `${completedTasks}/${totalTasks}`;
-            document.getElementById("remaining6090").textContent = Math.max(0, Math.ceil(totalTasks * 0.88) - completedTasks);
-
-            // สร้าง Chart (ตัวอย่าง)
-            const ctx6090 = document.getElementById("chart6090").getContext("2d");
-            new Chart(ctx6090, {
-                type: "doughnut",
-                data: {
-                    labels: ["Completed", "Remaining"],
-                    datasets: [{
-                        data: [completedTasks, totalTasks - completedTasks],
-                        backgroundColor: ["#28a745", "#ff9300"]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: "top" }
-                    }
-                }
-            });
-
-            // NPL Chart (สมมติข้อมูล)
-            const ctxNPL = document.getElementById("chartNPL").getContext("2d");
-            new Chart(ctxNPL, {
-                type: "doughnut",
-                data: {
-                    labels: ["Completed", "Remaining"],
-                    datasets: [{
-                        data: [completedTasks, totalTasks - completedTasks],
-                        backgroundColor: ["#28a745", "#ff9300"]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: "top" }
-                    }
-                }
-            });
-        });
-    } catch (error) {
-        console.error("Error in report.js:", error);
-    }
-})();
