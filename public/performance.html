@@ -1,1 +1,65 @@
+<!-- performance.html -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลงาน - FieldFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.13.0/dist/Chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="alert" id="targetAlert" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            เหลือ 5 งานถึง Target 88%
+        </div>
 
+        <div class="card">
+            <h3>กราฟเปอร์เซ็นต์การจบงาน</h3>
+            <canvas id="chart6090"></canvas>
+            <canvas id="chartNPL"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>สรุปผลเรียลไทม์</h3>
+            <p>งานที่จบแล้ว: <span id="completedTasks">0</span> งาน<br>ยอด Principle คงเหลือ: <span id="remainingPrinciple">0</span> บาท</p>
+        </div>
+
+        <div class="card">
+            <h3>Forecast</h3>
+            <p>เหลือ <span id="remainingTasks">0</span> งานถึง Target 88%</p>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="dashboard.html">
+            <i class="fas fa-home"></i>
+            <span>หน้าแรก<br>Dashboard</span>
+        </a>
+        <a href="tasks.html">
+            <i class="fas fa-briefcase"></i>
+            <span>งาน<br>Tasks</span>
+        </a>
+        <a href="income.html">
+            <i class="fas fa-wallet"></i>
+            <span>รายได้<br>Income</span>
+        </a>
+        <a href="profile.html">
+            <i class="fas fa-user-circle"></i>
+            <span>โปรไฟล์<br>Profile</span>
+        </a>
+        <a href="performance.html" class="active">
+            <i class="fas fa-chart-line"></i>
+            <span>ผลงาน<br>Performance</span>
+        </a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/performance.js"></script>
+</body>
+</html>
