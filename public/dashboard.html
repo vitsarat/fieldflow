@@ -1,89 +1,89 @@
+<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ด</title>
+    <title>หน้าแรก - FieldFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #E6E6FA;
-        }
-        .navbar {
-            background-color: #333;
-            overflow: hidden;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            padding: 14px 20px;
-            text-align: center;
-        }
-        .navbar a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-        .navbar .logout {
-            background-color: #f44336;
-        }
-        .navbar .logout:hover {
-            background-color: #da190b;
-            color: white;
-        }
-        .container {
-            padding: 20px;
-        }
-        .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex: 1;
-            min-width: 200px;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="navbar">
-        <div>
-            <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> แดชบอร์ด</a>
-            <a href="tasks.html"><i class="fas fa-tasks"></i> งาน</a>
-        </div>
-        <div>
-            <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
-        </div>
-    </div>
     <div class="container">
-        <h1>แดชบอร์ด</h1>
-        <div class="dashboard" id="dashboard">
-            <!-- เนื้อหาแดชบอร์ดจะถูกเพิ่มโดย JavaScript -->
+        <div class="notification">
+            <i class="fas fa-bell"></i>
+            งานด่วน 2 รายการ - กรุณาดำเนินการวันนี้
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-tasks"></i> ภาพรวมงาน</h3>
+            <div class="overview-grid">
+                <div>ค้างชำระ: <span id="pendingTasks">0</span></div>
+                <div>ชำระแล้ว: <span id="completedTasks">0</span></div>
+                <div>รอยึด: <span id="repossessionTasks">0</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-briefcase"></i> มอบหมาย/รับงาน</h3>
+            <a href="#" class="button green"><i class="fas fa-check"></i> รับงาน</a>
+            <a href="#" class="button yellow"><i class="fas fa-share"></i> ฝากงาน</a>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-wallet"></i> รายได้</h3>
+            <p>ปิดงาน: <span id="closedTasks">0</span> งาน<br>รายได้: <span id="income">0</span> บาท<br>คะแนน: <span id="points">0</span></p>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-map-marker-alt"></i> แผนที่</h3>
+            <p>ระยะ: 2.5 กม.</p>
+            <a href="#" class="button"><i class="fas fa-directions"></i> นำทาง</a>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-user-circle"></i> โปรไฟล์</h3>
+            <p>Level 3 (750/1000)</p>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-file-alt"></i> รายงาน</h3>
+            <a href="#" class="button"><i class="fas fa-file-alt"></i> ส่งรายงาน</a>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-cog"></i> ตั้งค่า</h3>
+            <a href="#" class="button"><i class="fas fa-cog"></i> ตั้งค่า</a>
         </div>
     </div>
-    <script type="module">
-        import { auth, signOut } from './js/auth.js';
-        window.logout = async function() {
-            try {
-                await signOut(auth);
-                console.log("User signed out successfully");
-                window.location.href = "index.html";
-            } catch (error) {
-                console.error("Error signing out:", error);
-            }
-        };
-    </script>
-    <script type="module" src="js/dashboard.js"></script>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="dashboard.html" class="active">
+            <i class="fas fa-home"></i>
+            <span>หน้าแรก<br>Dashboard</span>
+        </a>
+        <a href="tasks.html">
+            <i class="fas fa-briefcase"></i>
+            <span>งาน<br>Tasks</span>
+        </a>
+        <a href="income.html">
+            <i class="fas fa-wallet"></i>
+            <span>รายได้<br>Income</span>
+        </a>
+        <a href="profile.html">
+            <i class="fas fa-user-circle"></i>
+            <span>โปรไฟล์<br>Profile</span>
+        </a>
+        <a href="performance.html">
+            <i class="fas fa-chart-line"></i>
+            <span>ผลงาน<br>Performance</span>
+        </a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
