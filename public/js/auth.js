@@ -15,4 +15,13 @@ async function getFirebaseConfig() {
 const firebaseConfig = await getFirebaseConfig();
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
+// เพิ่มการรีเฟรช token
+auth.onIdTokenChanged(async (user) => {
+    if (user) {
+        console.log("ID token changed, refreshing...");
+        await user.getIdToken(true); // บังคับรีเฟรช token
+    }
+});
+
 export { signInWithEmailAndPassword, onAuthStateChanged };
