@@ -3,102 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - FieldFlow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>แดชบอร์ดแอดมิน</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #1a2a44;
-            color: #fff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background-color: #E6E6FA; /* สีม่วงอ่อน */
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
         }
-        h1, h3 {
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
             text-align: center;
         }
-        .form-group {
-            margin-bottom: 20px;
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
         }
-        input[type="file"] {
-            display: block;
-            margin: 10px 0;
+        .navbar .logout {
+            background-color: #f44336;
         }
-        .btn {
-            background: #007bff;
+        .navbar .logout:hover {
+            background-color: #da190b;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            display: block;
-            margin: 10px auto;
         }
-        .btn:hover {
-            background: #0056b3;
+        .container {
+            padding: 20px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
         }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        th {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        a {
-            color: #ff9300;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Admin Dashboard</h1>
-        <div class="form-group">
-            <h3>อัพโหลดงาน</h3>
-            <input type="file" id="workFile" accept=".xlsx, .csv">
-            <button class="btn" onclick="uploadWork()">อัพโหลด</button>
-            <p id="upload-message" style="color: green; display: none;"></p>
-            <p id="upload-error" style="color: red; display: none;"></p>
+    <div class="navbar">
+        <div>
+            <a href="admin.html"><i class="fas fa-tachometer-alt"></i> แดชบอร์ดแอดมิน</a>
         </div>
-
-        <div class="form-group">
-            <h3>รายการงานที่อัพโหลด</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ชื่อไฟล์</th>
-                        <th>วันที่อัพโหลด</th>
-                        <th>ดาวน์โหลด</th>
-                    </tr>
-                </thead>
-                <tbody id="workList"></tbody>
-            </table>
+        <div>
+            <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
         </div>
-
-        <button class="btn" onclick="signOut()">ออกจากระบบ</button>
     </div>
-
+    <div class="container">
+        <h1>แดชบอร์ดแอดมิน</h1>
+        <div class="dashboard" id="adminDashboard">
+            <!-- เนื้อหาแดชบอร์ดแอดมินจะถูกเพิ่มโดย JavaScript -->
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
-        import { auth } from "./js/auth.js";
-        window.signOut = function() {
-            auth.signOut().then(() => {
-                console.log("User signed out");
+        import { auth, signOut } from './js/auth.js';
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                console.log("User signed out successfully");
                 window.location.href = "index.html";
-            }).catch((error) => {
-                console.error("Sign out error:", error);
-            });
+            } catch (error) {
+                console.error("Error signing out:", error);
+            }
         };
     </script>
     <script type="module" src="js/admin.js"></script>
