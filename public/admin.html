@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ดแอดมิน</title>
+    <title>แดชบอร์ด</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #E6E6FA; /* สีม่วงอ่อน */
+            background-color: #E6E6FA;
         }
         .navbar {
             background-color: #333;
@@ -59,24 +59,21 @@
 <body>
     <div class="navbar">
         <div>
-            <a href="admin.html"><i class="fas fa-tachometer-alt"></i> แดชบอร์ดแอดมิน</a>
+            <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> แดชบอร์ด</a>
+            <a href="tasks.html"><i class="fas fa-tasks"></i> งาน</a>
         </div>
         <div>
             <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
         </div>
     </div>
     <div class="container">
-        <h1>แดชบอร์ดแอดมิน</h1>
-        <div class="dashboard" id="adminDashboard">
-            <!-- เนื้อหาแดชบอร์ดแอดมินจะถูกเพิ่มโดย JavaScript -->
+        <h1>แดชบอร์ด</h1>
+        <div class="dashboard" id="dashboard">
+            <!-- เนื้อหาแดชบอร์ดจะถูกเพิ่มโดย JavaScript -->
         </div>
     </div>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { auth, signOut } from './js/auth.js';
-
         window.logout = async function() {
             try {
                 await signOut(auth);
@@ -87,6 +84,6 @@
             }
         };
     </script>
-    <script type="module" src="js/admin.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
