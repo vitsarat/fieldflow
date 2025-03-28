@@ -75,13 +75,11 @@
             }
 
             try {
-                // ล็อกอินด้วย Firebase Authentication ก่อน
                 console.log("Attempting to sign in with employeeId:", employeeId);
-                const email = `${employeeId.toLowerCase()}@fieldflow.com`; // สร้าง email จาก employeeId
+                const email = `${employeeId.toLowerCase()}@fieldflow.com`;
                 await signInWithEmailAndPassword(auth, email, password);
                 console.log("Sign-in successful");
 
-                // หลังจากล็อกอินสำเร็จ ค่อยดึงข้อมูลจาก Firestore
                 console.log("Fetching user data for employeeId:", employeeId);
                 const userDoc = await getDoc(doc(db, "users", employeeId));
                 if (!userDoc.exists()) {
@@ -92,7 +90,6 @@
                 const userData = userDoc.data();
                 console.log("User data:", userData);
 
-                // ตรวจสอบ role และ redirect
                 if (userData.role === "admin") {
                     window.location.href = "admin.html";
                 } else {
