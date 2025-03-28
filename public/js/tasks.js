@@ -1,5 +1,5 @@
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { auth, onAuthStateChanged } from './auth.js';
+import { auth, onAuthStateChanged } from "./auth.js";
 
 const db = getFirestore();
 
@@ -25,7 +25,7 @@ onAuthStateChanged(auth, async (user) => {
         console.log("All tasks snapshot size:", allTasksSnapshot.size);
         if (!allTasksSnapshot.empty) {
             allTasksSnapshot.forEach(doc => {
-                console.log("Task (no filter):", doc.data());
+                console.log("Task (no filter):", doc.id, doc.data());
             });
         } else {
             console.log("No tasks found in collection (no filter)");
@@ -46,7 +46,7 @@ onAuthStateChanged(auth, async (user) => {
 
         tasksSnapshot.forEach(doc => {
             const task = doc.data();
-            console.log("Task found:", task);
+            console.log("Task found:", doc.id, task);
             const taskElement = document.createElement("div");
             taskElement.classList.add("task");
 
