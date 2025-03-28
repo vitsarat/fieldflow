@@ -3,12 +3,12 @@ import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from
 
 // กำหนดค่า Firebase Config (แทนที่ด้วยค่าจริงจาก Firebase Console > Project Settings)
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc",
+  authDomain: "fieldflow-b3ee5.firebaseapp.com",
+  projectId: "fieldflow-b3ee5",
+  storageBucket: "fieldflow-b3ee5.firebasestorage.app",
+  messagingSenderId: "384778621124",
+  appId: "1:384778621124:web:1a40999850200d49c63991"
 };
 
 // เริ่มต้น Firebase App
