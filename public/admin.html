@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ด</title>
+    <title>แดชบอร์ดแอดมิน</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
@@ -59,17 +59,16 @@
 <body>
     <div class="navbar">
         <div>
-            <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> แดชบอร์ด</a>
-            <a href="tasks.html"><i class="fas fa-tasks"></i> งาน</a>
+            <a href="admin.html"><i class="fas fa-tachometer-alt"></i> แดชบอร์ดแอดมิน</a>
         </div>
         <div>
             <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
         </div>
     </div>
     <div class="container">
-        <h1>แดชบอร์ด</h1>
-        <div class="dashboard" id="dashboard">
-            <!-- เนื้อหาแดชบอร์ดจะถูกเพิ่มโดย JavaScript -->
+        <h1>แดชบอร์ดแอดมิน</h1>
+        <div class="dashboard" id="adminDashboard">
+            <!-- เนื้อหาแดชบอร์ดแอดมินจะถูกเพิ่มโดย JavaScript -->
         </div>
     </div>
     <script type="module">
@@ -84,6 +83,6 @@
             }
         };
     </script>
-    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/admin.js"></script>
 </body>
 </html>
