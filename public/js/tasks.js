@@ -1,73 +1,71 @@
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { auth, onAuthStateChanged } from "./auth.js";
+import { auth, onAuthStateChanged } from './auth.js';
+import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const db = getFirestore();
 
 console.log("Setting up onAuthStateChanged...");
-onAuthStateChanged(auth, async (user) => {
+
+onAuthStateChanged(auth, (user) => {
     console.log("onAuthStateChanged triggered:", user);
-    if (!user) {
+    if (user) {
+        console.log("User logged in:", user.uid, "Email:", user.email);
+        user.getIdTokenResult().then((tokenResult) => {
+            console.log("User token email:", tokenResult.claims.email);
+            loadTasks(user);
+        }).catch((error) => {
+            console.error("Error getting token:", error);
+        });
+    } else {
         console.log("No user logged in, redirecting to index.html");
         window.location.href = "index.html";
-        return;
     }
+});
 
-    console.log("User logged in:", user.uid, "Email:", user.email);
-
-    // ตรวจสอบ token
-    const tokenResult = await user.getIdTokenResult();
-    console.log("User token email:", tokenResult.claims.email);
-
+async function loadTasks(user) {
     try {
-        // ทดสอบดึงข้อมูลทั้งหมดโดยไม่ใช้ where
-        console.log("Fetching all tasks without filter...");
-        const allTasksSnapshot = await getDocs(collection(db, "tasks"));
-        console.log("All tasks snapshot size:", allTasksSnapshot.size);
-        if (!allTasksSnapshot.empty) {
-            allTasksSnapshot.forEach(doc => {
-                console.log("Task (no filter):", doc.id, doc.data());
-            });
-        } else {
-            console.log("No tasks found in collection (no filter)");
-        }
-
-        // ดึงข้อมูลโดยใช้ where
-        console.log("Fetching tasks for email:", user.email);
-        const tasksQuery = query(collection(db, "tasks"), where("assignedTo", "==", user.email));
-        const tasksSnapshot = await getDocs(tasksQuery);
-        console.log("Tasks snapshot size:", tasksSnapshot.size);
         const taskList = document.getElementById("taskList");
+        taskList.innerHTML = ""; // ล้างข้อมูลเก่า
 
-        if (tasksSnapshot.empty) {
-            console.log("No tasks found for this user");
-            taskList.innerHTML = '<p class="no-tasks">ไม่มีงานในขณะนี้</p>';
-            return;
-        }
+        console.log("Fetching all tasks without filter...");
+        const allTasksQuery = query(collection(db, "tasks"));
+        onSnapshot(allTasksQuery, (snapshot) => {
+            console.log("All tasks snapshot size:", snapshot.size);
+            snapshot.forEach(doc => {
+                const task = doc.data();
+                console.log("Task (no filter):", doc.id, task);
+            });
+        });
 
-        tasksSnapshot.forEach(doc => {
-            const task = doc.data();
-            console.log("Task found:", doc.id, task);
-            const taskElement = document.createElement("div");
-            taskElement.classList.add("task");
-
-            if (task.status.toLowerCase() === "urgent") {
-                taskElement.classList.add("urgent");
-            } else if (task.status.toLowerCase() === "completed") {
-                taskElement.classList.add("completed");
+        console.log("Fetching tasks for email:", user.email);
+        const userTasksQuery = query(collection(db, "tasks"), where("assignedTo", "==", user.email));
+        onSnapshot(userTasksQuery, (snapshot) => {
+            console.log("Tasks snapshot size:", snapshot.size);
+            if (snapshot.empty) {
+                taskList.innerHTML = '<p class="no-tasks">ไม่มีงาน</p>';
+                return;
             }
 
-            taskElement.innerHTML = `
-                <p>${task.title}</p>
-                <button onclick="viewTask('${doc.id}')"><i class="fas fa-eye"></i> ดูรายละเอียด</button>
-            `;
-            taskList.appendChild(taskElement);
+            taskList.innerHTML = ""; // ล้างข้อมูลเก่า
+            snapshot.forEach(doc => {
+                const task = doc.data();
+                console.log("Task found:", doc.id, task);
+                const taskElement = document.createElement("div");
+                taskElement.className = `task ${task.status}`;
+                taskElement.innerHTML = `
+                    <div>
+                        <h3>${task.title}</h3>
+                        <p>สถานะ: ${task.status}</p>
+                    </div>
+                    <button onclick="viewTask('${doc.id}')">ดูรายละเอียด</button>
+                `;
+                taskList.appendChild(taskElement);
+            });
         });
     } catch (error) {
         console.error("Error fetching tasks:", error);
-        const taskList = document.getElementById("taskList");
-        taskList.innerHTML = `<p class="error">เกิดข้อผิดพลาดในการดึงข้อมูลงาน: ${error.message}</p>`;
+        taskList.innerHTML = `<p class="error">เกิดข้อผิดพลาด: ${error.message}</p>`;
     }
-});
+}
 
 window.viewTask = function(taskId) {
     window.location.href = `task-detail.html?taskId=${taskId}`;
