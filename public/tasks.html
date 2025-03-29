@@ -1,4 +1,3 @@
-<!-- tasks.html -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -10,46 +9,34 @@
 </head>
 <body>
     <div class="container">
-        <div class="filter-bar">
-            <select id="statusFilter" onchange="loadTasks()">
-                <option value="">ทั้งหมด</option>
-                <option value="pending">ติดต่อไม่ได้</option>
-                <option value="appointed">นัดหมาย</option>
-                <option value="completed">จบงานสำเร็จ</option>
-            </select>
-            <span>งานทั้งหมด: <span id="taskCounter">0</span></span>
+        <div class="card">
+            <h3><i class="fas fa-briefcase"></i> งานทั้งหมด: <span id="taskCounter">0</span></h3>
+            <div class="input-group">
+                <i class="fas fa-filter"></i>
+                <select id="statusFilter" onchange="loadTasks()">
+                    <option value="">ทั้งหมด</option>
+                    <option value="pending">ติดต่อไม่ได้</option>
+                    <option value="appointed">นัดหมาย</option>
+                    <option value="completed">จบงานสำเร็จ</option>
+                </select>
+            </div>
+            <div id="taskList"></div>
         </div>
-
-        <div id="taskList"></div>
     </div>
 
-    <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <a href="dashboard.html">
-            <i class="fas fa-home"></i>
-            <span>หน้าแรก<br>Dashboard</span>
-        </a>
-        <a href="tasks.html" class="active">
-            <i class="fas fa-briefcase"></i>
-            <span>งาน<br>Tasks</span>
-        </a>
-        <a href="income.html">
-            <i class="fas fa-wallet"></i>
-            <span>รายได้<br>Income</span>
-        </a>
-        <a href="profile.html">
-            <i class="fas fa-user-circle"></i>
-            <span>โปรไฟล์<br>Profile</span>
-        </a>
-        <a href="performance.html">
-            <i class="fas fa-chart-line"></i>
-            <span>ผลงาน<br>Performance</span>
-        </a>
+        <a href="dashboard.html"><i class="fas fa-home"></i><span>หน้าแรก<br>Dashboard</span></a>
+        <a href="tasks.html" class="active"><i class="fas fa-briefcase"></i><span>งาน<br>Tasks</span></a>
+        <a href="income.html"><i class="fas fa-wallet"></i><span>รายได้<br>Income</span></a>
+        <a href="profile.html"><i class="fas fa-user-circle"></i><span>โปรไฟล์<br>Profile</span></a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i><span>ผลงาน<br>Performance</span></a>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/tasks.js"></script>
+    <script src="env.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/tasks.js"></script>
 </body>
 </html>
