@@ -1,16 +1,8 @@
 // public/js/tasks.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { auth, onAuthStateChanged } from "./auth.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc",
-    authDomain: "fieldflow-b3ee5.firebaseapp.com",
-    projectId: "fieldflow-b3ee5",
-    storageBucket: "fieldflow-b3ee5.firebasestorage.app",
-    messagingSenderId: "384778621124",
-    appId: "1:384778621124:web:1a40999850200d49c63991"
-};
+import { firebaseConfig } from "./firebase.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -48,8 +40,8 @@ async function loadTasks() {
                             <p>สถานะ: ${statusText}</p>
                             <div class="status-bar ${statusClass}"></div>
                             <a href="task-detail.html?taskId=${doc.id}" class="button">ดูรายละเอียด</a>
-                            <a href="#" class="button green"><i class="fas fa-check"></i> รับงาน</a>
-                            <a href="#" class="button yellow"><i class="fas fa-share"></i> ฝากงาน</a>
+                            <a href="#" class="button green" onclick="acceptTask('${doc.id}')"><i class="fas fa-check"></i> รับงาน</a>
+                            <a href="#" class="button yellow" onclick="delegateTask('${doc.id}')"><i class="fas fa-share"></i> ฝากงาน</a>
                         </div>
                     `;
                 }
@@ -61,6 +53,35 @@ async function loadTasks() {
         }
     });
 }
+
+window.acceptTask = async function(taskId) {
+    try {
+        const taskRef = doc(db, 'tasks', taskId);
+        await updateDoc(taskRef, {
+            status: 'appointed'
+        });
+        alert('รับงานสำเร็จ');
+        loadTasks(); // รีเฟรชรายการงาน
+    } catch (error) {
+        console.error('Error accepting task:', error);
+        alert('เกิดข้อผิดพลาดในการรับงาน: ' + error.message);
+    }
+};
+
+window.delegateTask = async function(taskId) {
+    try {
+        const taskRef = doc(db, 'tasks', taskId);
+        await updateDoc(taskRef, {
+            status: 'pending',
+            assignedTo: 'admin@fieldflow.com' // ฝากงานให้แอดมิน
+        });
+        alert('ฝากงานสำเร็จ');
+        loadTasks(); // รีเฟรชรายการงาน
+    } catch (error) {
+        console.error('Error delegating task:', error);
+        alert('เกิดข้อผิดพลาดในการฝากงาน: ' + error.message);
+    }
+};
 
 document.getElementById('statusFilter').addEventListener('change', loadTasks);
 loadTasks();
