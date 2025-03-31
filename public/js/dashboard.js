@@ -1,6 +1,6 @@
-// js/dashboard.js
+// js/dashboard.js (ปรับปรุง)
 import { auth, db } from './auth.js';
-import { collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { collection, query, where, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -10,7 +10,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error('ผู้ใช้ไม่ได้ล็อกอิน');
         }
 
-        const userEmail = user.email;
+        // Get user data from Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+            throw new Error('ไม่พบข้อมูลผู้ใช้ในระบบ');
+        }
+        const userData = userDoc.data();
+        const userEmail = userData.email;
 
         // Query tasks for the current user
         const tasksQuery = query(collection(db, 'tasks'), where('assignedTo', '==', userEmail));
