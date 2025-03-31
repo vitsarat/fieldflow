@@ -1,6 +1,6 @@
 // public/env.js
 window.env = {
-    FIREBASE_API_KEY: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc",
+    FIREBASE_API_KEY: "AIzaSyBEkg8NaLjaO9e6KnEOtGBpA8hs6VtOguo",
     FIREBASE_AUTH_DOMAIN: "fieldflow-b3ee5.firebaseapp.com",
     FIREBASE_PROJECT_ID: "fieldflow-b3ee5",
     FIREBASE_STORAGE_BUCKET: "fieldflow-b3ee5.firebasestorage.app",
