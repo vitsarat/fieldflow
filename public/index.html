@@ -19,14 +19,21 @@
                 <i class="fas fa-lock"></i>
                 <input type="password" id="password" placeholder="รหัสผ่าน">
             </div>
-            <a href="#" class="button" onclick="login()">ล็อกอิน</a>
+            <a href="#" class="button" id="loginButton">ล็อกอิน</a>
         </div>
     </div>
 
+    <script src="env.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script type="module" src="js/auth.js"></script>
     <script type="module">
         import { signInWithEmailAndPassword, auth } from './js/auth.js';
 
-        window.login = async function() {
+        const loginButton = document.getElementById('loginButton');
+        loginButton.addEventListener('click', async (event) => {
+            event.preventDefault(); // Prevent default link behavior
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const email = username.includes('@') ? username : `${username}@fieldflow.com`;
@@ -40,9 +47,10 @@
                     window.location.href = 'dashboard.html';
                 }
             } catch (error) {
+                console.error('Login failed:', error);
                 alert('ล็อกอินล้มเหลว: ' + error.message);
             }
-        };
+        });
     </script>
 </body>
 </html>
