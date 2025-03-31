@@ -1,51 +1,67 @@
-// public/js/dashboard.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { auth, onAuthStateChanged } from "./auth.js";
+// js/dashboard.js
+import { auth, db } from './auth.js';
+import { collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-const firebaseConfig = {
-    // ใส่ Firebase Config ของคุณที่นี่
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-async function loadDashboard() {
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userEmail = user.email;
-            console.log('User Email:', userEmail);
-
-            const tasksSnapshot = await getDocs(collection(db, 'tasks'));
-            console.log('Tasks Snapshot:', tasksSnapshot.docs);
-            let pending = 0, completed = 0, repossession = 0;
-
-            tasksSnapshot.forEach(doc => {
-                const task = doc.data();
-                console.log('Task:', task);
-                if (task.assignedTo === userEmail) {
-                    if (task.status === 'pending') pending++;
-                    if (task.status === 'completed') completed++;
-                    if (task.status === 'repossession') repossession++;
-                }
-            });
-
-            document.getElementById('pendingTasks').textContent = pending;
-            document.getElementById('completedTasks').textContent = completed;
-            document.getElementById('repossessionTasks').textContent = repossession;
-            document.getElementById('closedTasks').textContent = completed;
-            document.getElementById('income').textContent = completed * 5000;
-            document.getElementById('points').textContent = completed * 100;
-
-            const alert = document.getElementById('alert');
-            if (pending > 0) {
-                alert.style.display = 'block';
-                alert.textContent = `การแจ้งเตือน: คุณมีงานด่วน ${pending} งาน`;
-            }
-        } else {
-            window.location.href = 'index.html';
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Get current user
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('ผู้ใช้ไม่ได้ล็อกอิน');
         }
-    });
-}
 
-loadDashboard();
+        const userEmail = user.email;
+
+        // Query tasks for the current user
+        const tasksQuery = query(collection(db, 'tasks'), where('assignedTo', '==', userEmail));
+        const tasksSnapshot = await getDocs(tasksQuery);
+
+        let pendingTasks = 0;
+        let completedTasks = 0;
+        let repossessionTasks = 0;
+
+        tasksSnapshot.forEach(doc => {
+            const task = doc.data();
+            if (task.status === 'pending') pendingTasks++;
+            if (task.status === 'completed') completedTasks++;
+            if (task.status === 'repossession') repossessionTasks++;
+        });
+
+        // Update DOM
+        document.getElementById('pendingTasks').textContent = pendingTasks;
+        document.getElementById('completedTasks').textContent = completedTasks;
+        document.getElementById('repossessionTasks').textContent = repossessionTasks;
+
+        // Query income for the current user
+        const incomeQuery = query(collection(db, 'income'), where('userEmail', '==', userEmail));
+        const incomeSnapshot = await getDocs(incomeQuery);
+
+        let closedTasks = 0;
+        let totalIncome = 0;
+        let points = 0;
+
+        incomeSnapshot.forEach(doc => {
+            const income = doc.data();
+            closedTasks++;
+            totalIncome += income.amount || 0;
+            points += income.points || 0;
+        });
+
+        // Update DOM
+        document.getElementById('closedTasks').textContent = closedTasks;
+        document.getElementById('income').textContent = totalIncome.toLocaleString();
+        document.getElementById('points').textContent = points;
+
+        // Update alert for urgent tasks
+        const urgentTasks = tasksSnapshot.docs.filter(doc => doc.data().urgent).length;
+        const alertElement = document.getElementById('alert');
+        if (urgentTasks > 0) {
+            alertElement.textContent = `การแจ้งเตือน: คุณมีงานด่วน ${urgentTasks} งาน`;
+            alertElement.style.display = 'block';
+        }
+
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        alert('ไม่สามารถโหลดข้อมูลแดชบอร์ดได้: ' + error.message);
+    }
+});
