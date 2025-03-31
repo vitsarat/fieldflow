@@ -1,17 +1,27 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// js/auth.js
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc",
-  authDomain: "fieldflow-b3ee5.firebaseapp.com",
-  projectId: "fieldflow-b3ee5",
-  storageBucket: "fieldflow-b3ee5.firebasestorage.app",
-  messagingSenderId: "384778621124",
-  appId: "1:384778621124:web:1a40999850200d49c63991"
-};
-
-
+// Initialize Firebase App
+const firebaseConfig = window.env;
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
-export { auth, signInWithEmailAndPassword, onAuthStateChanged };
+// Initialize Auth and Firestore
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Export for use in other files
+export { app, auth, db, signInWithEmailAndPassword, onAuthStateChanged, signOut };
+
+// Check if user is logged in, redirect to index.html if not
+onAuthStateChanged(auth, (user) => {
+    const currentPath = window.location.pathname;
+    const protectedPages = ['/dashboard.html', '/tasks.html', '/income.html', '/profile.html', '/performance.html'];
+
+    if (!user && protectedPages.includes(currentPath)) {
+        window.location.href = '/index.html';
+    } else if (user && currentPath === '/index.html') {
+        window.location.href = '/dashboard.html';
+    }
+});
