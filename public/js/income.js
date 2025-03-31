@@ -1,92 +1,52 @@
 // js/income.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, db } from './auth.js';
+import { collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-const firebaseConfig = {
-    // ใส่ Firebase Config ของคุณที่นี่
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-async function loadIncome() {
-    const userEmail = localStorage.getItem('userEmail');
-    if (!userEmail) {
-        window.location.href = 'index.html';
-        return;
-    }
-
-    const tasksSnapshot = await getDocs(collection(db, 'tasks'));
-    const incomeTable = document.querySelector('#incomeTable tbody');
-    incomeTable.innerHTML = '';
-
-    let paid = 0, pending = 0, disputed = 0;
-    let hasDispute = false;
-
-    tasksSnapshot.forEach(doc => {
-        const task = doc.data();
-        if (task.assignedTo === userEmail && task.status === 'completed') {
-            const commission = calculateCommission(task);
-            const status = 'จ่ายแล้ว'; // ตัวอย่างสถานะ
-            const date = new Date().toISOString().split('T')[0];
-            const comment = task.comment || '';
-
-            if (comment) hasDispute = true;
-
-            incomeTable.innerHTML += `
-                <tr>
-                    <td>${task.contractNumber || 'N/A'}</td>
-                    <td>${commission} บาท</td>
-                    <td>${status}</td>
-                    <td>${date}</td>
-                    <td><input type="text" value="${comment}" onchange="updateComment('${doc.id}', this.value)"></td>
-                </tr>
-            `;
-
-            paid += commission;
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Get current user
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('ผู้ใช้ไม่ได้ล็อกอิน');
         }
-    });
 
-    document.getElementById('disputeAlert').style.display = hasDispute ? 'block' : 'none';
+        const userEmail = user.email;
 
-    const ctx = document.getElementById('commissionChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['จ่ายแล้ว', 'รอจ่าย', 'ระงับ'],
-            datasets: [{
-                data: [paid, pending, disputed],
-                backgroundColor: ['#28A745', '#FFD700', '#FF0000']
-            }]
-        },
-        options: { responsive: true }
-    });
-}
+        // Query income data for the current user
+        const incomeQuery = query(collection(db, 'income'), where('userEmail', '==', userEmail));
+        const incomeSnapshot = await getDocs(incomeQuery);
 
-function calculateCommission(task) {
-    const overdue = parseInt(task.overdueInstallments) || 0;
-    if (task.workGroup === '6090') {
-        if (overdue === 1) return 750;
-        if (overdue === 2) return 1100;
-        if (overdue === 3) return 3000;
-        if (overdue >= 4) return 5000;
-    } else if (task.workGroup === 'NPL') {
-        if (overdue === 2) return 1500;
-        if (overdue === 3) return 2000;
-        if (overdue === 4) return 5000;
-        if (overdue === 5) return 6000;
-        if (overdue >= 6) return 7000;
+        let closedTasks = 0;
+        let totalIncome = 0;
+        let totalPoints = 0;
+
+        const incomeList = document.getElementById('incomeList') || document.createElement('div');
+        incomeList.innerHTML = '';
+
+        incomeSnapshot.forEach(doc => {
+            const income = doc.data();
+            closedTasks++;
+            totalIncome += income.amount || 0;
+            totalPoints += income.points || 0;
+
+            // Display income details (สมมติว่า income.html มี element incomeList)
+            const incomeElement = document.createElement('div');
+            incomeElement.className = 'income-item';
+            incomeElement.innerHTML = `
+                <p>วันที่: ${income.date || 'ไม่ระบุ'}</p>
+                <p>จำนวน: ${income.amount.toLocaleString()} บาท</p>
+                <p>คะแนน: ${income.points || 0}</p>
+            `;
+            incomeList.appendChild(incomeElement);
+        });
+
+        // Update DOM
+        document.getElementById('closedTasks').textContent = closedTasks;
+        document.getElementById('totalIncome').textContent = totalIncome.toLocaleString();
+        document.getElementById('totalPoints').textContent = totalPoints;
+
+    } catch (error) {
+        console.error('Error loading income:', error);
+        alert('ไม่สามารถโหลดข้อมูลรายได้ได้: ' + error.message);
     }
-    return 0;
-}
-
-async function updateComment(taskId, comment) {
-    await updateDoc(doc(db, 'tasks', taskId), { comment: comment });
-    loadIncome();
-}
-
-function exportReport() {
-    alert('ฟังก์ชันดาวน์โหลด PDF ยังไม่พร้อมใช้งาน');
-}
-
-loadIncome();
+});
