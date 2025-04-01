@@ -1,72 +1,64 @@
-<!-- public/admin.html -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ดแอดมิน - FieldFlow</title>
+    <title>ล็อกอิน - FieldFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <!-- อัปเดต Google Maps API ด้วย API Key ใหม่ -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI05V12BnvX0vU4712RE4P2iMSN3HCi9Y&libraries=places"></script>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <h3><i class="fas fa-tasks"></i> ภาพรวมงาน</h3>
-            <div class="overview-grid">
-                <div>งานทั้งหมด: <span id="totalTasks">0</span></div>
-                <div>งานด่วน: <span id="urgentTasks">0</span></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3><i class="fas fa-plus"></i> เพิ่มงานใหม่</h3>
-            <div class="input-group">
-                <i class="fas fa-file-contract"></i>
-                <input type="text" id="newTaskTitle" placeholder="ชื่องาน">
-            </div>
+            <h3><i class="fas fa-sign-in-alt"></i> ล็อกอิน</h3>
             <div class="input-group">
                 <i class="fas fa-user"></i>
-                <input type="text" id="newTaskAssignedTo" placeholder="มอบหมายให้ (อีเมล)">
+                <input type="text" id="username" placeholder="รหัสพนักงาน">
             </div>
             <div class="input-group">
-                <i class="fas fa-tag"></i>
-                <select id="newTaskStatus">
-                    <option value="pending">รอดำเนินการ</option>
-                    <option value="urgent">ด่วน</option>
-                    <option value="completed">เสร็จสิ้น</option>
-                </select>
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="รหัสผ่าน">
             </div>
-            <a href="#" class="button green" onclick="addTask()"><i class="fas fa-plus"></i> เพิ่มงาน</a>
+            <a href="#" class="button" id="loginButton">ล็อกอิน</a>
         </div>
     </div>
 
-    <!-- Bottom Navigation Bar -->
-    <div class="bottom-nav">
-        <a href="dashboard.html">
-            <i class="fas fa-home"></i>
-            <span>หน้าแรก<br>Dashboard</span>
-        </a>
-        <a href="tasks.html">
-            <i class="fas fa-briefcase"></i>
-            <span>งาน<br>Tasks</span>
-        </a>
-        <a href="income.html">
-            <i class="fas fa-wallet"></i>
-            <span>รายได้<br>Income</span>
-        </a>
-        <a href="profile.html">
-            <i class="fas fa-user-circle"></i>
-            <span>โปรไฟล์<br>Profile</span>
-        </a>
-        <a href="performance.html">
-            <i class="fas fa-chart-line"></i>
-            <span>ผลงาน<br>Performance</span>
-        </a>
-    </div>
+    <script src="env.js"></script>
+    <script>
+        if (!window.env) {
+            console.error('Error: env.js not loaded or window.env is undefined');
+            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
+        }
+    </script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module">
+        import { signInWithEmailAndPassword, auth } from './js/auth.js';
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/admin.js"></script>
+        const loginButton = document.getElementById('loginButton');
+        loginButton.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = username.includes('@') ? username : `${username}@fieldflow.com`;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                localStorage.setItem('userEmail', userCredential.user.email);
+                if (email === 'admin@fieldflow.com') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                alert('ล็อกอินล้มเหลว: ' + error.message);
+            }
+        });
+    </script>
 </body>
 </html>
