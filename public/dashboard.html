@@ -6,51 +6,38 @@
     <title>แดชบอร์ด - FieldFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <!-- อัปเดต Google Maps API ด้วย API Key ใหม่ -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAJIoKNR9rOtIW1HJWMybLuuodHg13o7pk&libraries=places"></script>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="alert" id="alert" style="display: none;">
-            การแจ้งเตือน: คุณมีงานด่วน 0 งาน
-        </div>
-
-        <div class="card">
-            <h3><i class="fas fa-briefcase"></i> ภาพรวมงาน</h3>
-            <div class="overview-grid">
-                <div>งานรอดำเนินการ: <span id="pendingTasks">0</span></div>
-                <div>งานที่จบ: <span id="completedTasks">0</span></div>
-                <div>งานยึดรถ: <span id="repossessionTasks">0</span></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3><i class="fas fa-star"></i> งานเด่น</h3>
-            <div class="task-card">
-                <h3><i class="fas fa-file-contract"></i> งานเด่น</h3>
-                <p>ไม่มีงานเด่นในขณะนี้</p>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3><i class="fas fa-wallet"></i> รายได้</h3>
-            <p>งานที่ปิด: <span id="closedTasks">0</span> งาน</p>
-            <p>รายได้: <span id="income">0</span> บาท</p>
-            <p>คะแนน: <span id="points">0</span> คะแนน</p>
-        </div>
+        <h3>แดชบอร์ด</h3>
+        <div id="map"></div>
     </div>
 
-    <div class="bottom-nav">
-        <a href="dashboard.html" class="active"><i class="fas fa-home"></i><span>หน้าแรก<br>Dashboard</span></a>
-        <a href="tasks.html"><i class="fas fa-briefcase"></i><span>งาน<br>Tasks</span></a>
-        <a href="income.html"><i class="fas fa-wallet"></i><span>รายได้<br>Income</span></a>
-        <a href="profile.html"><i class="fas fa-user-circle"></i><span>โปรไฟล์<br>Profile</span></a>
-        <a href="performance.html"><i class="fas fa-chart-line"></i><span>ผลงาน<br>Performance</span></a>
-    </div>
+    <script>
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 13.7563, lng: 100.5018 }, // ตัวอย่าง: กรุงเทพฯ
+                zoom: 12
+            });
 
-    <script src="env.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/dashboard.js"></script>
+            // เพิ่ม Marker (ตัวอย่าง)
+            new google.maps.Marker({
+                position: { lat: 13.7563, lng: 100.5018 },
+                map: map,
+                title: 'กรุงเทพฯ'
+            });
+        }
+
+        // เรียก initMap เมื่อโหลดหน้า
+        window.onload = initMap;
+    </script>
 </body>
 </html>
