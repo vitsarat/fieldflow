@@ -1,8 +1,8 @@
 window.env = {
-    FIREBASE_API_KEY: "AIzaSyBI05V12BnvX0vU4712RE4P2iMSN3HCi9Y",
-    FIREBASE_AUTH_DOMAIN: "fieldflow-efabd.firebaseapp.com",
-    FIREBASE_PROJECT_ID: "fieldflow-efabd",
-    FIREBASE_STORAGE_BUCKET: "fieldflow-efabd.firebasestorage.app",
-    FIREBASE_MESSAGING_SENDER_ID: "147924792458",
-    FIREBASE_APP_ID: "1:147924792458:web:187a1c72b49abaf1e973"
+    FIREBASE_API_KEY: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc",
+    FIREBASE_AUTH_DOMAIN: "fieldflow-b3ee5.firebaseapp.com",
+    FIREBASE_PROJECT_ID: "fieldflow-b3ee5",
+    FIREBASE_STORAGE_BUCKET: "fieldflow-b3ee5.firebasestorage.app",
+    FIREBASE_MESSAGING_SENDER_ID: "384778621124",
+    FIREBASE_APP_ID: "1:384778621124:web:ea912e4770f1811ec63991"
 };
