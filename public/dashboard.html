@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <!-- โหลด Google Maps API -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc&libraries=places,marker&loading=async"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc&libraries=places,marker&callback=initMap" async defer></script>
     <style>
         #map {
             height: 400px;
@@ -100,33 +100,38 @@
                 zoom: 12
             });
 
-            // เพิ่ม Search Box
+            // เพิ่ม Autocomplete
             const input = document.getElementById('searchInput');
-            const searchBox = new google.maps.places.SearchBox(input);
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['geocode'], // จำกัดการค้นหาเป็นสถานที่ทางภูมิศาสตร์
+                fields: ['place_id', 'geometry', 'name'] // ข้อมูลที่ต้องการ
+            });
+
+            // เพิ่ม input ไปที่ตำแหน่งบนซ้ายของแผนที่
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-            // ฟังก์ชันเมื่อผู้ใช้ค้นหาสถานที่
-            searchBox.addListener('places_changed', () => {
-                const places = searchBox.getPlaces();
-                if (places.length == 0) return;
+            // ฟังก์ชันเมื่อผู้ใช้เลือกสถานที่จาก Autocomplete
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    console.error('No geometry available for this place');
+                    return;
+                }
 
-                const bounds = new google.maps.LatLngBounds();
-                places.forEach((place) => {
-                    if (!place.geometry || !place.geometry.location) return;
-
-                    new google.maps.marker.AdvancedMarkerElement({
-                        position: place.geometry.location,
-                        map: map,
-                        title: place.name
-                    });
-
-                    if (place.geometry.viewport) {
-                        bounds.union(place.geometry.viewport);
-                    } else {
-                        bounds.extend(place.geometry.location);
-                    }
+                // เพิ่ม Marker สำหรับสถานที่ที่เลือก
+                new google.maps.marker.AdvancedMarkerElement({
+                    position: place.geometry.location,
+                    map: map,
+                    title: place.name
                 });
-                map.fitBounds(bounds);
+
+                // ปรับตำแหน่งและซูมของแผนที่
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+                }
             });
 
             // ดึงข้อมูลตำแหน่งจาก Firestore (เช่น งานที่พนักงานต้องไป)
@@ -176,9 +181,6 @@
                 console.error('Error fetching tasks:', error);
             });
         }
-
-        // เรียก initMap เมื่อโหลดหน้า
-        window.onload = initMap;
     </script>
 </body>
 </html>
