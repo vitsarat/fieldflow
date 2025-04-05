@@ -13,26 +13,136 @@
             height: 400px;
             width: 100%;
         }
+        .search-container {
+            margin: 10px 0;
+            position: relative;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .logout-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .logout-button:hover {
+            background-color: #e60000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h3>แดชบอร์ด</h3>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="ค้นหาสถานที่...">
+        </div>
         <div id="map"></div>
+        <a href="#" class="logout-button" id="logoutButton">ออกจากระบบ</a>
     </div>
 
+    <!-- โหลด Firebase SDK -->
+    <script src="env.js"></script>
     <script>
+        if (!window.env) {
+            console.error('Error: env.js not loaded or window.env is undefined');
+            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
+        }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script>
+        // กำหนดค่า Firebase
+        const firebaseConfig = {
+            apiKey: window.env.FIREBASE_API_KEY,
+            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+            projectId: window.env.FIREBASE_PROJECT_ID,
+            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+            appId: window.env.FIREBASE_APP_ID
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                // ถ้าไม่ได้ล็อกอิน ให้ redirect ไปหน้า login
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ฟังก์ชันออกจากระบบ
+        document.getElementById('logoutButton').addEventListener('click', (event) => {
+            event.preventDefault();
+            auth.signOut().then(() => {
+                localStorage.removeItem('userEmail');
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error('Logout failed:', error);
+                alert('ออกจากระบบล้มเหลว: ' + error.message);
+            });
+        });
+
+        // ฟังก์ชันเริ่มต้น Google Maps
         function initMap() {
             const map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 13.7563, lng: 100.5018 }, // ตัวอย่าง: กรุงเทพฯ
                 zoom: 12
             });
 
-            // ใช้ AdvancedMarkerElement แทน Marker
-            new google.maps.marker.AdvancedMarkerElement({
-                position: { lat: 13.7563, lng: 100.5018 },
-                map: map,
-                title: 'กรุงเทพฯ'
+            // เพิ่ม Search Box
+            const input = document.getElementById('searchInput');
+            const searchBox = new google.maps.places.SearchBox(input);
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+            // ฟังก์ชันเมื่อผู้ใช้ค้นหาสถานที่
+            searchBox.addListener('places_changed', () => {
+                const places = searchBox.getPlaces();
+                if (places.length == 0) return;
+
+                const bounds = new google.maps.LatLngBounds();
+                places.forEach((place) => {
+                    if (!place.geometry || !place.geometry.location) return;
+
+                    new google.maps.marker.AdvancedMarkerElement({
+                        position: place.geometry.location,
+                        map: map,
+                        title: place.name
+                    });
+
+                    if (place.geometry.viewport) {
+                        bounds.union(place.geometry.viewport);
+                    } else {
+                        bounds.extend(place.geometry.location);
+                    }
+                });
+                map.fitBounds(bounds);
+            });
+
+            // ดึงข้อมูลตำแหน่งจาก Firestore (เช่น งานที่พนักงานต้องไป)
+            db.collection('tasks').get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const task = doc.data();
+                    if (task.location) {
+                        new google.maps.marker.AdvancedMarkerElement({
+                            position: { lat: task.location.lat, lng: task.location.lng },
+                            map: map,
+                            title: task.name
+                        });
+                    }
+                });
+            }).catch((error) => {
+                console.error('Error fetching tasks:', error);
             });
         }
 
