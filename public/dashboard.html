@@ -134,8 +134,24 @@
                 querySnapshot.forEach((doc) => {
                     const task = doc.data();
                     if (task.location) {
+                        // ตรวจสอบว่า location เป็น GeoPoint หรือ object
+                        let position;
+                        if (task.location.latitude && task.location.longitude) {
+                            // ถ้าเป็น GeoPoint
+                            position = {
+                                lat: task.location.latitude,
+                                lng: task.location.longitude
+                            };
+                        } else {
+                            // ถ้าเป็น object ธรรมดา
+                            position = {
+                                lat: task.location.lat,
+                                lng: task.location.lng
+                            };
+                        }
+
                         new google.maps.marker.AdvancedMarkerElement({
-                            position: { lat: task.location.lat, lng: task.location.lng },
+                            position: position,
                             map: map,
                             title: task.name
                         });
