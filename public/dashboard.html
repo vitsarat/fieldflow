@@ -134,27 +134,42 @@
                 querySnapshot.forEach((doc) => {
                     const task = doc.data();
                     if (task.location) {
-                        // ตรวจสอบว่า location เป็น GeoPoint หรือ object
                         let position;
-                        if (task.location.latitude && task.location.longitude) {
-                            // ถ้าเป็น GeoPoint
-                            position = {
-                                lat: task.location.latitude,
-                                lng: task.location.longitude
-                            };
-                        } else {
-                            // ถ้าเป็น object ธรรมดา
-                            position = {
-                                lat: task.location.lat,
-                                lng: task.location.lng
-                            };
-                        }
+                        try {
+                            if (typeof task.location === 'string') {
+                                // ถ้า location เป็น string ให้ parse เป็น object
+                                const parsedLocation = JSON.parse(task.location);
+                                position = {
+                                    lat: parsedLocation.lat,
+                                    lng: parsedLocation.lng
+                                };
+                            } else if (task.location.latitude && task.location.longitude) {
+                                // ถ้าเป็น GeoPoint
+                                position = {
+                                    lat: task.location.latitude,
+                                    lng: task.location.longitude
+                                };
+                            } else {
+                                // ถ้าเป็น object ธรรมดา
+                                position = {
+                                    lat: task.location.lat,
+                                    lng: task.location.lng
+                                };
+                            }
 
-                        new google.maps.marker.AdvancedMarkerElement({
-                            position: position,
-                            map: map,
-                            title: task.name
-                        });
+                            // ตรวจสอบว่า position.lat และ position.lng เป็นตัวเลข
+                            if (typeof position.lat !== 'number' || typeof position.lng !== 'number') {
+                                throw new Error('Invalid lat or lng: not a number');
+                            }
+
+                            new google.maps.marker.AdvancedMarkerElement({
+                                position: position,
+                                map: map,
+                                title: task.name
+                            });
+                        } catch (error) {
+                            console.error(`Error processing task ${doc.id}:`, error);
+                        }
                     }
                 });
             }).catch((error) => {
