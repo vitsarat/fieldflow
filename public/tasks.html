@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>งาน - DebtFlow</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
         body {
-            font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #f0f2f5;
         }
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 100%;
             padding: 20px;
         }
         .header {
@@ -29,99 +29,145 @@
             font-size: 24px;
             margin: 0;
         }
-        .logout-btn {
-            background: #ff4d4d;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
+        .dropdown {
+            padding: 8px;
             font-size: 16px;
         }
-        .cookie-warning {
-            background: #ff4d4d;
-            color: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-            position: relative;
-        }
-        .cookie-warning .close-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-        .task-list {
-            display: grid;
-            gap: 20px;
-        }
         .task-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            background-color: white;
+            border-radius: 8px;
             padding: 15px;
-            transition: transform 0.3s ease;
-        }
-        .task-card:hover {
-            transform: translateY(-5px);
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         .task-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
         }
-        .task-header i {
-            font-size: 20px;
-            margin-right: 10px;
-        }
-        .task-header h4 {
+        .task-header h3 {
             margin: 0;
             font-size: 18px;
         }
+        .task-details {
+            margin-top: 10px;
+        }
         .task-details p {
             margin: 5px 0;
+        }
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .task-actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
             font-size: 14px;
         }
-        .priority-dot.status-pending { background: #ffcc00; }
-        .priority-dot.status-contacted { background: #1e90ff; }
-        .priority-dot.status-completed { background: #28a745; }
-        .btn-add {
+        .btn-pending {
+            background-color: #ffcc00;
+            color: white;
+        }
+        .btn-completed {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-add-status {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-edit {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-navigate {
+            background-color: #dc3545;
+            color: white;
+        }
+        .note-section {
+            margin-top: 10px;
+        }
+        .note-section textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+        }
+        .note-section button {
+            margin-top: 5px;
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+        }
+        .modal-content label {
             display: block;
-            background: #1e3c72;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
+            margin: 10px 0 5px;
+        }
+        .modal-content input, .modal-content select, .modal-content textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-content .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .error {
+            color: red;
             text-align: center;
-            margin: 20px auto;
-            width: fit-content;
+            margin: 10px 0;
         }
         .navbar {
             position: fixed;
             bottom: 0;
             width: 100%;
-            background: #fff;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
         .navbar a {
-            color: #666;
             text-align: center;
+            color: #666;
             text-decoration: none;
-            font-size: 12px;
+            font-size: 14px;
         }
         .navbar a.active {
-            color: #1e3c72;
-        }
-        .navbar i {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 5px;
+            color: #007bff;
         }
     </style>
 </head>
@@ -129,107 +175,246 @@
     <div class="container">
         <div class="header">
             <h1>งาน - DebtFlow</h1>
-            <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
+            <select class="dropdown" onchange="filterTasks(this.value)">
+                <option value="">ทั้งหมด</option>
+                <option value="pending">รอ</option>
+                <option value="completed">สำเร็จ</option>
+            </select>
         </div>
-        <div class="cookie-warning" id="cookieWarning">
-            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
-            <span class="close-btn" onclick="dismissCookieWarning()">✖</span>
+        <div id="taskList">
+            <!-- รายการงานจะถูกเพิ่มที่นี่โดย JavaScript -->
         </div>
-        <div class="task-list" id="taskList">
-            <div style="text-align: center;">กำลังโหลดงาน...</div>
-        </div>
-        <a href="task-details.html" class="btn-add">+ เพิ่มงานใหม่</a>
+        <div id="error" class="error"></div>
     </div>
+
+    <!-- Modal สำหรับแก้ไขงาน -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2>แก้ไขงาน</h2>
+            <form id="taskForm">
+                <label>รหัสงาน</label>
+                <input type="text" id="taskId" readonly>
+                <label>ชื่อลูกหนี้</label>
+                <input type="text" id="debtor">
+                <label>ที่อยู่</label>
+                <input type="text" id="address">
+                <label>เบอร์โทร</label>
+                <input type="text" id="phone">
+                <label>ยอดหนี้</label>
+                <input type="number" id="principle" step="0.01">
+                <label>ยี่ห้อรถ</label>
+                <input type="text" id="brand">
+                <label>รุ่นรถ</label>
+                <input type="text" id="model">
+                <label>เลขตัวถัง</label>
+                <input type="text" id="chassisNo">
+                <label>เลขเครื่องยนต์</label>
+                <input type="text" id="engineNo">
+                <label>ยอดจัดไฟแนนซ์</label>
+                <input type="text" id="financeAmount">
+                <label>สถานะ</label>
+                <select id="status">
+                    <option value="pending">รอ</option>
+                    <option value="completed">สำเร็จ</option>
+                </select>
+                <label>ตำแหน่ง (Latitude)</label>
+                <input type="number" id="lat" step="0.0001">
+                <label>ตำแหน่ง (Longitude)</label>
+                <input type="number" id="lng" step="0.0001">
+                <div class="buttons">
+                    <button type="button" onclick="closeModal()">ปิด</button>
+                    <button type="submit">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Navbar -->
     <div class="navbar">
-        <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
-        <a href="tasks.html" class="active"><i class="fas fa-tasks"></i>งาน</a>
-        <a href="performance.html"><i class="fas fa-chart-line"></i>ผลงาน</a>
-        <a href="income.html"><i class="fas fa-wallet"></i>รายได้</a>
-        <a href="profile.html"><i class="fas fa-user"></i>โปรไฟล์</a>
+        <a href="dashboard.html"><i>🏠</i><br>หน้าหลัก</a>
+        <a href="tasks.html" class="active"><i>📋</i><br>งาน</a>
+        <a href="stats.html"><i>📈</i><br>สถิติ</a>
+        <a href="income.html"><i>💰</i><br>รายได้</a>
+        <a href="profile.html"><i>👤</i><br>โปรไฟล์</a>
     </div>
-    <script src="env.js"></script>
+
     <script>
-        if (!window.env) {
-            console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
-            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
-        }
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
-    <script>
-        try {
-            const firebaseConfig = {
-                apiKey: window.env.FIREBASE_API_KEY,
-                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
-                projectId: window.env.FIREBASE_PROJECT_ID,
-                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
-                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
-                appId: window.env.FIREBASE_APP_ID
-            };
-            firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "fieldflow-b3ee5.firebaseapp.com",
+            projectId: "fieldflow-b3ee5",
+            storageBucket: "fieldflow-b3ee5.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                } else {
-                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
-                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
-                }
-            });
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            function dismissCookieWarning() {
-                document.getElementById('cookieWarning').style.display = 'none';
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                loadTasks();
             }
+        });
 
-            if (navigator.cookieEnabled) {
-                document.getElementById('cookieWarning').style.display = 'block';
-            }
-
-            db.collection('tasks').orderBy('createdAt', 'desc').get().then((querySnapshot) => {
+        // ดึงข้อมูลงาน
+        async function loadTasks(status = '') {
+            try {
                 const taskList = document.getElementById('taskList');
-                if (querySnapshot.empty) {
-                    taskList.innerHTML = '<div style="text-align: center;">ไม่มีงานในขณะนี้</div>';
-                } else {
-                    taskList.innerHTML = '';
-                    querySnapshot.forEach((doc) => {
-                        const task = doc.data();
-                        const status = task.status || 'pending';
-                        const taskCard = `
-                            <div class="task-card">
-                                <div class="task-header">
-                                    <i class="fas fa-file-contract"></i>
-                                    <h4>${doc.id}</h4>
-                                    <span class="priority-dot status-${status}" style="width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 10px;"></span>
-                                </div>
-                                <div class="task-details">
-                                    <p><strong>ลูกหนี้:</strong> ${task.debtor || '-'}</p>
-                                    <p><strong>สถานะ:</strong> ${task.status || 'รอดำเนินการ'}</p>
-                                    <p><strong>ยอดหนี้:</strong> ${task.principle || '0'} บาท</p>
-                                </div>
-                            </div>
-                        `;
-                        taskList.innerHTML += taskCard;
-                    });
-                }
-            }).catch((error) => {
-                console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
-                document.getElementById('taskList').innerHTML = '<div style="text-align: center; color: #ff4d4d;">ไม่สามารถโหลดงานได้ กรุณาลองใหม่อีกครั้ง</div>';
-            });
+                taskList.innerHTML = '';
 
-            function logout() {
-                auth.signOut().then(() => window.location.href = 'index.html')
-                    .catch((error) => {
-                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
-                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
-                    });
+                let query = db.collection('tasks').orderBy('createdAt', 'desc');
+                if (status) {
+                    query = query.where('status', '==', status);
+                }
+
+                const snapshot = await query.get();
+                if (snapshot.empty) {
+                    taskList.innerHTML = '<p>ไม่มีข้อมูล</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const task = doc.data();
+                    const card = `
+                        <div class="task-card">
+                            <div class="task-header">
+                                <h3>${task.taskId} - ${task.debtor}</h3>
+                            </div>
+                            <div class="task-details">
+                                <p>📍 ที่อยู่: ${task.address}</p>
+                                <p>📞 เบอร์โทร: ${task.phone}</p>
+                                <p>💰 ยอดหนี้: ${task.principle.toLocaleString()} บาท</p>
+                                <p>🚗 ยี่ห้อ: ${task.brand}, รุ่น: ${task.model}</p>
+                                <p>🔢 เลขตัวถัง: ${task.chassisNo}</p>
+                                <p>🔢 เลขเครื่องยนต์: ${task.engineNo}</p>
+                                <p>💸 ยอดจัดไฟแนนซ์: ${task.financeAmount}</p>
+                                <p>📝 สถานะ: ${task.status === 'pending' ? 'รอ' : 'สำเร็จ'}</p>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn-pending" onclick="updateStatus('${task.taskId}', 'pending')">รอ</button>
+                                <button class="btn-completed" onclick="updateStatus('${task.taskId}', 'completed')">สำเร็จ</button>
+                                <button class="btn-add-status" onclick="showTaskDetails('${task.taskId}')">แก้ไข</button>
+                                <button class="btn-navigate" onclick="navigateToLocation(${task.location?.lat || 0}, ${task.location?.lng || 0})">นำทาง</button>
+                            </div>
+                            <div class="note-section">
+                                <textarea placeholder="เพิ่มหมายเหตุ..." id="note-${task.taskId}">${task.note || ''}</textarea>
+                                <button onclick="saveNote('${task.taskId}')">บันทึกหมายเหตุ</button>
+                            </div>
+                        </div>
+                    `;
+                    taskList.innerHTML += card;
+                });
+            } catch (error) {
+                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการโหลดงาน: ' + error.message;
             }
-        } catch (error) {
-            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
+        }
+
+        // กรองงานตามสถานะ
+        function filterTasks(status) {
+            loadTasks(status);
+        }
+
+        // อัปเดตสถานะงาน
+        async function updateStatus(taskId, status) {
+            try {
+                await db.collection('tasks').doc(taskId).update({ status });
+                loadTasks();
+            } catch (error) {
+                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + error.message;
+            }
+        }
+
+        // บันทึกหมายเหตุ
+        async function saveNote(taskId) {
+            const note = document.getElementById(`note-${taskId}`).value;
+            try {
+                await db.collection('tasks').doc(taskId).update({ note });
+                alert('บันทึกหมายเหตุสำเร็จ');
+            } catch (error) {
+                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการบันทึกหมายเหตุ: ' + error.message;
+            }
+        }
+
+        // แสดงรายละเอียดงานเพื่อแก้ไข
+        async function showTaskDetails(taskId) {
+            try {
+                const doc = await db.collection('tasks').doc(taskId).get();
+                if (!doc.exists) {
+                    document.getElementById('error').textContent = 'ไม่พบข้อมูลงาน';
+                    return;
+                }
+
+                const task = doc.data();
+                document.getElementById('taskId').value = task.taskId;
+                document.getElementById('debtor').value = task.debtor;
+                document.getElementById('address').value = task.address;
+                document.getElementById('phone').value = task.phone;
+                document.getElementById('principle').value = task.principle;
+                document.getElementById('brand').value = task.brand;
+                document.getElementById('model').value = task.model;
+                document.getElementById('chassisNo').value = task.chassisNo;
+                document.getElementById('engineNo').value = task.engineNo;
+                document.getElementById('financeAmount').value = task.financeAmount;
+                document.getElementById('status').value = task.status;
+                document.getElementById('lat').value = task.location ? task.location.lat : '';
+                document.getElementById('lng').value = task.location ? task.location.lng : '';
+
+                document.getElementById('taskModal').style.display = 'flex';
+            } catch (error) {
+                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการโหลดรายละเอียดงาน: ' + error.message;
+            }
+        }
+
+        // ปิด modal
+        function closeModal() {
+            document.getElementById('taskModal').style.display = 'none';
+        }
+
+        // บันทึกการแก้ไข
+        document.getElementById('taskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskId = document.getElementById('taskId').value;
+            const updatedTask = {
+                debtor: document.getElementById('debtor').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                principle: parseFloat(document.getElementById('principle').value),
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value,
+                chassisNo: document.getElementById('chassisNo').value,
+                engineNo: document.getElementById('engineNo').value,
+                financeAmount: document.getElementById('financeAmount').value,
+                status: document.getElementById('status').value,
+                location: {
+                    lat: parseFloat(document.getElementById('lat').value) || 0,
+                    lng: parseFloat(document.getElementById('lng').value) || 0
+                }
+            };
+
+            try {
+                await db.collection('tasks').doc(taskId).update(updatedTask);
+                closeModal();
+                loadTasks();
+            } catch (error) {
+                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการบันทึก: ' + error.message;
+            }
+        });
+
+        // นำทางไปยังตำแหน่ง
+        function navigateToLocation(lat, lng) {
+            if (lat && lng) {
+                const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                window.open(url, '_blank');
+            } else {
+                alert('ไม่มีข้อมูลตำแหน่ง');
+            }
         }
     </script>
 </body>
