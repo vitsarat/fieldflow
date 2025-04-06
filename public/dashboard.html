@@ -10,115 +10,107 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc&libraries=marker&callback=initMap" async defer></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
             margin: 0;
             padding: 0;
-            padding-bottom: 70px; /* ให้มีที่ว่างสำหรับแถบเมนูด้านล่าง */
         }
         .container {
-            max-width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 20px;
         }
-        h3 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-        /* Task Overview */
-        .task-overview {
+        .header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        .task-box {
-            flex: 1;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            padding: 10px;
-            margin: 0 5px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
         }
-        .task-box i {
-            font-size: 20px;
-            margin-bottom: 5px;
+        .logout-btn {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
         }
-        /* Smart Alert */
         .smart-alert {
             background: #ffcc00;
             color: #333;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            font-size: 14px;
+            margin-bottom: 20px;
         }
         .smart-alert i {
             margin-right: 10px;
-            font-size: 18px;
+            font-size: 20px;
         }
-        /* Urgent Tasks */
-        .urgent-tasks {
-            margin-bottom: 15px;
-        }
-        .urgent-task-card {
-            background: linear-gradient(135deg, #ff4d4d, #ff6666);
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-        }
-        .urgent-task-card a {
-            background: #fff;
-            color: #ff4d4d;
-            padding: 5px 10px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 12px;
-        }
-        /* Map */
         #map {
-            height: 200px;
+            height: 400px;
             width: 100%;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
-        /* Navigation Bar */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+        .task-list {
+            display: grid;
+            gap: 20px;
+        }
+        .task-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            transition: transform 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .task-header i {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .task-header h4 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .task-details p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-around;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            padding: 10px 0;
         }
-        .nav-item {
+        .navbar a {
             color: #666;
             text-align: center;
-            font-size: 12px;
             text-decoration: none;
+            font-size: 12px;
         }
-        .nav-item.active {
+        .navbar a.active {
             color: #1e3c72;
         }
-        .nav-item i {
+        .navbar i {
             display: block;
             font-size: 20px;
             margin-bottom: 5px;
@@ -127,63 +119,49 @@
 </head>
 <body>
     <div class="container">
-        <h3>หน้าแรก - DebtFlow</h3>
-
-        <!-- Task Overview -->
-        <div class="task-overview">
-            <div class="task-box">
-                <i class="fas fa-exclamation-circle"></i>
-                <div>ค้างชำระ: 10 งาน</div>
-            </div>
-            <div class="task-box">
-                <i class="fas fa-check-circle"></i>
-                <div>ชำระแล้ว: 5 งาน</div>
-            </div>
-            <div class="task-box">
-                <i class="fas fa-car"></i>
-                <div>รอยึด: 3 งาน</div>
-            </div>
+        <div class="header">
+            <h1>หน้าแรก - DebtFlow</h1>
+            <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
 
-        <!-- Smart Alert -->
-        <div class="smart-alert">
+        <div class="smart-alert" id="smartAlert">
             <i class="fas fa-lightbulb"></i>
-            <div>AI Tip: ติดตามลูกค้า X วันนี้ มีโอกาสชำระสูง!</div>
+            <div>กำลังโหลดคำแนะนำ...</div>
         </div>
 
-        <!-- Urgent Tasks -->
-        <div class="urgent-tasks">
-            <h3 style="font-size: 16px; text-align: left;">งานด่วนวันนี้</h3>
-            <div class="urgent-task-card">
-                <div>232016580880 - พูลทรัพย์ พลชารี</div>
-                <a href="tasks.html">ดูรายละเอียด</a>
-            </div>
-        </div>
-
-        <!-- Map -->
         <div id="map"></div>
+        <div id="mapError" style="display: none; color: #ff4d4d; text-align: center; margin-bottom: 15px;">
+            ไม่สามารถโหลดแผนที่ได้ กรุณาลองใหม่อีกครั้ง
+        </div>
+
+        <div style="text-align: center; margin-bottom: 15px;">
+            <a href="tasks.html" style="background: #1e3c72; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">
+                ดูงานทั้งหมด
+            </a>
+        </div>
+
+        <div class="task-list" id="taskList"></div>
     </div>
 
-    <!-- Navigation Bar -->
-    <div class="nav-bar">
-        <a href="dashboard.html" class="nav-item active">
+    <div class="navbar">
+        <a href="dashboard.html" class="active">
             <i class="fas fa-home"></i>
             หน้าแรก
         </a>
-        <a href="tasks.html" class="nav-item">
-            <i class="fas fa-briefcase"></i>
+        <a href="tasks.html">
+            <i class="fas fa-tasks"></i>
             งาน
         </a>
-        <a href="performance.html" class="nav-item">
+        <a href="performance.html">
             <i class="fas fa-chart-line"></i>
             ผลงาน
         </a>
-        <a href="income.html" class="nav-item">
+        <a href="income.html">
             <i class="fas fa-wallet"></i>
             รายได้
         </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-user-circle"></i>
+        <a href="profile.html">
+            <i class="fas fa-user"></i>
             โปรไฟล์
         </a>
     </div>
@@ -192,7 +170,7 @@
     <script src="env.js"></script>
     <script>
         if (!window.env) {
-            console.error('Error: env.js not loaded or window.env is undefined');
+            console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
             alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
         }
     </script>
@@ -201,76 +179,169 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
     <script>
         // กำหนดค่า Firebase
-        const firebaseConfig = {
-            apiKey: window.env.FIREBASE_API_KEY,
-            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
-            projectId: window.env.FIREBASE_PROJECT_ID,
-            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
-            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
-            appId: window.env.FIREBASE_APP_ID
-        };
+        try {
+            const firebaseConfig = {
+                apiKey: window.env.FIREBASE_API_KEY,
+                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+                projectId: window.env.FIREBASE_PROJECT_ID,
+                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+                appId: window.env.FIREBASE_APP_ID
+            };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-        // ตรวจสอบสถานะการล็อกอิน
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-            }
-        });
-
-        // ฟังก์ชันเริ่มต้น Google Maps
-        function initMap() {
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 13.7563, lng: 100.5018 },
-                zoom: 12
+            // ตรวจสอบสถานะการล็อกอิน
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                } else {
+                    // ตั้งค่าการคงสถานะเซสชัน
+                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                        .then(() => {
+                            console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ');
+                        })
+                        .catch((error) => {
+                            console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error);
+                        });
+                }
             });
 
-            // ดึงข้อมูลตำแหน่งจาก Firestore
-            db.collection('tasks').get().then((querySnapshot) => {
+            // ดึง AI Tip
+            db.collection('aiTips').doc('dailyTip').get().then((doc) => {
+                if (doc.exists) {
+                    const tip = doc.data();
+                    document.getElementById('smartAlert').innerHTML = `
+                        <i class="fas fa-lightbulb"></i>
+                        <div>AI Tip: ${tip.message}</div>
+                    `;
+                } else {
+                    document.getElementById('smartAlert').innerHTML = `
+                        <i class="fas fa-lightbulb"></i>
+                        <div>AI Tip: ไม่มีคำแนะนำในขณะนี้</div>
+                    `;
+                }
+            }).catch((error) => {
+                console.error('ข้อผิดพลาดในการดึง AI tip:', error);
+                document.getElementById('smartAlert').innerHTML = `
+                    <i class="fas fa-lightbulb"></i>
+                    <div>AI Tip: ไม่สามารถโหลดคำแนะนำได้</div>
+                `;
+            });
+
+            // โหลดงานล่าสุด
+            db.collection('tasks').orderBy('createdAt', 'desc').limit(5).get().then((querySnapshot) => {
+                const taskList = document.getElementById('taskList');
                 querySnapshot.forEach((doc) => {
                     const task = doc.data();
-                    if (task.location) {
-                        let position;
-                        try {
-                            if (typeof task.location === 'string') {
-                                const parsedLocation = JSON.parse(task.location);
-                                position = {
-                                    lat: parsedLocation.lat,
-                                    lng: parsedLocation.lng
-                                };
-                            } else if (task.location.latitude && task.location.longitude) {
-                                position = {
-                                    lat: task.location.latitude,
-                                    lng: task.location.longitude
-                                };
-                            } else {
-                                position = {
-                                    lat: task.location.lat,
-                                    lng: task.location.lng
-                                };
-                            }
-
-                            if (typeof position.lat !== 'number' || typeof position.lng !== 'number') {
-                                throw new Error('Invalid lat or lng: not a number');
-                            }
-
-                            new google.maps.marker.AdvancedMarkerElement({
-                                position: position,
-                                map: map,
-                                title: task.name
-                            });
-                        } catch (error) {
-                            console.error(`Error processing task ${doc.id}:`, error);
-                        }
-                    }
+                    const taskCard = `
+                        <div class="task-card">
+                            <div class="task-header">
+                                <i class="fas fa-file-contract"></i>
+                                <h4>${doc.id}</h4>
+                            </div>
+                            <div class="task-details">
+                                <p><strong>ลูกหนี้:</strong> ${task.debtor || '-'}</p>
+                                <p><strong>สถานะ:</strong> ${task.status || 'รอดำเนินการ'}</p>
+                                <p><strong>ยอดหนี้:</strong> ${task.principle || '0'} บาท</p>
+                            </div>
+                        </div>
+                    `;
+                    taskList.innerHTML += taskCard;
                 });
             }).catch((error) => {
-                console.error('Error fetching tasks:', error);
+                console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
             });
+
+            // ออกจากระบบ
+            function logout() {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                }).catch((error) => {
+                    console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
+                    alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+                });
+            }
+
+            // เริ่มต้นแผนที่
+            window.initMap = function() {
+                try {
+                    const map = new google.maps.Map(document.getElementById('map'), {
+                        center: { lat: 13.7563, lng: 100.5018 },
+                        zoom: 12
+                    });
+
+                    // เพิ่มตำแหน่งปัจจุบันของผู้ใช้
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((position) => {
+                            const userPos = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            new google.maps.marker.AdvancedMarkerElement({
+                                position: userPos,
+                                map: map,
+                                title: 'ตำแหน่งของคุณ'
+                            });
+                            map.setCenter(userPos);
+                        }, (error) => {
+                            console.error('ข้อผิดพลาดในการรับตำแหน่งผู้ใช้:', error);
+                        });
+                    }
+
+                    // ดึงตำแหน่งงาน
+                    db.collection('tasks').get().then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            const task = doc.data();
+                            if (task.location) {
+                                let position;
+                                try {
+                                    if (typeof task.location === 'string') {
+                                        const parsedLocation = JSON.parse(task.location);
+                                        position = {
+                                            lat: parsedLocation.lat,
+                                            lng: parsedLocation.lng
+                                        };
+                                    } else if (task.location.latitude && task.location.longitude) {
+                                        position = {
+                                            lat: task.location.latitude,
+                                            lng: task.location.longitude
+                                        };
+                                    } else {
+                                        position = {
+                                            lat: task.location.lat,
+                                            lng: task.location.lng
+                                        };
+                                    }
+
+                                    if (typeof position.lat !== 'number' || typeof position.lng !== 'number') {
+                                        throw new Error('lat หรือ lng ไม่ถูกต้อง: ไม่ใช่ตัวเลข');
+                                    }
+
+                                    new google.maps.marker.AdvancedMarkerElement({
+                                        position: position,
+                                        map: map,
+                                        title: task.name
+                                    });
+                                } catch (error) {
+                                    console.error(`ข้อผิดพลาดในการประมวลผลงาน ${doc.id}:`, error);
+                                }
+                            }
+                        });
+                    }).catch((error) => {
+                        console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
+                        document.getElementById('mapError').style.display = 'block';
+                    });
+                } catch (error) {
+                    console.error('ข้อผิดพลาดในการเริ่มต้นแผนที่:', error);
+                    document.getElementById('mapError').style.display = 'block';
+                }
+            };
+        } catch (error) {
+            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
         }
     </script>
 </body>
