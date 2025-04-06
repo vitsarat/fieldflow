@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ล็อกอิน - DebtFlow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .login-container button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <h2>ล็อกอิน</h2>
+        <input type="text" id="username" placeholder="ชื่อผู้ใช้ (เช่น a001)" required>
+        <input type="password" id="password" placeholder="รหัสผ่าน" required>
+        <button onclick="login()">เข้าสู่ระบบ</button>
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "fieldflow-b3ee5.firebaseapp.com",
+            projectId: "fieldflow-b3ee5",
+            storageBucket: "fieldflow-b3ee5.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // ฟังก์ชันล็อกอิน
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error');
+
+            // เพิ่ม @debtflow.com เพื่อสร้างอีเมล
+            const email = `${username}@debtflow.com`;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    // ล็อกอินสำเร็จ
+                    window.location.href = 'dashboard.html'; // ไปที่หน้าแดชบอร์ด
+                })
+                .catch(error => {
+                    // เกิดข้อผิดพลาด
+                    let errorMessage = '';
+                    switch (error.code) {
+                        case 'auth/invalid-credential':
+                            errorMessage = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+                            break;
+                        case 'auth/user-not-found':
+                            errorMessage = 'ไม่พบผู้ใช้';
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage = 'รหัสผ่านไม่ถูกต้อง';
+                            break;
+                        default:
+                            errorMessage = error.message;
+                    }
+                    errorDiv.textContent = errorMessage;
+                });
+        }
+
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                window.location.href = 'dashboard.html'; // หากล็อกอินแล้ว ให้ไปที่หน้าแดชบอร์ด
+            }
+        });
+
+        // เพิ่มการกด Enter เพื่อล็อกอิน
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
+</body>
+</html>
