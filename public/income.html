@@ -38,6 +38,14 @@
             text-decoration: none;
             font-size: 16px;
         }
+        .cookie-warning {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
         canvas {
             max-width: 100%;
             margin-bottom: 20px;
@@ -99,6 +107,9 @@
             <h1>รายได้ - DebtFlow</h1>
             <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
+        <div class="cookie-warning" id="cookieWarning">
+            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+        </div>
         <canvas id="incomeChart"></canvas>
         <div class="dispute-alert" id="disputeAlert"></div>
         <table>
@@ -111,7 +122,11 @@
                     <th>คอมเมนต์</th>
                 </tr>
             </thead>
-            <tbody id="incomeTable"></tbody>
+            <tbody id="incomeTable">
+                <tr>
+                    <td colspan="5" style="text-align: center;">กำลังโหลดข้อมูล...</td>
+                </tr>
+            </tbody>
         </table>
         <a href="#" style="display: block; background: #1e3c72; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none; text-align: center; width: fit-content; margin: 0 auto;">ดาวน์โหลดรายงานรายได้</a>
     </div>
@@ -145,6 +160,7 @@
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
+
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -154,55 +170,69 @@
                         .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
             const incomeTable = document.getElementById('incomeTable');
             const disputeAlert = document.getElementById('disputeAlert');
             db.collection('income').get().then((querySnapshot) => {
-                let hasDispute = false;
-                const incomeData = { pending: 0, paid: 0, disputed: 0 };
-                querySnapshot.forEach((doc) => {
-                    const income = doc.data();
-                    const row = `
-                        <tr>
-                            <td>${doc.id}</td>
-                            <td>${income.commission || '0'} บาท</td>
-                            <td>${income.status || 'รอจ่าย'}</td>
-                            <td>${income.paymentDate || '-'}</td>
-                            <td><input type="text" value="${income.comment || ''}" placeholder="พิมพ์คอมเมนต์..." style="width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" onchange="updateComment('${doc.id}', this.value)"></td>
-                        </tr>
-                    `;
-                    incomeTable.innerHTML += row;
-                    if (income.comment) {
-                        hasDispute = true;
-                        disputeAlert.innerHTML = `มีการโต้แย้ง Commission จากงาน ${doc.id}`;
-                    }
-                    if (income.status === 'pending') incomeData.pending += income.commission || 0;
-                    else if (income.status === 'paid') incomeData.paid += income.commission || 0;
-                    else if (income.status === 'disputed') incomeData.disputed += income.commission || 0;
-                });
-                disputeAlert.style.display = hasDispute ? 'block' : 'none';
-                const ctx = document.getElementById('incomeChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['รอจ่าย', 'จ่ายแล้ว', 'โต้แย้ง'],
-                        datasets: [{
-                            label: 'Commission',
-                            data: [incomeData.pending, incomeData.paid, incomeData.disputed],
-                            backgroundColor: ['#ffcc00', '#28a745', '#ff4d4d']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'top' },
-                            title: { display: true, text: 'รายได้' }
-                        },
-                        scales: {
-                            y: { beginAtZero: true }
+                if (querySnapshot.empty) {
+                    incomeTable.innerHTML = '<tr><td colspan="5" style="text-align: center;">ไม่มีข้อมูลรายได้ในขณะนี้</td></tr>';
+                } else {
+                    let hasDispute = false;
+                    const incomeData = { pending: 0, paid: 0, disputed: 0 };
+                    incomeTable.innerHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const income = doc.data();
+                        const row = `
+                            <tr>
+                                <td>${doc.id}</td>
+                                <td>${income.commission || '0'} บาท</td>
+                                <td>${income.status || 'รอจ่าย'}</td>
+                                <td>${income.paymentDate || '-'}</td>
+                                <td><input type="text" value="${income.comment || ''}" placeholder="พิมพ์คอมเมนต์..." style="width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" onchange="updateComment('${doc.id}', this.value)"></td>
+                            </tr>
+                        `;
+                        incomeTable.innerHTML += row;
+                        if (income.comment) {
+                            hasDispute = true;
+                            disputeAlert.innerHTML = `มีการโต้แย้ง Commission จากงาน ${doc.id}`;
                         }
-                    }
-                });
-            }).catch((error) => console.error('ข้อผิดพลาดในการดึงข้อมูลรายได้:', error));
+                        if (income.status === 'pending') incomeData.pending += income.commission || 0;
+                        else if (income.status === 'paid') incomeData.paid += income.commission || 0;
+                        else if (income.status === 'disputed') incomeData.disputed += income.commission || 0;
+                    });
+                    disputeAlert.style.display = hasDispute ? 'block' : 'none';
+                    const ctx = document.getElementById('incomeChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['รอจ่าย', 'จ่ายแล้ว', 'โต้แย้ง'],
+                            datasets: [{
+                                label: 'Commission',
+                                data: [incomeData.pending, incomeData.paid, incomeData.disputed],
+                                backgroundColor: ['#ffcc00', '#28a745', '#ff4d4d']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'รายได้' }
+                            },
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+                }
+            }).catch((error) => {
+                console.error('ข้อผิดพลาดในการดึงข้อมูลรายได้:', error);
+                incomeTable.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff4d4d;">ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง</td></tr>';
+            });
+
             function updateComment(taskId, comment) {
                 db.collection('income').doc(taskId).update({ comment: comment })
                     .then(() => {
@@ -216,6 +246,7 @@
                     })
                     .catch((error) => console.error('ข้อผิดพลาดในการอัปเดตคอมเมนต์:', error));
             }
+
             function logout() {
                 auth.signOut().then(() => window.location.href = 'index.html')
                     .catch((error) => {
