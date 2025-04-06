@@ -75,7 +75,7 @@
         <h2>เข้าสู่ระบบ</h2>
         <input type="text" id="username" placeholder="ชื่อผู้ใช้" required>
         <input type="password" id="password" placeholder="รหัสผ่าน" required>
-        <button onclick="login()">เข้าสู่ระบบ</button>
+        <button type="button" onclick="login()">เข้าสู่ระบบ</button>
         <div id="error" class="error"></div>
         <div class="register-link">
             ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a>
@@ -134,11 +134,14 @@
                     userId: userDoc.id
                 }));
 
+                console.log('เก็บข้อมูลใน localStorage สำเร็จ:', localStorage.getItem('user')); // ดีบัก
+
                 // แจ้งเตือนล็อกอินสำเร็จ
                 alert('ล็อกอินสำเร็จ! กำลังนำคุณไปยังหน้าแดชบอร์ด...');
 
                 // นำไปยังหน้า dashboard
                 window.location.href = 'dashboard.html';
+                console.log('กำลังเปลี่ยนหน้าไปยัง dashboard.html'); // ดีบัก
             } catch (error) {
                 console.error('ข้อผิดพลาด:', error); // ดีบัก
                 errorDiv.textContent = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ: ' + error.message;
