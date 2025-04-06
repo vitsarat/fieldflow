@@ -45,6 +45,14 @@
             border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            position: relative;
+        }
+        .cookie-warning .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 18px;
         }
         canvas {
             max-width: 100%;
@@ -109,6 +117,7 @@
         </div>
         <div class="cookie-warning" id="cookieWarning">
             คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+            <span class="close-btn" onclick="dismissCookieWarning()">✖</span>
         </div>
         <canvas id="incomeChart"></canvas>
         <div class="dispute-alert" id="disputeAlert"></div>
@@ -171,6 +180,10 @@
                 }
             });
 
+            function dismissCookieWarning() {
+                document.getElementById('cookieWarning').style.display = 'none';
+            }
+
             if (navigator.cookieEnabled) {
                 document.getElementById('cookieWarning').style.display = 'block';
             }
@@ -180,6 +193,28 @@
             db.collection('income').get().then((querySnapshot) => {
                 if (querySnapshot.empty) {
                     incomeTable.innerHTML = '<tr><td colspan="5" style="text-align: center;">ไม่มีข้อมูลรายได้ในขณะนี้</td></tr>';
+                    const ctx = document.getElementById('incomeChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['รอจ่าย', 'จ่ายแล้ว', 'โต้แย้ง'],
+                            datasets: [{
+                                label: 'Commission',
+                                data: [0, 0, 0],
+                                backgroundColor: ['#ffcc00', '#28a745', '#ff4d4d']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'รายได้' }
+                            },
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
                 } else {
                     let hasDispute = false;
                     const incomeData = { pending: 0, paid: 0, disputed: 0 };
