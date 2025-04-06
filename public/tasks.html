@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายการงาน - DebtFlow</title>
-    <link rel="stylesheet" href="styles.css"> <!-- หากคุณมีไฟล์ CSS -->
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <title>งาน - DebtFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            margin: 0;
+            padding: 0;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
         .header {
             display: flex;
@@ -24,545 +25,263 @@
             align-items: center;
             margin-bottom: 20px;
         }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
         .logout-btn {
-            padding: 8px 16px;
-            background-color: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .logout-btn:hover {
-            background-color: #cc0000;
-        }
-        .search-filter {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .search-filter input, .search-filter button {
-            padding: 8px;
+            background: #ff4d4d;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
             font-size: 16px;
         }
-        .tabs {
+        .cookie-warning {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            position: relative;
+        }
+        .cookie-warning .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .task-list {
+            display: grid;
+            gap: 20px;
+        }
+        .task-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            transition: transform 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+        }
+        .task-header {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            align-items: center;
+            margin-bottom: 10px;
         }
-        .tab {
+        .task-header i {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .task-header h4 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .task-details p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .priority-dot.status-pending { background: #ffcc00; }
+        .priority-dot.status-contacted { background: #1e90ff; }
+        .priority-dot.status-completed { background: #28a745; }
+        .btn-add {
+            display: block;
+            background: #1e3c72;
+            color: #fff;
             padding: 10px 20px;
-            background-color: #f2f2f2;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .tab.active {
-            background-color: #4CAF50;
-            color: white;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr {
-            cursor: pointer;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            margin: 20px auto;
+            width: fit-content;
         }
         .pagination {
             display: flex;
-            gap: 10px;
-            align-items: center;
             justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
         }
-        button {
-            padding: 8px 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
+        .pagination button {
+            background: #1e3c72;
+            color: #fff;
+            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
+            cursor: pointer;
         }
-        button:disabled {
-            background-color: #cccccc;
+        .pagination button:disabled {
+            background: #666;
             cursor: not-allowed;
         }
-        .modal {
-            display: none;
+        .navbar {
             position: fixed;
-            top: 0;
-            left: 0;
+            bottom: 0;
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .modal-content h2 {
-            margin-top: 0;
-        }
-        .modal-content label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-        .modal-content input, .modal-content select, .modal-content textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .modal-content .buttons {
+            background: #fff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+            justify-content: space-around;
+            padding: 10px 0;
         }
-        .error {
-            color: red;
+        .navbar a {
+            color: #666;
             text-align: center;
-            margin: 10px 0;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .navbar a.active {
+            color: #1e3c72;
+        }
+        .navbar i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>รายการงาน</h1>
-            <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+            <h1>งาน - DebtFlow</h1>
+            <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
-        <div class="search-filter">
-            <input type="text" id="searchInput" placeholder="ค้นหางาน (เช่น รหัสงาน, ชื่อลูกหนี้, ที่อยู่)">
-            <button onclick="searchTasks()">ค้นหา</button>
+        <div class="cookie-warning" id="cookieWarning">
+            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+            <span class="close-btn" onclick="dismissCookieWarning()">✖</span>
         </div>
-        <div class="tabs">
-            <button class="tab active" onclick="filterTasks('')">ทั้งหมด</button>
-            <button class="tab" onclick="filterTasks('pending')">รอดำเนินการ</button>
-            <button class="tab" onclick="filterTasks('contacted')">ติดต่อแล้ว</button>
-            <button class="tab" onclick="filterTasks('completed')">เสร็จสิ้น</button>
+        <div class="task-list" id="taskList">
+            <div style="text-align: center;">กำลังโหลดงาน...</div>
         </div>
-        <div id="totalTasks">ทั้งหมด: 0 งาน</div>
-        <div id="error" class="error"></div>
-        <table>
-            <thead>
-                <tr>
-                    <th>รหัสงาน</th>
-                    <th>ชื่อลูกหนี้</th>
-                    <th>ที่อยู่</th>
-                    <th>เบอร์โทร</th>
-                    <th>ยอดหนี้</th>
-                    <th>หมายเหตุ</th>
-                    <th>ยี่ห้อรถ</th>
-                    <th>รุ่นรถ</th>
-                    <th>วันที่สร้าง</th>
-                    <th>สถานะ</th>
-                </tr>
-            </thead>
-            <tbody id="taskList">
-                <!-- รายการงานจะถูกเพิ่มที่นี่โดย JavaScript -->
-            </tbody>
-        </table>
         <div class="pagination">
-            <button id="prevBtn" onclick="prevPage()" disabled>ก่อนหน้า</button>
-            <span id="pageInfo">หน้า 1 / 1</span>
-            <button id="nextBtn" onclick="nextPage()" disabled>ถัดไป</button>
+            <button id="prevPage" onclick="loadPreviousPage()" disabled>ก่อนหน้า</button>
+            <button id="nextPage" onclick="loadNextPage()">ถัดไป</button>
         </div>
+        <a href="task-details.html" class="btn-add">+ เพิ่มงานใหม่</a>
     </div>
-
-    <!-- Modal สำหรับแสดงและแก้ไขรายละเอียดงาน -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <h2>รายละเอียดงาน</h2>
-            <form id="taskForm">
-                <label>รหัสงาน</label>
-                <input type="text" id="taskId" readonly>
-                <label>ชื่อลูกหนี้</label>
-                <input type="text" id="debtor">
-                <label>ที่อยู่</label>
-                <input type="text" id="address">
-                <label>เบอร์โทร</label>
-                <input type="text" id="phone">
-                <label>ยอดหนี้</label>
-                <input type="number" id="principle" step="0.01">
-                <label>หมายเหตุ</label>
-                <textarea id="note"></textarea>
-                <label>ยี่ห้อรถ</label>
-                <input type="text" id="brand">
-                <label>รุ่นรถ</label>
-                <input type="text" id="model">
-                <label>เลขตัวถัง</label>
-                <input type="text" id="chassisNo">
-                <label>เลขเครื่องยนต์</label>
-                <input type="text" id="engineNo">
-                <label>ยอดจัดไฟแนนซ์</label>
-                <input type="text" id="financeAmount">
-                <label>วันที่สร้าง</label>
-                <input type="text" id="createdAt" readonly>
-                <label>สถานะ</label>
-                <select id="status">
-                    <option value="pending">รอดำเนินการ</option>
-                    <option value="contacted">ติดต่อแล้ว</option>
-                    <option value="completed">เสร็จสิ้น</option>
-                </select>
-                <label>ตำแหน่ง (Latitude)</label>
-                <input type="number" id="lat" step="0.0001">
-                <label>ตำแหน่ง (Longitude)</label>
-                <input type="number" id="lng" step="0.0001">
-                <div class="buttons">
-                    <button type="button" onclick="closeModal()">ปิด</button>
-                    <button type="submit">บันทึก</button>
-                </div>
-            </form>
-        </div>
+    <div class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
+        <a href="tasks.html" class="active"><i class="fas fa-tasks"></i>งาน</a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i>ผลงาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i>รายได้</a>
+        <a href="profile.html"><i class="fas fa-user"></i>โปรไฟล์</a>
     </div>
-
+    <script src="env.js"></script>
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "fieldflow-b3ee5.firebaseapp.com",
-            projectId: "fieldflow-b3ee5",
-            storageBucket: "fieldflow-b3ee5.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        if (!window.env) {
+            console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
+            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
+        }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script>
+        try {
+            const firebaseConfig = {
+                apiKey: window.env.FIREBASE_API_KEY,
+                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+                projectId: window.env.FIREBASE_PROJECT_ID,
+                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+                appId: window.env.FIREBASE_APP_ID
+            };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                } else {
+                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
+                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
+                    loadTasks(); // โหลดข้อมูลครั้งแรกเมื่อผู้ใช้ล็อกอิน
+                }
+            });
 
-        // Pagination Variables
-        const pageSize = 10;
-        let currentPage = 1;
-        let lastDoc = null;
-        let firstDoc = null;
-        let totalTasks = 0;
-        let currentQuery = db.collection('tasks').orderBy('createdAt', 'desc');
-        let isSearching = false;
-        let searchTerm = '';
-        let currentStatus = '';
+            function dismissCookieWarning() {
+                document.getElementById('cookieWarning').style.display = 'none';
+            }
 
-        // ตรวจสอบสถานะการล็อกอิน
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = 'login.html'; // หากไม่ได้ล็อกอิน ให้ไปที่หน้า login
-            } else {
-                getTotalTasks();
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
+            let lastVisible = null;
+            const pageSize = 10; // จำนวนงานต่อหน้า
+
+            function loadTasks() {
+                const taskList = document.getElementById('taskList');
+                taskList.innerHTML = '<div style="text-align: center;">กำลังโหลดงาน...</div>';
+
+                let query = db.collection('tasks')
+                    .orderBy('createdAt', 'desc')
+                    .limit(pageSize);
+
+                if (lastVisible) {
+                    query = query.startAfter(lastVisible);
+                }
+
+                query.get().then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        taskList.innerHTML = '<div style="text-align: center;">ไม่มีงานในขณะนี้</div>';
+                        document.getElementById('nextPage').disabled = true;
+                    } else {
+                        taskList.innerHTML = '';
+                        querySnapshot.forEach((doc) => {
+                            const task = doc.data();
+                            const status = task.status || 'pending';
+                            const taskCard = `
+                                <div class="task-card">
+                                    <div class="task-header">
+                                        <i class="fas fa-file-contract"></i>
+                                        <h4>${doc.id}</h4>
+                                        <span class="priority-dot status-${status}" style="width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 10px;"></span>
+                                    </div>
+                                    <div class="task-details">
+                                        <p><strong>ลูกหนี้:</strong> ${task.debtor || '-'}</p>
+                                        <p><strong>สถานะ:</strong> ${task.status || 'รอดำเนินการ'}</p>
+                                        <p><strong>ยอดหนี้:</strong> ${task.principle || '0'} บาท</p>
+                                    </div>
+                                </div>
+                            `;
+                            taskList.innerHTML += taskCard;
+                        });
+                        lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+                        document.getElementById('nextPage').disabled = querySnapshot.size < pageSize;
+                        document.getElementById('prevPage').disabled = !lastVisible;
+                    }
+                }).catch((error) => {
+                    console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
+                    taskList.innerHTML = '<div style="text-align: center; color: #ff4d4d;">ไม่สามารถโหลดงานได้ กรุณาลองใหม่อีกครั้ง</div>';
+                });
+            }
+
+            function loadNextPage() {
                 loadTasks();
             }
-        });
 
-        // ฟังก์ชันล็อกเอาท์
-        function logout() {
-            auth.signOut().then(() => {
-                window.location.href = 'login.html';
-            }).catch(error => {
-                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message;
-            });
+            function loadPreviousPage() {
+                lastVisible = null; // รีเซ็ตเพื่อกลับไปหน้าแรก
+                loadTasks();
+            }
+
+            function logout() {
+                auth.signOut().then(() => window.location.href = 'index.html')
+                    .catch((error) => {
+                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
+                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+                    });
+            }
+        } catch (error) {
+            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
         }
-
-        // ดึงจำนวนงานทั้งหมด
-        async function getTotalTasks() {
-            try {
-                let query = db.collection('tasks');
-                if (currentStatus) {
-                    query = query.where('status', '==', currentStatus);
-                }
-                const snapshot = await query.get();
-                totalTasks = snapshot.size;
-                document.getElementById('totalTasks').textContent = `ทั้งหมด: ${totalTasks} งาน`;
-                document.getElementById('pageInfo').textContent = `หน้า ${currentPage} / ${Math.ceil(totalTasks / pageSize)}`;
-            } catch (error) {
-                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการนับงาน: ' + error.message;
-            }
-        }
-
-        // ดึงข้อมูลงานตามหน้า
-        async function loadTasks() {
-            try {
-                const taskList = document.getElementById('taskList');
-                taskList.innerHTML = ''; // ล้างรายการก่อนหน้า
-
-                let query = currentQuery.limit(pageSize);
-
-                if (lastDoc && currentPage > 1) {
-                    query = query.startAfter(lastDoc);
-                }
-
-                const snapshot = await query.get();
-                if (snapshot.empty) {
-                    taskList.innerHTML = '<tr><td colspan="10">ไม่มีข้อมูล</td></tr>';
-                    return;
-                }
-
-                firstDoc = snapshot.docs[0];
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
-
-                snapshot.forEach(doc => {
-                    const task = doc.data();
-                    const createdAt = task.createdAt instanceof firebase.firestore.Timestamp
-                        ? task.createdAt.toDate().toLocaleString('th-TH')
-                        : new Date(task.createdAt).toLocaleString('th-TH');
-                    const row = `
-                        <tr onclick="showTaskDetails('${task.taskId}')">
-                            <td>${task.taskId}</td>
-                            <td>${task.debtor}</td>
-                            <td>${task.address}</td>
-                            <td>${task.phone}</td>
-                            <td>${task.principle.toLocaleString()}</td>
-                            <td>${task.note || '-'}</td>
-                            <td>${task.brand}</td>
-                            <td>${task.model}</td>
-                            <td>${createdAt}</td>
-                            <td>${task.status}</td>
-                        </tr>
-                    `;
-                    taskList.innerHTML += row;
-                });
-
-                document.getElementById('pageInfo').textContent = `หน้า ${currentPage} / ${Math.ceil(totalTasks / pageSize)}`;
-                document.getElementById('prevBtn').disabled = currentPage === 1;
-                document.getElementById('nextBtn').disabled = currentPage === Math.ceil(totalTasks / pageSize);
-            } catch (error) {
-                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการโหลดงาน: ' + error.message;
-            }
-        }
-
-        // ฟังก์ชันค้นหางาน
-        async function searchTasks() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            searchTerm = searchInput;
-            isSearching = searchTerm !== '';
-
-            const taskList = document.getElementById('taskList');
-            taskList.innerHTML = '';
-
-            if (!isSearching) {
-                // ถ้าไม่มีการค้นหา ให้กลับไปใช้ query ปกติ
-                currentQuery = db.collection('tasks').orderBy('createdAt', 'desc');
-                if (currentStatus) {
-                    currentQuery = currentQuery.where('status', '==', currentStatus);
-                }
-                currentPage = 1;
-                lastDoc = null;
-                firstDoc = null;
-                await getTotalTasks();
-                await loadTasks();
-                return;
-            }
-
-            // ค้นหาตาม taskId, debtor, หรือ address
-            const snapshot = await db.collection('tasks')
-                .orderBy('taskId')
-                .startAt(searchTerm)
-                .endAt(searchTerm + '\uf8ff')
-                .get();
-
-            const debtorSnapshot = await db.collection('tasks')
-                .orderBy('debtor')
-                .startAt(searchTerm)
-                .endAt(searchTerm + '\uf8ff')
-                .get();
-
-            const addressSnapshot = await db.collection('tasks')
-                .orderBy('address')
-                .startAt(searchTerm)
-                .endAt(searchTerm + '\uf8ff')
-                .get();
-
-            // รวมผลลัพธ์และกำจัดรายการซ้ำ
-            const tasksMap = new Map();
-            snapshot.forEach(doc => tasksMap.set(doc.id, doc.data()));
-            debtorSnapshot.forEach(doc => tasksMap.set(doc.id, doc.data()));
-            addressSnapshot.forEach(doc => tasksMap.set(doc.id, doc.data()));
-
-            const filteredTasks = Array.from(tasksMap.values())
-                .filter(task => {
-                    if (currentStatus) {
-                        return task.status === currentStatus;
-                    }
-                    return true;
-                });
-
-            if (filteredTasks.length === 0) {
-                taskList.innerHTML = '<tr><td colspan="10">ไม่พบข้อมูล</td></tr>';
-                return;
-            }
-
-            // แสดงผลลัพธ์การค้นหา
-            filteredTasks.forEach(task => {
-                const createdAt = task.createdAt instanceof firebase.firestore.Timestamp
-                    ? task.createdAt.toDate().toLocaleString('th-TH')
-                    : new Date(task.createdAt).toLocaleString('th-TH');
-                const row = `
-                    <tr onclick="showTaskDetails('${task.taskId}')">
-                        <td>${task.taskId}</td>
-                        <td>${task.debtor}</td>
-                        <td>${task.address}</td>
-                        <td>${task.phone}</td>
-                        <td>${task.principle.toLocaleString()}</td>
-                        <td>${task.note || '-'}</td>
-                        <td>${task.brand}</td>
-                        <td>${task.model}</td>
-                        <td>${createdAt}</td>
-                        <td>${task.status}</td>
-                    </tr>
-                `;
-                taskList.innerHTML += row;
-            });
-
-            // ปิดการใช้งานปุ่ม pagination ระหว่างการค้นหา
-            document.getElementById('prevBtn').disabled = true;
-            document.getElementById('nextBtn').disabled = true;
-            document.getElementById('pageInfo').textContent = `ผลการค้นหา: ${filteredTasks.length} รายการ`;
-        }
-
-        // ฟังก์ชันกรองตามสถานะ
-        async function filterTasks(status) {
-            currentStatus = status;
-            isSearching = false;
-            document.getElementById('searchInput').value = ''; // ล้างช่องค้นหา
-            searchTerm = '';
-
-            // อัปเดตสถานะของแท็บ
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.textContent === (status ? status === 'pending' ? 'รอดำเนินการ' : status === 'contacted' ? 'ติดต่อแล้ว' : 'เสร็จสิ้น' : 'ทั้งหมด')) {
-                    tab.classList.add('active');
-                }
-            });
-
-            currentQuery = db.collection('tasks').orderBy('createdAt', 'desc');
-            if (currentStatus) {
-                currentQuery = currentQuery.where('status', '==', currentStatus);
-            }
-
-            currentPage = 1;
-            lastDoc = null;
-            firstDoc = null;
-
-            await getTotalTasks();
-            await loadTasks();
-        }
-
-        // ฟังก์ชันสำหรับปุ่ม "ก่อนหน้า"
-        async function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                const query = currentQuery
-                    .endBefore(firstDoc)
-                    .limitToLast(pageSize);
-                const snapshot = await query.get();
-                firstDoc = snapshot.docs[0];
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
-                await loadTasks();
-            }
-        }
-
-        // ฟังก์ชันสำหรับปุ่ม "ถัดไป"
-        async function nextPage() {
-            if (currentPage < Math.ceil(totalTasks / pageSize)) {
-                currentPage++;
-                await loadTasks();
-            }
-        }
-
-        // ฟังก์ชันแสดงรายละเอียดงาน
-        async function showTaskDetails(taskId) {
-            try {
-                const doc = await db.collection('tasks').doc(taskId).get();
-                if (!doc.exists) {
-                    document.getElementById('error').textContent = 'ไม่พบข้อมูลงาน';
-                    return;
-                }
-
-                const task = doc.data();
-                document.getElementById('taskId').value = task.taskId;
-                document.getElementById('debtor').value = task.debtor;
-                document.getElementById('address').value = task.address;
-                document.getElementById('phone').value = task.phone;
-                document.getElementById('principle').value = task.principle;
-                document.getElementById('note').value = task.note || '';
-                document.getElementById('brand').value = task.brand;
-                document.getElementById('model').value = task.model;
-                document.getElementById('chassisNo').value = task.chassisNo;
-                document.getElementById('engineNo').value = task.engineNo;
-                document.getElementById('financeAmount').value = task.financeAmount;
-                const createdAt = task.createdAt instanceof firebase.firestore.Timestamp
-                    ? task.createdAt.toDate().toLocaleString('th-TH')
-                    : new Date(task.createdAt).toLocaleString('th-TH');
-                document.getElementById('createdAt').value = createdAt;
-                document.getElementById('status').value = task.status;
-                document.getElementById('lat').value = task.location ? task.location.lat : '';
-                document.getElementById('lng').value = task.location ? task.location.lng : '';
-
-                document.getElementById('taskModal').style.display = 'flex';
-            } catch (error) {
-                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการโหลดรายละเอียดงาน: ' + error.message;
-            }
-        }
-
-        // ฟังก์ชันปิด modal
-        function closeModal() {
-            document.getElementById('taskModal').style.display = 'none';
-        }
-
-        // ฟังก์ชันบันทึกการแก้ไข
-        document.getElementById('taskForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const taskId = document.getElementById('taskId').value;
-            const updatedTask = {
-                debtor: document.getElementById('debtor').value,
-                address: document.getElementById('address').value,
-                phone: document.getElementById('phone').value,
-                principle: parseFloat(document.getElementById('principle').value),
-                note: document.getElementById('note').value,
-                brand: document.getElementById('brand').value,
-                model: document.getElementById('model').value,
-                chassisNo: document.getElementById('chassisNo').value,
-                engineNo: document.getElementById('engineNo').value,
-                financeAmount: document.getElementById('financeAmount').value,
-                status: document.getElementById('status').value,
-                location: {
-                    lat: parseFloat(document.getElementById('lat').value) || 0,
-                    lng: parseFloat(document.getElementById('lng').value) || 0
-                }
-            };
-
-            try {
-                await db.collection('tasks').doc(taskId).update(updatedTask);
-                closeModal();
-                await loadTasks();
-            } catch (error) {
-                document.getElementById('error').textContent = 'เกิดข้อผิดพลาดในการบันทึก: ' + error.message;
-            }
-        });
-
-        // เพิ่มการกด Enter เพื่อค้นหา
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                searchTasks();
-            }
-        });
     </script>
 </body>
 </html>
