@@ -44,7 +44,6 @@
         .task-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             padding: 15px;
@@ -116,36 +115,16 @@
             <h1>งาน - DebtFlow</h1>
             <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
-
         <div class="task-list" id="taskList"></div>
-
         <a href="task-details.html" class="btn-add">+ เพิ่มงานใหม่</a>
     </div>
-
     <div class="navbar">
-        <a href="dashboard.html">
-            <i class="fas fa-home"></i>
-            หน้าแรก
-        </a>
-        <a href="tasks.html" class="active">
-            <i class="fas fa-tasks"></i>
-            งาน
-        </a>
-        <a href="performance.html">
-            <i class="fas fa-chart-line"></i>
-            ผลงาน
-        </a>
-        <a href="income.html">
-            <i class="fas fa-wallet"></i>
-            รายได้
-        </a>
-        <a href="profile.html">
-            <i class="fas fa-user"></i>
-            โปรไฟล์
-        </a>
+        <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
+        <a href="tasks.html" class="active"><i class="fas fa-tasks"></i>งาน</a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i>ผลงาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i>รายได้</a>
+        <a href="profile.html"><i class="fas fa-user"></i>โปรไฟล์</a>
     </div>
-
-    <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
     <script>
         if (!window.env) {
@@ -157,7 +136,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
     <script>
-        // กำหนดค่า Firebase
         try {
             const firebaseConfig = {
                 apiKey: window.env.FIREBASE_API_KEY,
@@ -167,28 +145,18 @@
                 messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
                 appId: window.env.FIREBASE_APP_ID
             };
-
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
-
-            // ตรวจสอบสถานะการล็อกอิน
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
                 } else {
-                    // ตั้งค่าการคงสถานะเซสชัน
                     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                        .then(() => {
-                            console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ');
-                        })
-                        .catch((error) => {
-                            console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error);
-                        });
+                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
+                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
-
-            // โหลดรายการงาน
             db.collection('tasks').orderBy('createdAt', 'desc').get().then((querySnapshot) => {
                 const taskList = document.getElementById('taskList');
                 querySnapshot.forEach((doc) => {
@@ -214,15 +182,12 @@
                 console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
                 alert('เกิดข้อผิดพลาดในการดึงข้อมูลงาน: ' + error.message);
             });
-
-            // ออกจากระบบ
             function logout() {
-                auth.signOut().then(() => {
-                    window.location.href = 'index.html';
-                }).catch((error) => {
-                    console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
-                    alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
-                });
+                auth.signOut().then(() => window.location.href = 'index.html')
+                    .catch((error) => {
+                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
+                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+                    });
             }
         } catch (error) {
             console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
