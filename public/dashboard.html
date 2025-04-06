@@ -223,7 +223,8 @@
         });
 
         // ฟังก์ชันเริ่มต้น Google Maps
-        function initMap() {
+        window.initMap = function() {
+        try {
             const map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 13.7563, lng: 100.5018 },
                 zoom: 12
