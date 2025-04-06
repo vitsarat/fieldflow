@@ -6,6 +6,7 @@
     <title>หน้าแรก - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <!-- โหลด Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc&libraries=marker&callback=initMap" async defer></script>
     <style>
         body {
@@ -64,6 +65,7 @@
         .task-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             padding: 15px;
@@ -121,28 +123,50 @@
             <h1>หน้าแรก - DebtFlow</h1>
             <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
+
         <div class="smart-alert" id="smartAlert">
             <i class="fas fa-lightbulb"></i>
             <div>กำลังโหลดคำแนะนำ...</div>
         </div>
+
         <div id="map"></div>
         <div id="mapError" style="display: none; color: #ff4d4d; text-align: center; margin-bottom: 15px;">
             ไม่สามารถโหลดแผนที่ได้ กรุณาลองใหม่อีกครั้ง
         </div>
+
         <div style="text-align: center; margin-bottom: 15px;">
             <a href="tasks.html" style="background: #1e3c72; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">
                 ดูงานทั้งหมด
             </a>
         </div>
+
         <div class="task-list" id="taskList"></div>
     </div>
+
     <div class="navbar">
-        <a href="dashboard.html" class="active"><i class="fas fa-home"></i>หน้าแรก</a>
-        <a href="tasks.html"><i class="fas fa-tasks"></i>งาน</a>
-        <a href="performance.html"><i class="fas fa-chart-line"></i>ผลงาน</a>
-        <a href="income.html"><i class="fas fa-wallet"></i>รายได้</a>
-        <a href="profile.html"><i class="fas fa-user"></i>โปรไฟล์</a>
+        <a href="dashboard.html" class="active">
+            <i class="fas fa-home"></i>
+            หน้าแรก
+        </a>
+        <a href="tasks.html">
+            <i class="fas fa-tasks"></i>
+            งาน
+        </a>
+        <a href="performance.html">
+            <i class="fas fa-chart-line"></i>
+            ผลงาน
+        </a>
+        <a href="income.html">
+            <i class="fas fa-wallet"></i>
+            รายได้
+        </a>
+        <a href="profile.html">
+            <i class="fas fa-user"></i>
+            โปรไฟล์
+        </a>
     </div>
+
+    <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
     <script>
         if (!window.env) {
@@ -154,6 +178,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
     <script>
+        // กำหนดค่า Firebase
         try {
             const firebaseConfig = {
                 apiKey: window.env.FIREBASE_API_KEY,
@@ -163,18 +188,28 @@
                 messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
                 appId: window.env.FIREBASE_APP_ID
             };
+
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
+
+            // ตรวจสอบสถานะการล็อกอิน
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
                 } else {
+                    // ตั้งค่าการคงสถานะเซสชัน
                     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
-                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
+                        .then(() => {
+                            console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ');
+                        })
+                        .catch((error) => {
+                            console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error);
+                        });
                 }
             });
+
+            // ดึง AI Tip
             db.collection('aiTips').doc('dailyTip').get().then((doc) => {
                 if (doc.exists) {
                     const tip = doc.data();
@@ -195,6 +230,8 @@
                     <div>AI Tip: ไม่สามารถโหลดคำแนะนำได้</div>
                 `;
             });
+
+            // โหลดงานล่าสุด
             db.collection('tasks').orderBy('createdAt', 'desc').limit(5).get().then((querySnapshot) => {
                 const taskList = document.getElementById('taskList');
                 querySnapshot.forEach((doc) => {
@@ -214,20 +251,29 @@
                     `;
                     taskList.innerHTML += taskCard;
                 });
-            }).catch((error) => console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error));
+            }).catch((error) => {
+                console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
+            });
+
+            // ออกจากระบบ
             function logout() {
-                auth.signOut().then(() => window.location.href = 'index.html')
-                    .catch((error) => {
-                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
-                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
-                    });
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                }).catch((error) => {
+                    console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
+                    alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+                });
             }
+
+            // เริ่มต้นแผนที่
             window.initMap = function() {
                 try {
                     const map = new google.maps.Map(document.getElementById('map'), {
                         center: { lat: 13.7563, lng: 100.5018 },
                         zoom: 12
                     });
+
+                    // เพิ่มตำแหน่งปัจจุบันของผู้ใช้
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition((position) => {
                             const userPos = {
@@ -240,8 +286,12 @@
                                 title: 'ตำแหน่งของคุณ'
                             });
                             map.setCenter(userPos);
-                        }, (error) => console.error('ข้อผิดพลาดในการรับตำแหน่งผู้ใช้:', error));
+                        }, (error) => {
+                            console.error('ข้อผิดพลาดในการรับตำแหน่งผู้ใช้:', error);
+                        });
                     }
+
+                    // ดึงตำแหน่งงาน
                     db.collection('tasks').get().then((querySnapshot) => {
                         querySnapshot.forEach((doc) => {
                             const task = doc.data();
@@ -250,15 +300,26 @@
                                 try {
                                     if (typeof task.location === 'string') {
                                         const parsedLocation = JSON.parse(task.location);
-                                        position = { lat: parsedLocation.lat, lng: parsedLocation.lng };
+                                        position = {
+                                            lat: parsedLocation.lat,
+                                            lng: parsedLocation.lng
+                                        };
                                     } else if (task.location.latitude && task.location.longitude) {
-                                        position = { lat: task.location.latitude, lng: task.location.longitude };
+                                        position = {
+                                            lat: task.location.latitude,
+                                            lng: task.location.longitude
+                                        };
                                     } else {
-                                        position = { lat: task.location.lat, lng: task.location.lng };
+                                        position = {
+                                            lat: task.location.lat,
+                                            lng: task.location.lng
+                                        };
                                     }
+
                                     if (typeof position.lat !== 'number' || typeof position.lng !== 'number') {
                                         throw new Error('lat หรือ lng ไม่ถูกต้อง: ไม่ใช่ตัวเลข');
                                     }
+
                                     new google.maps.marker.AdvancedMarkerElement({
                                         position: position,
                                         map: map,
