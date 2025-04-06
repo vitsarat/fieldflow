@@ -38,6 +38,14 @@
             text-decoration: none;
             font-size: 16px;
         }
+        .cookie-warning {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
         .smart-alert {
             background: #ffcc00;
             color: #333;
@@ -121,6 +129,9 @@
             <h1>หน้าแรก - DebtFlow</h1>
             <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
+        <div class="cookie-warning" id="cookieWarning">
+            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+        </div>
         <div class="smart-alert" id="smartAlert">
             <i class="fas fa-lightbulb"></i>
             <div>กำลังโหลดคำแนะนำ...</div>
@@ -134,7 +145,9 @@
                 ดูงานทั้งหมด
             </a>
         </div>
-        <div class="task-list" id="taskList"></div>
+        <div class="task-list" id="taskList">
+            <div style="text-align: center;">กำลังโหลดงาน...</div>
+        </div>
     </div>
     <div class="navbar">
         <a href="dashboard.html" class="active"><i class="fas fa-home"></i>หน้าแรก</a>
@@ -166,6 +179,7 @@
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
+
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -175,6 +189,11 @@
                         .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
             db.collection('aiTips').doc('dailyTip').get().then((doc) => {
                 if (doc.exists) {
                     const tip = doc.data();
@@ -195,26 +214,36 @@
                     <div>AI Tip: ไม่สามารถโหลดคำแนะนำได้</div>
                 `;
             });
+
             db.collection('tasks').orderBy('createdAt', 'desc').limit(5).get().then((querySnapshot) => {
                 const taskList = document.getElementById('taskList');
-                querySnapshot.forEach((doc) => {
-                    const task = doc.data();
-                    const taskCard = `
-                        <div class="task-card">
-                            <div class="task-header">
-                                <i class="fas fa-file-contract"></i>
-                                <h4>${doc.id}</h4>
+                if (querySnapshot.empty) {
+                    taskList.innerHTML = '<div style="text-align: center;">ไม่มีงานในขณะนี้</div>';
+                } else {
+                    taskList.innerHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const task = doc.data();
+                        const taskCard = `
+                            <div class="task-card">
+                                <div class="task-header">
+                                    <i class="fas fa-file-contract"></i>
+                                    <h4>${doc.id}</h4>
+                                </div>
+                                <div class="task-details">
+                                    <p><strong>ลูกหนี้:</strong> ${task.debtor || '-'}</p>
+                                    <p><strong>สถานะ:</strong> ${task.status || 'รอดำเนินการ'}</p>
+                                    <p><strong>ยอดหนี้:</strong> ${task.principle || '0'} บาท</p>
+                                </div>
                             </div>
-                            <div class="task-details">
-                                <p><strong>ลูกหนี้:</strong> ${task.debtor || '-'}</p>
-                                <p><strong>สถานะ:</strong> ${task.status || 'รอดำเนินการ'}</p>
-                                <p><strong>ยอดหนี้:</strong> ${task.principle || '0'} บาท</p>
-                            </div>
-                        </div>
-                    `;
-                    taskList.innerHTML += taskCard;
-                });
-            }).catch((error) => console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error));
+                        `;
+                        taskList.innerHTML += taskCard;
+                    });
+                }
+            }).catch((error) => {
+                console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
+                document.getElementById('taskList').innerHTML = '<div style="text-align: center; color: #ff4d4d;">ไม่สามารถโหลดงานได้ กรุณาลองใหม่อีกครั้ง</div>';
+            });
+
             function logout() {
                 auth.signOut().then(() => window.location.href = 'index.html')
                     .catch((error) => {
@@ -222,6 +251,7 @@
                         alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
                     });
             }
+
             window.initMap = function() {
                 try {
                     const map = new google.maps.Map(document.getElementById('map'), {
