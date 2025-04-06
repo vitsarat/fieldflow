@@ -7,29 +7,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <!-- โหลด Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc&libraries=places,marker&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc&libraries=marker&callback=initMap" async defer></script>
     <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
         #map {
-            height: 400px;
+            height: 500px;
             width: 100%;
-        }
-        .search-container {
-            margin: 10px 0;
-            position: relative;
-        }
-        #searchInput {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         .logout-button {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
+            display: block;
+            width: fit-content;
+            margin: 0 auto;
+            padding: 12px 30px;
             background-color: #ff4d4d;
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         .logout-button:hover {
             background-color: #e60000;
@@ -38,10 +54,7 @@
 </head>
 <body>
     <div class="container">
-        <h3>แดชบอร์ด</h3>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="ค้นหาสถานที่...">
-        </div>
+        <h3>แดชบอร์ด - ตำแหน่งงาน</h3>
         <div id="map"></div>
         <a href="#" class="logout-button" id="logoutButton">ออกจากระบบ</a>
     </div>
@@ -98,40 +111,6 @@
             const map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 13.7563, lng: 100.5018 }, // ตัวอย่าง: กรุงเทพฯ
                 zoom: 12
-            });
-
-            // เพิ่ม Autocomplete
-            const input = document.getElementById('searchInput');
-            const autocomplete = new google.maps.places.Autocomplete(input, {
-                types: ['geocode'], // จำกัดการค้นหาเป็นสถานที่ทางภูมิศาสตร์
-                fields: ['place_id', 'geometry', 'name'] // ข้อมูลที่ต้องการ
-            });
-
-            // เพิ่ม input ไปที่ตำแหน่งบนซ้ายของแผนที่
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-            // ฟังก์ชันเมื่อผู้ใช้เลือกสถานที่จาก Autocomplete
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
-                if (!place.geometry || !place.geometry.location) {
-                    console.error('No geometry available for this place');
-                    return;
-                }
-
-                // เพิ่ม Marker สำหรับสถานที่ที่เลือก
-                new google.maps.marker.AdvancedMarkerElement({
-                    position: place.geometry.location,
-                    map: map,
-                    title: place.name
-                });
-
-                // ปรับตำแหน่งและซูมของแผนที่
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17);
-                }
             });
 
             // ดึงข้อมูลตำแหน่งจาก Firestore (เช่น งานที่พนักงานต้องไป)
