@@ -81,7 +81,7 @@
         <input type="text" id="username" placeholder="ชื่อผู้ใช้" required>
         <input type="password" id="password" placeholder="รหัสผ่าน" required>
         <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required>
-        <button onclick="register()">สมัครสมาชิก</button>
+        <button type="button" onclick="register()">สมัครสมาชิก</button>
         <div id="error" class="error"></div>
         <div id="success" class="success"></div>
         <div class="login-link">
@@ -106,9 +106,9 @@
 
         // ฟังก์ชันสมัครสมาชิก
         async function register() {
-            const username = document.getElementById('username').value.trim(); // ลบช่องว่างหน้า-หลัง
-            const password = document.getElementById('password').value.trim(); // ลบช่องว่างหน้า-หลัง
-            const confirmPassword = document.getElementById('confirmPassword').value.trim(); // ลบช่องว่างหน้า-หลัง
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const errorDiv = document.getElementById('error');
             const successDiv = document.getElementById('success');
 
@@ -128,14 +128,14 @@
             }
 
             try {
-                console.log('กำลังตรวจสอบชื่อผู้ใช้:', username); // ดีบัก
+                console.log('กำลังตรวจสอบชื่อผู้ใช้:', username);
 
                 // ตรวจสอบว่า username ซ้ำหรือไม่
                 const userSnapshot = await db.collection('users')
                     .where('username', '==', username)
                     .get();
 
-                console.log('ผลลัพธ์การตรวจสอบชื่อผู้ใช้:', userSnapshot.size, 'รายการ'); // ดีบัก
+                console.log('ผลลัพธ์การตรวจสอบชื่อผู้ใช้:', userSnapshot.size, 'รายการ');
 
                 if (!userSnapshot.empty) {
                     errorDiv.textContent = 'ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว';
@@ -149,7 +149,7 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                console.log('บันทึกข้อมูลสำเร็จ:', { username, password }); // ดีบัก
+                console.log('บันทึกข้อมูลสำเร็จ:', { username, password });
 
                 // แสดงข้อความสำเร็จ
                 successDiv.textContent = 'สมัครสมาชิกสำเร็จ! กำลังนำคุณไปยังหน้าเข้าสู่ระบบ...';
@@ -159,7 +159,7 @@
                     window.location.href = 'login.html';
                 }, 2000);
             } catch (error) {
-                console.error('ข้อผิดพลาด:', error); // ดีบัก
+                console.error('ข้อผิดพลาด:', error);
                 errorDiv.textContent = 'เกิดข้อผิดพลาดในการสมัครสมาชิก: ' + error.message;
             }
         }
