@@ -5,83 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ผลงาน - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 0;
+            padding-bottom: 70px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            font-size: 24px;
-            margin: 0;
-        }
-        .logout-btn {
-            background: #ff4d4d;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-        }
-        .cookie-warning {
-            background: #ff4d4d;
-            color: #fff;
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
         }
-        .summary {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
         }
-        .summary p {
-            margin: 5px 0;
-            font-size: 16px;
+        .chart-container {
+            margin-bottom: 15px;
         }
         canvas {
             max-width: 100%;
-            margin-bottom: 20px;
         }
-        .navbar {
+        .summary {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .summary p {
+            margin: 5px 0;
+        }
+        .alert {
+            background: #ff4d4d;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .alert a {
+            background: #fff;
+            color: #ff4d4d;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        /* Navigation Bar */
+        .nav-bar {
             position: fixed;
             bottom: 0;
-            width: 100%;
-            background: #fff;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
         }
-        .navbar a {
+        .nav-item {
             color: #666;
             text-align: center;
-            text-decoration: none;
             font-size: 12px;
+            text-decoration: none;
         }
-        .navbar a.active {
+        .nav-item.active {
             color: #1e3c72;
         }
-        .navbar i {
+        .nav-item i {
             display: block;
             font-size: 20px;
             margin-bottom: 5px;
@@ -90,131 +95,123 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>ผลงาน - DebtFlow</h1>
-            <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
+        <h3>ผลงาน - DebtFlow</h3>
+
+        <!-- Charts -->
+        <div class="chart-container">
+            <canvas id="completionChart6090"></canvas>
         </div>
-        <div class="cookie-warning" id="cookieWarning">
-            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+        <div class="chart-container">
+            <canvas id="completionChartNPL"></canvas>
         </div>
-        <div class="summary" id="performanceSummary">
-            <p>กำลังโหลดข้อมูล...</p>
+
+        <!-- Summary -->
+        <div class="summary">
+            <p>งานที่จบแล้ว (วันนี้): 5 งาน</p>
+            <p>ยอด Principle คงเหลือ: 2,500,000 บาท</p>
+            <p>เปอร์เซ็นต์จบงาน (6090): 80%</p>
+            <p>เปอร์เซ็นต์จบงาน (NPL): 35%</p>
         </div>
-        <div id="summaryError" style="display: none; color: #ff4d4d; text-align: center; margin-bottom: 15px;">
-            ไม่สามารถโหลดข้อมูลผลงานได้ กรุณาลองใหม่อีกครั้ง
+
+        <!-- Alert -->
+        <div class="alert">
+            <div>เหลือ 5 งานถึง Target 88% (6090)</div>
+            <a href="tasks.html">วางแผน</a>
         </div>
-        <canvas id="performanceChart6090"></canvas>
-        <canvas id="performanceChartNPL"></canvas>
     </div>
-    <div class="navbar">
-        <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
-        <a href="tasks.html"><i class="fas fa-tasks"></i>งาน</a>
-        <a href="performance.html" class="active"><i class="fas fa-chart-line"></i>ผลงาน</a>
-        <a href="income.html"><i class="fas fa-wallet"></i>รายได้</a>
-        <a href="profile.html"><i class="fas fa-user"></i>โปรไฟล์</a>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            หน้าแรก
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-briefcase"></i>
+            งาน
+        </a>
+        <a href="performance.html" class="nav-item active">
+            <i class="fas fa-chart-line"></i>
+            ผลงาน
+        </a>
+        <a href="income.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            รายได้
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            โปรไฟล์
+        </a>
     </div>
+
+    <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
-    <script>
-        if (!window.env) {
-            console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
-            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
-        }
-    </script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        try {
-            const firebaseConfig = {
-                apiKey: window.env.FIREBASE_API_KEY,
-                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
-                projectId: window.env.FIREBASE_PROJECT_ID,
-                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
-                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
-                appId: window.env.FIREBASE_APP_ID
-            };
-            firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: window.env.FIREBASE_API_KEY,
+            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+            projectId: window.env.FIREBASE_PROJECT_ID,
+            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+            appId: window.env.FIREBASE_APP_ID
+        });
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                } else {
-                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
-                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
-                }
-            });
-
-            if (navigator.cookieEnabled) {
-                document.getElementById('cookieWarning').style.display = 'block';
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
             }
+        });
 
-            db.collection('performance').doc('summary').get().then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('performanceSummary').innerHTML = `
-                        <p>งานที่จบแล้ว (วันนี้): ${data.completedTasks || 0} งาน</p>
-                        <p>ยอด Principle คงเหลือ: ${data.principle || 0} บาท</p>
-                        <p>เปอร์เซ็นต์จบงาน (6090): ${data.percentage6090 || 0}%</p>
-                        <p>เปอร์เซ็นต์จบงาน (NPL): ${data.percentageNPL || 0}%</p>
-                    `;
-                    const ctx6090 = document.getElementById('performanceChart6090').getContext('2d');
-                    new Chart(ctx6090, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['สำเร็จ', 'ไม่สำเร็จ'],
-                            datasets: [{
-                                data: [data.percentage6090 || 0, 100 - (data.percentage6090 || 0)],
-                                backgroundColor: ['#28a745', '#ff4d4d']
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: { position: 'top' },
-                                title: { display: true, text: 'เปอร์เซ็นต์จบงาน (6090) - Target 88%' }
-                            }
-                        }
-                    });
-                    const ctxNPL = document.getElementById('performanceChartNPL').getContext('2d');
-                    new Chart(ctxNPL, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['สำเร็จ', 'ไม่สำเร็จ'],
-                            datasets: [{
-                                data: [data.percentageNPL || 0, 100 - (data.percentageNPL || 0)],
-                                backgroundColor: ['#28a745', '#ff4d4d']
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: { position: 'top' },
-                                title: { display: true, text: 'เปอร์เซ็นต์จบงาน (NPL) - Target 40%' }
-                            }
-                        }
-                    });
-                } else {
-                    document.getElementById('summaryError').style.display = 'block';
+        // ตัวอย่างกราฟ (ต้องคำนวณจาก Firestore จริง)
+        const ctx6090 = document.getElementById('completionChart6090').getContext('2d');
+        new Chart(ctx6090, {
+            type: 'doughnut',
+            data: {
+                labels: ['จบแล้ว', 'คงเหลือ'],
+                datasets: [{
+                    data: [80, 20],
+                    backgroundColor: ['#28a745', '#ff4d4d']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'เปอร์เซ็นต์จบงาน (6090) - Target 88%'
+                    }
                 }
-            }).catch((error) => {
-                console.error('ข้อผิดพลาดในการดึงข้อมูลผลงาน:', error);
-                document.getElementById('summaryError').style.display = 'block';
-            });
-
-            function logout() {
-                auth.signOut().then(() => window.location.href = 'index.html')
-                    .catch((error) => {
-                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
-                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
-                    });
             }
-        } catch (error) {
-            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
-        }
+        });
+
+        const ctxNPL = document.getElementById('completionChartNPL').getContext('2d');
+        new Chart(ctxNPL, {
+            type: 'doughnut',
+            data: {
+                labels: ['จบแล้ว', 'คงเหลือ'],
+                datasets: [{
+                    data: [35, 65],
+                    backgroundColor: ['#28a745', '#ff4d4d']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'เปอร์เซ็นต์จบงาน (NPL) - Target 40%'
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
