@@ -223,12 +223,30 @@
         });
 
         // ฟังก์ชันเริ่มต้น Google Maps
-    window.initMap = function() {
-        try {
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 13.7563, lng: 100.5018 },
-                zoom: 12
+window.initMap = function() {
+    try {
+        const map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 13.7563, lng: 100.5018 },
+            zoom: 12
+        });
+
+        // เพิ่มตำแหน่งปัจจุบันของผู้ใช้
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userPos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                new google.maps.marker.AdvancedMarkerElement({
+                    position: userPos,
+                    map: map,
+                    title: 'ตำแหน่งของคุณ'
+                });
+                map.setCenter(userPos);
+            }, (error) => {
+                console.error('ข้อผิดพลาดในการรับตำแหน่งผู้ใช้:', error);
             });
+        }
 
             // ดึงข้อมูลตำแหน่งจาก Firestore
             db.collection('tasks').get().then((querySnapshot) => {
