@@ -36,6 +36,14 @@
             border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            position: relative;
+        }
+        .cookie-warning .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 18px;
         }
         .task-details {
             background: rgba(255, 255, 255, 0.1);
@@ -47,6 +55,12 @@
         .task-details p {
             margin: 10px 0;
             font-size: 16px;
+        }
+        .task-details input, .task-details select {
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
         .additional-details {
             display: none;
@@ -124,6 +138,7 @@
         </div>
         <div class="cookie-warning" id="cookieWarning">
             คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+            <span class="close-btn" onclick="dismissCookieWarning()">✖</span>
         </div>
         <div class="task-details">
             <p><strong>รหัส:</strong> <input type="text" id="taskId" value="F4012" readonly></p>
@@ -146,7 +161,7 @@
                 <p><strong>ยอดจัด:</strong> <input type="text" id="financeAmount" value="10,000 บาท"></p>
             </div>
             <div class="btn-group">
-                <a href="#" class="btn btn-save" onclick="saveTask()">บันทึก</a>
+                <a href="#" class="btn btn-save" onclick="saveTask()" id="saveButton">บันทึก</a>
                 <a href="#" class="btn btn-toggle" onclick="toggleDetails()">รายละเอียดเพิ่มเติม</a>
                 <a href="tasks.html" class="btn btn-add">กลับ</a>
             </div>
@@ -193,6 +208,10 @@
                 }
             });
 
+            function dismissCookieWarning() {
+                document.getElementById('cookieWarning').style.display = 'none';
+            }
+
             if (navigator.cookieEnabled) {
                 document.getElementById('cookieWarning').style.display = 'block';
             }
@@ -215,6 +234,10 @@
             }
 
             function saveTask() {
+                const saveButton = document.getElementById('saveButton');
+                saveButton.innerText = 'กำลังบันทึก...';
+                saveButton.style.pointerEvents = 'none';
+
                 const taskData = {
                     taskId: document.getElementById('taskId').value,
                     status: document.getElementById('status').value,
@@ -232,7 +255,11 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                if (!validateTaskData(taskData)) return;
+                if (!validateTaskData(taskData)) {
+                    saveButton.innerText = 'บันทึก';
+                    saveButton.style.pointerEvents = 'auto';
+                    return;
+                }
 
                 db.collection('tasks').doc(taskData.taskId).set(taskData)
                     .then(() => {
@@ -242,6 +269,8 @@
                     .catch((error) => {
                         console.error('ข้อผิดพลาดในการบันทึกงาน:', error);
                         alert('เกิดข้อผิดพลาดในการบันทึกงาน: ' + error.message);
+                        saveButton.innerText = 'บันทึก';
+                        saveButton.style.pointerEvents = 'auto';
                     });
             }
 
