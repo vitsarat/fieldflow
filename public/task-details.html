@@ -8,114 +8,101 @@
     <link rel="stylesheet" href="css/styles.css">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
             margin: 0;
             padding: 0;
-            padding-bottom: 70px;
         }
         .container {
-            max-width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 20px;
         }
-        h3 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-        .task-detail {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .task-detail label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #333;
-        }
-        .task-detail select, .task-detail input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-        .task-detail i {
-            margin-right: 8px;
-            color: #1e3c72;
-        }
-        .actions {
+        .header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        .actions button {
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
         }
-        .btn-accept { background: #28a745; color: #fff; }
-        .btn-forward { background: #ffcc00; color: #333; }
-        .btn-attach { background: #1e90ff; color: #fff; }
+        .task-details {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .task-details p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
         .additional-details {
             display: none;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             padding: 15px;
             margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        .additional-details.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .additional-details.hide {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            text-align: center;
         }
         .btn-save {
-            display: block;
-            width: 100%;
-            padding: 10px;
             background: #28a745;
             color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
         }
-        /* Navigation Bar */
-        .nav-bar {
+        .btn-toggle {
+            background: #ffcc00;
+            color: #333;
+        }
+        .btn-add {
+            background: #1e3c72;
+            color: #fff;
+        }
+        .navbar {
             position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 0;
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-around;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            padding: 10px 0;
         }
-        .nav-item {
+        .navbar a {
             color: #666;
             text-align: center;
-            font-size: 12px;
             text-decoration: none;
+            font-size: 12px;
         }
-        .nav-item.active {
+        .navbar a.active {
             color: #1e3c72;
         }
-        .nav-item i {
+        .navbar i {
             display: block;
             font-size: 20px;
             margin-bottom: 5px;
@@ -124,143 +111,119 @@
 </head>
 <body>
     <div class="container">
-        <h3>รายละเอียดงาน - DebtFlow</h3>
-
-        <div class="task-detail">
-            <label><i class="fas fa-building"></i> สังกัด</label>
-            <select id="branch">
-                <option value="F4012">F4012 รุ่งเรือง</option>
-                <option value="F3574">F3574 เอสดี</option>
-                <option value="F3988">F3988 บียอนด์</option>
-            </select>
-
-            <label><i class="fas fa-layer-group"></i> กลุ่มงาน</label>
-            <select id="group">
-                <option value="6090">6090</option>
-                <option value="NPL">NPL</option>
-            </select>
-
-            <label><i class="fas fa-map-marker-alt"></i> สาขารับงาน</label>
-            <input type="text" id="location" placeholder="เช่น อุดรธานี">
-
-            <label><i class="fas fa-file-contract"></i> เลขที่สัญญา</label>
-            <input type="text" id="contractNumber" placeholder="เช่น 232016580880">
-
-            <label><i class="fas fa-user"></i> ชื่อ - นามสกุล</label>
-            <input type="text" id="customerName" placeholder="เช่น พูลทรัพย์ พลชารี">
-
-            <label><i class="fas fa-coins"></i> จำนวนค้างค่างวด</label>
-            <input type="text" id="overdueInstallments" placeholder="เช่น 4 งวด">
-
-            <label><i class="fas fa-money-bill"></i> Principle ยอดคงเหลือ</label>
-            <input type="text" id="principle" placeholder="เช่น 1,488,751.59">
-
-            <label><i class="fas fa-home"></i> ที่อยู่</label>
-            <input type="text" id="address" placeholder="เช่น 119 หมู่ที่ 1 ต.สร้อยพร้าว อ.หนองหาน จ.อุดรธานี">
+        <div class="header">
+            <h1>รายละเอียดงาน - DebtFlow</h1>
         </div>
-
-        <div class="actions">
-            <button class="btn-accept"><i class="fas fa-check"></i> รับงาน</button>
-            <button class="btn-forward"><i class="fas fa-share"></i> ฝากงาน</button>
-            <button class="btn-attach" onclick="toggleDetails()"><i class="fas fa-plus"></i> แนบรายละเอียด</button>
-        </div>
-
-        <div class="additional-details" id="additionalDetails">
-            <label><i class="fas fa-coins"></i> ค่างวด</label>
-            <input type="text" placeholder="เช่น 10,000 บาท">
-
-            <label><i class="fas fa-car"></i> ยี่ห้อ</label>
-            <input type="text" placeholder="เช่น Toyota">
-
-            <label><i class="fas fa-car"></i> รุ่น</label>
-            <input type="text" placeholder="เช่น Camry">
-
-            <label><i class="fas fa-palette"></i> สีรถยนต์</label>
-            <input type="text" placeholder="เช่น ขาว">
-
-            <label><i class="fas fa-id-card"></i> เลขทะเบียน</label>
-            <input type="text" placeholder="เช่น กข 1234">
-
-            <label><i class="fas fa-cogs"></i> เลขเครื่องยนต์</label>
-            <input type="text" placeholder="เช่น 123456789">
-
-            <label><i class="fas fa-car-side"></i> เลขตัวถัง</label>
-            <input type="text" placeholder="เช่น ABC123456789">
-
-            <label><i class="fas fa-sticky-note"></i> หมายเหตุ</label>
-            <input type="text" placeholder="เช่น ลูกค้าติดต่อยาก">
-
-            <button class="btn-save"><i class="fas fa-save"></i> บันทึก</button>
+        <div class="task-details">
+            <p><strong>รหัส:</strong> <input type="text" id="taskId" value="F4012" readonly></p>
+            <p><strong>สถานะ:</strong> <select id="status">
+                <option value="pending">รอดำเนินการ</option>
+                <option value="contacted">ติดต่อแล้ว</option>
+                <option value="completed">เสร็จสิ้น</option>
+            </select></p>
+            <p><strong>ที่อยู่:</strong> <input type="text" id="address" value="กรุงเทพมหานคร"></p>
+            <p><strong>เลขที่สัญญา:</strong> <input type="text" id="contractNo" value="2320165088080"></p>
+            <p><strong>ลูกหนี้:</strong> <input type="text" id="debtor" value="นาย วิชัย วงศ์สว่าง"></p>
+            <p><strong>เบอร์โทร:</strong> <input type="text" id="phone" value="084 434"></p>
+            <p><strong>Principle คงเหลือ:</strong> <input type="text" id="principle" value="1,488,751.59"></p>
+            <p><strong>หมายเหตุ:</strong> <input type="text" id="note" value="119 วัน ที่ 1 ค้างชำระ 2 ค้างชำระ 3 ค้างชำระ"></p>
+            <div class="additional-details" id="additionalDetails">
+                <p><strong>ยี่ห้อ:</strong> <input type="text" id="brand" value="Toyota"></p>
+                <p><strong>รุ่น:</strong> <input type="text" id="model" value="Camry"></p>
+                <p><strong>เลขตัวถัง:</strong> <input type="text" id="chassisNo" value="ABC123456789"></p>
+                <p><strong>เลขเครื่อง:</strong> <input type="text" id="engineNo" value="123456789"></p>
+                <p><strong>ยอดจัด:</strong> <input type="text" id="financeAmount" value="10,000 บาท"></p>
+            </div>
+            <div class="btn-group">
+                <a href="#" class="btn btn-save" onclick="saveTask()">บันทึก</a>
+                <a href="#" class="btn btn-toggle" onclick="toggleDetails()">รายละเอียดเพิ่มเติม</a>
+                <a href="tasks.html" class="btn btn-add">กลับ</a>
+            </div>
         </div>
     </div>
-
-    <!-- Navigation Bar -->
-    <div class="nav-bar">
-        <a href="dashboard.html" class="nav-item">
-            <i class="fas fa-home"></i>
-            หน้าแรก
-        </a>
-        <a href="tasks.html" class="nav-item active">
-            <i class="fas fa-briefcase"></i>
-            งาน
-        </a>
-        <a href="performance.html" class="nav-item">
-            <i class="fas fa-chart-line"></i>
-            ผลงาน
-        </a>
-        <a href="income.html" class="nav-item">
-            <i class="fas fa-wallet"></i>
-            รายได้
-        </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-user-circle"></i>
-            โปรไฟล์
-        </a>
+    <div class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
+        <a href="tasks.html" class="active"><i class="fas fa-tasks"></i>งาน</a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i>ผลงาน</a>
+        <a href="income.html"><i class="fas fa-wallet"></i>รายได้</a>
+        <a href="profile.html"><i class="fas fa-user"></i>โปรไฟล์</a>
     </div>
-
-    <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
+    <script>
+        if (!window.env) {
+            console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
+            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
+        }
+    </script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
     <script>
-        // Initialize Firebase
-        firebase.initializeApp({
-            apiKey: window.env.FIREBASE_API_KEY,
-            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
-            projectId: window.env.FIREBASE_PROJECT_ID,
-            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
-            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
-            appId: window.env.FIREBASE_APP_ID
-        });
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // ตรวจสอบสถานะการล็อกอิน
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-            }
-        });
-
-        // ฟังก์ชันแสดง/ซ่อนรายละเอียดเพิ่มเติม
-        function toggleDetails() {
-            const additionalDetails = document.getElementById('additionalDetails');
-            additionalDetails.style.display = additionalDetails.style.display === 'block' ? 'none' : 'block';
-        }
-
-        // ดึงข้อมูลงานจาก Firestore
-        const urlParams = new URLSearchParams(window.location.search);
-        const taskId = urlParams.get('id');
-        if (taskId) {
-            db.collection('tasks').doc(taskId).get().then((doc) => {
-                if (doc.exists) {
-                    const task = doc.data();
-                    document.getElementById('contractNumber').value = taskId;
-                    document.getElementById('customerName').value = task.name || '';
-                    document.getElementById('address').value = task.address || '';
+        try {
+            const firebaseConfig = {
+                apiKey: window.env.FIREBASE_API_KEY,
+                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+                projectId: window.env.FIREBASE_PROJECT_ID,
+                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+                appId: window.env.FIREBASE_APP_ID
+            };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                } else {
+                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
+                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+            function saveTask() {
+                const taskId = document.getElementById('taskId').value;
+                const taskData = {
+                    status: document.getElementById('status').value,
+                    address: document.getElementById('address').value,
+                    contractNo: document.getElementById('contractNo').value,
+                    debtor: document.getElementById('debtor').value,
+                    phone: document.getElementById('phone').value,
+                    principle: parseFloat(document.getElementById('principle').value.replace(/,/g, '')),
+                    note: document.getElementById('note').value,
+                    brand: document.getElementById('brand').value,
+                    model: document.getElementById('model').value,
+                    chassisNo: document.getElementById('chassisNo').value,
+                    engineNo: document.getElementById('engineNo').value,
+                    financeAmount: document.getElementById('financeAmount').value,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                db.collection('tasks').doc(taskId).set(taskData)
+                    .then(() => {
+                        alert('บันทึกงานสำเร็จ');
+                        window.location.href = 'tasks.html';
+                    })
+                    .catch((error) => {
+                        console.error('ข้อผิดพลาดในการบันทึกงาน:', error);
+                        alert('เกิดข้อผิดพลาดในการบันทึกงาน: ' + error.message);
+                    });
+            }
+            function toggleDetails() {
+                const additionalDetails = document.getElementById('additionalDetails');
+                if (additionalDetails.classList.contains('show')) {
+                    additionalDetails.classList.remove('show');
+                    additionalDetails.classList.add('hide');
+                    setTimeout(() => {
+                        additionalDetails.style.display = 'none';
+                    }, 300);
+                } else {
+                    additionalDetails.style.display = 'block';
+                    additionalDetails.classList.remove('hide');
+                    additionalDetails.classList.add('show');
+                }
+            }
+        } catch (error) {
+            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
         }
     </script>
 </body>
