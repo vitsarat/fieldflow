@@ -5,96 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>รายได้ - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
             margin: 0;
             padding: 0;
-            padding-bottom: 70px;
         }
         .container {
-            max-width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 20px;
         }
-        h3 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 20px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        .chart-container {
-            margin-bottom: 15px;
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .logout-btn {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
         }
         canvas {
             max-width: 100%;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            font-size: 14px;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background: #1e3c72;
-            color: #fff;
+            margin-bottom: 20px;
         }
         .dispute-alert {
             background: #ff4d4d;
             color: #fff;
             padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-        .btn-export {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background: #1e90ff;
-            color: #fff;
-            border: none;
             border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
+            margin-bottom: 20px;
+            display: none;
         }
-        /* Navigation Bar */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-around;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            padding: 10px 0;
         }
-        .nav-item {
+        .navbar a {
             color: #666;
             text-align: center;
-            font-size: 12px;
             text-decoration: none;
+            font-size: 12px;
         }
-        .nav-item.active {
+        .navbar a.active {
             color: #1e3c72;
         }
-        .nav-item i {
+        .navbar i {
             display: block;
             font-size: 20px;
             margin-bottom: 5px;
@@ -103,145 +95,138 @@
 </head>
 <body>
     <div class="container">
-        <h3>รายได้ - DebtFlow</h3>
-
-        <!-- Chart -->
-        <div class="chart-container">
-            <canvas id="incomeChart"></canvas>
+        <div class="header">
+            <h1>รายได้ - DebtFlow</h1>
+            <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
-
-        <!-- Dispute Alert -->
-        <div class="dispute-alert" style="display: none;" id="disputeAlert">
-            มีการโต้แย้ง Commission จากงาน 232016580880
-        </div>
-
-        <!-- Income Table -->
-        <table id="incomeTable">
+        <canvas id="incomeChart"></canvas>
+        <div class="dispute-alert" id="disputeAlert"></div>
+        <table>
             <thead>
                 <tr>
-                    <th>เลขที่สัญญา</th>
+                    <th>รหัสงาน</th>
                     <th>Commission</th>
                     <th>สถานะ</th>
                     <th>วันที่จ่าย</th>
                     <th>คอมเมนต์</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- ตัวอย่างข้อมูล -->
-                <tr>
-                    <td>232016580880</td>
-                    <td>3,000 บาท</td>
-                    <td>จ่ายแล้ว</td>
-                    <td>20/03/25</td>
-                    <td><input type="text" placeholder="พิมพ์คอมเมนต์..." style="width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;"></td>
-                </tr>
-            </tbody>
+            <tbody id="incomeTable"></tbody>
         </table>
-
-        <!-- Export Button -->
-        <a href="#" class="btn-export"><i class="fas fa-download"></i> ดาวน์โหลดรายงาน</a>
+        <a href="#" style="display: block; background: #1e3c72; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none; text-align: center; width: fit-content; margin: 0 auto;">ดาวน์โหลดรายงานรายได้</a>
     </div>
-
-    <!-- Navigation Bar -->
-    <div class="nav-bar">
-        <a href="dashboard.html" class="nav-item">
-            <i class="fas fa-home"></i>
-            หน้าแรก
-        </a>
-        <a href="tasks.html" class="nav-item">
-            <i class="fas fa-briefcase"></i>
-            งาน
-        </a>
-        <a href="performance.html" class="nav-item">
-            <i class="fas fa-chart-line"></i>
-            ผลงาน
-        </a>
-        <a href="income.html" class="nav-item active">
-            <i class="fas fa-wallet"></i>
-            รายได้
-        </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fas fa-user-circle"></i>
-            โปรไฟล์
-        </a>
+    <div class="navbar">
+        <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
+        <a href="tasks.html"><i class="fas fa-tasks"></i>งาน</a>
+        <a href="performance.html"><i class="fas fa-chart-line"></i>ผลงาน</a>
+        <a href="income.html" class="active"><i class="fas fa-wallet"></i>รายได้</a>
+        <a href="profile.html"><i class="fas fa-user"></i>โปรไฟล์</a>
     </div>
-
-    <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
+    <script>
+        if (!window.env) {
+            console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
+            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
+        }
+    </script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Initialize Firebase
-        firebase.initializeApp({
-            apiKey: window.env.FIREBASE_API_KEY,
-            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
-            projectId: window.env.FIREBASE_PROJECT_ID,
-            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
-            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
-            appId: window.env.FIREBASE_APP_ID
-        });
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // ตรวจสอบสถานะการล็อกอิน
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-            }
-        });
-
-        // ตัวอย่างกราฟ (ต้องคำนวณจาก Firestore จริง)
-        const ctxIncome = document.getElementById('incomeChart').getContext('2d');
-        new Chart(ctxIncome, {
-            type: 'bar',
-            data: {
-                labels: ['จ่ายแล้ว', 'รอจ่าย', 'ระงับ'],
-                datasets: [{
-                    label: 'Commission',
-                    data: [15000, 5000, 2000],
-                    backgroundColor: ['#28a745', '#ffcc00', '#ff4d4d']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'สรุป Commission'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // โหลดข้อมูลรายได้จาก Firestore (ตัวอย่าง)
-        const incomeTable = document.getElementById('incomeTable').getElementsByTagName('tbody')[0];
-        const disputeAlert = document.getElementById('disputeAlert');
-        db.collection('income').get().then((querySnapshot) => {
-            incomeTable.innerHTML = '';
-            querySnapshot.forEach((doc) => {
-                const income = doc.data();
-                const row = `
-                    <tr>
-                        <td>${doc.id}</td>
-                        <td>${income.commission || '0'} บาท</td>
-                        <td>${income.status || 'รอจ่าย'}</td>
-                        <td>${income.paymentDate || '-'}</td>
-                        <td><input type="text" value="${income.comment || ''}" placeholder="พิมพ์คอมเมนต์..." style="width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;"></td>
-                    </tr>
-                `;
-                incomeTable.innerHTML += row;
-                if (income.comment) {
-                    disputeAlert.style.display = 'block';
+        try {
+            const firebaseConfig = {
+                apiKey: window.env.FIREBASE_API_KEY,
+                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+                projectId: window.env.FIREBASE_PROJECT_ID,
+                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+                appId: window.env.FIREBASE_APP_ID
+            };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                } else {
+                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
+                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
-        });
+            const incomeTable = document.getElementById('incomeTable');
+            const disputeAlert = document.getElementById('disputeAlert');
+            db.collection('income').get().then((querySnapshot) => {
+                let hasDispute = false;
+                const incomeData = { pending: 0, paid: 0, disputed: 0 };
+                querySnapshot.forEach((doc) => {
+                    const income = doc.data();
+                    const row = `
+                        <tr>
+                            <td>${doc.id}</td>
+                            <td>${income.commission || '0'} บาท</td>
+                            <td>${income.status || 'รอจ่าย'}</td>
+                            <td>${income.paymentDate || '-'}</td>
+                            <td><input type="text" value="${income.comment || ''}" placeholder="พิมพ์คอมเมนต์..." style="width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;" onchange="updateComment('${doc.id}', this.value)"></td>
+                        </tr>
+                    `;
+                    incomeTable.innerHTML += row;
+                    if (income.comment) {
+                        hasDispute = true;
+                        disputeAlert.innerHTML = `มีการโต้แย้ง Commission จากงาน ${doc.id}`;
+                    }
+                    if (income.status === 'pending') incomeData.pending += income.commission || 0;
+                    else if (income.status === 'paid') incomeData.paid += income.commission || 0;
+                    else if (income.status === 'disputed') incomeData.disputed += income.commission || 0;
+                });
+                disputeAlert.style.display = hasDispute ? 'block' : 'none';
+                const ctx = document.getElementById('incomeChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['รอจ่าย', 'จ่ายแล้ว', 'โต้แย้ง'],
+                        datasets: [{
+                            label: 'Commission',
+                            data: [incomeData.pending, incomeData.paid, incomeData.disputed],
+                            backgroundColor: ['#ffcc00', '#28a745', '#ff4d4d']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'รายได้' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }).catch((error) => console.error('ข้อผิดพลาดในการดึงข้อมูลรายได้:', error));
+            function updateComment(taskId, comment) {
+                db.collection('income').doc(taskId).update({ comment: comment })
+                    .then(() => {
+                        console.log('อัปเดตคอมเมนต์สำเร็จ');
+                        if (comment) {
+                            disputeAlert.innerHTML = `มีการโต้แย้ง Commission จากงาน ${taskId}`;
+                            disputeAlert.style.display = 'block';
+                        } else {
+                            disputeAlert.style.display = 'none';
+                        }
+                    })
+                    .catch((error) => console.error('ข้อผิดพลาดในการอัปเดตคอมเมนต์:', error));
+            }
+            function logout() {
+                auth.signOut().then(() => window.location.href = 'index.html')
+                    .catch((error) => {
+                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
+                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+                    });
+            }
+        } catch (error) {
+            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
+        }
     </script>
 </body>
 </html>
