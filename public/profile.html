@@ -3,54 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรไฟล์ - FieldFlow</title>
+    <title>โปรไฟล์ - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 70px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            background: #1e3c72;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+        }
+        .profile-info {
+            font-size: 14px;
+            color: #333;
+        }
+        .progress-bar {
+            background: #ddd;
+            border-radius: 5px;
+            height: 10px;
+            margin: 10px 0;
+        }
+        .progress {
+            background: #28a745;
+            height: 100%;
+            border-radius: 5px;
+            width: 70%;
+        }
+        .chart-container {
+            margin-bottom: 15px;
+        }
+        canvas {
+            max-width: 100%;
+        }
+        .team-info {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .team-info p {
+            margin: 5px 0;
+        }
+        .btn-share {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #1e90ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 15px;
+        }
+        .btn-logout {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #ff4d4d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .nav-item {
+            color: #666;
+            text-align: center;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .nav-item.active {
+            color: #1e3c72;
+        }
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <div class="profile-pic">
-                <img src="assets/profile.jpg" alt="Profile Picture">
-            </div>
-            <h3>รหัสพนักงาน: <span id="userEmail"></span></h3>
+        <h3>โปรไฟล์ - DebtFlow</h3>
+
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-pic"></div>
+            <div class="profile-info">พูลทรัพย์ พลชารี (T12345)</div>
+            <div class="profile-info">Level 3</div>
             <div class="progress-bar">
-                <div class="progress" style="width: 75%;"></div>
+                <div class="progress"></div>
             </div>
-            <p>Level 3 (750/1000)</p>
         </div>
 
-        <div class="card">
-            <h3>ข้อมูลส่วนตัว</h3>
-            <p>รหัสพนักงาน: <span id="userEmail"></span></p>
+        <!-- Performance History -->
+        <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
         </div>
 
-        <div class="card">
-            <h3>ผลงานสะสม</h3>
-            <p>งานที่จบ: <span id="completedTasks">0</span> งาน</p>
-            <p>งานทั้งหมด: <span id="totalTasks">0</span> งาน</p>
-            <p>% การจบงาน: <span id="completionRate">0</span>%</p>
+        <!-- Team Info -->
+        <div class="team-info">
+            <p>ทีม: F4012 รุ่งเรือง</p>
+            <p>สาขา: อุดรธานี</p>
+            <p>เปอร์เซ็นต์จบงานของทีม: 80%</p>
         </div>
 
-        <div class="card">
-            <h3>อันดับทีม</h3>
-            <p>ทีม 10 ตัวแทนยึดรถ: 75%</p>
-            <a href="#" class="button">ดูเพิ่มเติม</a>
-        </div>
+        <!-- Share Button -->
+        <a href="#" class="btn-share"><i class="fas fa-share"></i> แชร์ผลงาน</a>
+
+        <!-- Logout Button -->
+        <a href="#" class="btn-logout" id="logoutButton"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
     </div>
 
-    <div class="bottom-nav">
-        <a href="dashboard.html"><i class="fas fa-home"></i><span>หน้าแรก<br>Dashboard</span></a>
-        <a href="tasks.html"><i class="fas fa-briefcase"></i><span>งาน<br>Tasks</span></a>
-        <a href="income.html"><i class="fas fa-wallet"></i><span>รายได้<br>Income</span></a>
-        <a href="profile.html" class="active"><i class="fas fa-user-circle"></i><span>โปรไฟล์<br>Profile</span></a>
-        <a href="performance.html"><i class="fas fa-chart-line"></i><span>ผลงาน<br>Performance</span></a>
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            หน้าแรก
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-briefcase"></i>
+            งาน
+        </a>
+        <a href="performance.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            ผลงาน
+        </a>
+        <a href="income.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            รายได้
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <i class="fas fa-user-circle"></i>
+            โปรไฟล์
+        </a>
     </div>
 
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/profile.js"></script>
+    <!-- โหลด Firebase SDK -->
+    <script src="env.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: window.env.FIREBASE_API_KEY,
+            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+            projectId: window.env.FIREBASE_PROJECT_ID,
+            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+            appId: window.env.FIREBASE_APP_ID
+        });
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ออกจากระบบ
+        document.getElementById('logoutButton').addEventListener('click', (event) => {
+            event.preventDefault();
+            auth.signOut().then(() => {
+                localStorage.removeItem('userEmail');
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error('Logout failed:', error);
+                alert('ออกจากระบบล้มเหลว: ' + error.message);
+            });
+        });
+
+        // ตัวอย่างกราฟประวัติผลงาน
+        const ctxPerformance = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctxPerformance, {
+            type: 'line',
+            data: {
+                labels: ['วัน 1', 'วัน 2', 'วัน 3', 'วัน 4', 'วัน 5', 'วัน 6', 'วัน 7'],
+                datasets: [{
+                    label: 'เปอร์เซ็นต์จบงาน',
+                    data: [60, 65, 70, 68, 75, 80, 78],
+                    borderColor: '#28a745',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'ประวัติผลงาน (7 วัน)'
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
