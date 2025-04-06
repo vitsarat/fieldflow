@@ -45,6 +45,14 @@
             border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            position: relative;
+        }
+        .cookie-warning .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 18px;
         }
         .profile-info {
             background: rgba(255, 255, 255, 0.1);
@@ -108,6 +116,7 @@
         </div>
         <div class="cookie-warning" id="cookieWarning">
             คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+            <span class="close-btn" onclick="dismissCookieWarning()">✖</span>
         </div>
         <div class="profile-info">
             <p><strong>รหัสพนักงาน:</strong> F4012</p>
@@ -158,6 +167,10 @@
                         .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+
+            function dismissCookieWarning() {
+                document.getElementById('cookieWarning').style.display = 'none';
+            }
 
             if (navigator.cookieEnabled) {
                 document.getElementById('cookieWarning').style.display = 'block';
