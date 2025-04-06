@@ -5,103 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โปรไฟล์ - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #fff;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 0;
+            padding-bottom: 70px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            font-size: 24px;
-            margin: 0;
-        }
-        .logout-btn {
-            background: #ff4d4d;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-        }
-        .cookie-warning {
-            background: #ff4d4d;
-            color: #fff;
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-            position: relative;
         }
-        .cookie-warning .close-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            cursor: pointer;
-            font-size: 18px;
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            background: #1e3c72;
+            border-radius: 50%;
+            margin: 0 auto 10px;
         }
         .profile-info {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
+            font-size: 14px;
+            color: #333;
         }
-        .profile-info p {
-            margin: 5px 0;
-            font-size: 16px;
+        .progress-bar {
+            background: #ddd;
+            border-radius: 5px;
+            height: 10px;
+            margin: 10px 0;
+        }
+        .progress {
+            background: #28a745;
+            height: 100%;
+            border-radius: 5px;
+            width: 70%;
+        }
+        .chart-container {
+            margin-bottom: 15px;
         }
         canvas {
             max-width: 100%;
-            margin-bottom: 20px;
+        }
+        .team-info {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .team-info p {
+            margin: 5px 0;
         }
         .btn-share {
             display: block;
-            background: #1e3c72;
+            width: 100%;
+            padding: 10px;
+            background: #1e90ff;
             color: #fff;
-            padding: 10px 20px;
+            border: none;
             border-radius: 5px;
-            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
             text-align: center;
-            width: fit-content;
-            margin: 0 auto;
+            text-decoration: none;
+            margin-bottom: 15px;
         }
-        .navbar {
+        .btn-logout {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #ff4d4d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        /* Navigation Bar */
+        .nav-bar {
             position: fixed;
             bottom: 0;
-            width: 100%;
-            background: #fff;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
         }
-        .navbar a {
+        .nav-item {
             color: #666;
             text-align: center;
-            text-decoration: none;
             font-size: 12px;
+            text-decoration: none;
         }
-        .navbar a.active {
+        .nav-item.active {
             color: #1e3c72;
         }
-        .navbar i {
+        .nav-item i {
             display: block;
             font-size: 20px;
             margin-bottom: 5px;
@@ -110,126 +132,122 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>โปรไฟล์ - DebtFlow</h1>
-            <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
+        <h3>โปรไฟล์ - DebtFlow</h3>
+
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-pic"></div>
+            <div class="profile-info">พูลทรัพย์ พลชารี (T12345)</div>
+            <div class="profile-info">Level 3</div>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
         </div>
-        <div class="cookie-warning" id="cookieWarning">
-            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
-            <span class="close-btn" onclick="dismissCookieWarning()">✖</span>
+
+        <!-- Performance History -->
+        <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
         </div>
-        <div class="profile-info">
-            <p><strong>รหัสพนักงาน:</strong> F4012</p>
-            <p><strong>สถานะ:</strong> ใช้งาน</p>
-            <p><strong>เปอร์เซ็นต์จบงาน:</strong> 80%</p>
-            <p><strong>ระดับ:</strong> Level 3</p>
+
+        <!-- Team Info -->
+        <div class="team-info">
+            <p>ทีม: F4012 รุ่งเรือง</p>
+            <p>สาขา: อุดรธานี</p>
+            <p>เปอร์เซ็นต์จบงานของทีม: 80%</p>
         </div>
-        <canvas id="progressChart"></canvas>
-        <a href="#" class="btn-share" onclick="shareProfile()">แชร์ผลงาน</a>
+
+        <!-- Share Button -->
+        <a href="#" class="btn-share"><i class="fas fa-share"></i> แชร์ผลงาน</a>
+
+        <!-- Logout Button -->
+        <a href="#" class="btn-logout" id="logoutButton"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
     </div>
-    <div class="navbar">
-        <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
-        <a href="tasks.html"><i class="fas fa-tasks"></i>งาน</a>
-        <a href="performance.html"><i class="fas fa-chart-line"></i>ผลงาน</a>
-        <a href="income.html"><i class="fas fa-wallet"></i>รายได้</a>
-        <a href="profile.html" class="active"><i class="fas fa-user"></i>โปรไฟล์</a>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            หน้าแรก
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-briefcase"></i>
+            งาน
+        </a>
+        <a href="performance.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            ผลงาน
+        </a>
+        <a href="income.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            รายได้
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <i class="fas fa-user-circle"></i>
+            โปรไฟล์
+        </a>
     </div>
+
+    <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
-    <script>
-        if (!window.env) {
-            console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
-            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
-        }
-    </script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        try {
-            const firebaseConfig = {
-                apiKey: window.env.FIREBASE_API_KEY,
-                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
-                projectId: window.env.FIREBASE_PROJECT_ID,
-                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
-                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
-                appId: window.env.FIREBASE_APP_ID
-            };
-            firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: window.env.FIREBASE_API_KEY,
+            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+            projectId: window.env.FIREBASE_PROJECT_ID,
+            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+            appId: window.env.FIREBASE_APP_ID
+        });
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                } else {
-                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
-                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
-                }
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ออกจากระบบ
+        document.getElementById('logoutButton').addEventListener('click', (event) => {
+            event.preventDefault();
+            auth.signOut().then(() => {
+                localStorage.removeItem('userEmail');
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error('Logout failed:', error);
+                alert('ออกจากระบบล้มเหลว: ' + error.message);
             });
+        });
 
-            function dismissCookieWarning() {
-                document.getElementById('cookieWarning').style.display = 'none';
-            }
-
-            if (navigator.cookieEnabled) {
-                document.getElementById('cookieWarning').style.display = 'block';
-            }
-
-            const progressData = [60, 64, 68, 72, 76, 80];
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['วันที่ 1', 'วันที่ 2', 'วันที่ 3', 'วันที่ 4', 'วันที่ 5', 'วันที่ 7'],
-                    datasets: [{
-                        label: 'เปอร์เซ็นต์จบงาน',
-                        data: progressData,
-                        borderColor: '#28a745',
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: { display: true, text: 'ความคืบหน้า 7 วัน' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, max: 100 }
+        // ตัวอย่างกราฟประวัติผลงาน
+        const ctxPerformance = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctxPerformance, {
+            type: 'line',
+            data: {
+                labels: ['วัน 1', 'วัน 2', 'วัน 3', 'วัน 4', 'วัน 5', 'วัน 6', 'วัน 7'],
+                datasets: [{
+                    label: 'เปอร์เซ็นต์จบงาน',
+                    data: [60, 65, 70, 68, 75, 80, 78],
+                    borderColor: '#28a745',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'ประวัติผลงาน (7 วัน)'
                     }
                 }
-            });
-
-            function shareProfile() {
-                const shareData = {
-                    title: 'ผลงานของฉัน - DebtFlow',
-                    text: 'ดูผลงานของฉันใน DebtFlow: เปอร์เซ็นต์จบงาน 80%!',
-                    url: window.location.href
-                };
-                if (navigator.share) {
-                    navigator.share(shareData)
-                        .then(() => alert('แชร์ผลงานสำเร็จ'))
-                        .catch((error) => {
-                            console.error('การแชร์ล้มเหลว:', error);
-                            alert('เกิดข้อผิดพลาดในการแชร์: ' + error.message);
-                        });
-                } else {
-                    alert('ฟังก์ชันแชร์ไม่รองรับในเบราว์เซอร์นี้ กรุณาคัดลอกลิงก์: ' + shareData.url);
-                }
             }
-
-            function logout() {
-                auth.signOut().then(() => window.location.href = 'index.html')
-                    .catch((error) => {
-                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
-                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
-                    });
-            }
-        } catch (error) {
-            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
-        }
+        });
     </script>
 </body>
 </html>
