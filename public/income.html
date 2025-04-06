@@ -1,74 +1,247 @@
-<!-- public/income.html -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายได้ - FieldFlow</title>
+    <title>รายได้ - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.13.0/dist/Chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 70px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .chart-container {
+            margin-bottom: 15px;
+        }
+        canvas {
+            max-width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #1e3c72;
+            color: #fff;
+        }
+        .dispute-alert {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .btn-export {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #1e90ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .nav-item {
+            color: #666;
+            text-align: center;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .nav-item.active {
+            color: #1e3c72;
+        }
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="alert" id="disputeAlert" style="display: none;">
-            มีการโต้แย้ง: กรุณาตรวจสอบคอมเมนต์
+        <h3>รายได้ - DebtFlow</h3>
+
+        <!-- Chart -->
+        <div class="chart-container">
+            <canvas id="incomeChart"></canvas>
         </div>
 
-        <div class="card">
-            <h3>ตารางรายได้</h3>
-            <table id="incomeTable">
-                <thead>
-                    <tr>
-                        <th>เลขที่สัญญา</th>
-                        <th>Commission</th>
-                        <th>สถานะ</th>
-                        <th>วันที่จ่าย</th>
-                        <th>คอมเมนต์</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <!-- Dispute Alert -->
+        <div class="dispute-alert" style="display: none;" id="disputeAlert">
+            มีการโต้แย้ง Commission จากงาน 232016580880
         </div>
 
-        <div class="card">
-            <h3>กราฟสรุป Commission</h3>
-            <canvas id="commissionChart"></canvas>
-        </div>
+        <!-- Income Table -->
+        <table id="incomeTable">
+            <thead>
+                <tr>
+                    <th>เลขที่สัญญา</th>
+                    <th>Commission</th>
+                    <th>สถานะ</th>
+                    <th>วันที่จ่าย</th>
+                    <th>คอมเมนต์</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- ตัวอย่างข้อมูล -->
+                <tr>
+                    <td>232016580880</td>
+                    <td>3,000 บาท</td>
+                    <td>จ่ายแล้ว</td>
+                    <td>20/03/25</td>
+                    <td><input type="text" placeholder="พิมพ์คอมเมนต์..." style="width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;"></td>
+                </tr>
+            </tbody>
+        </table>
 
-        <div class="card">
-            <a href="#" class="button" onclick="exportReport()">ดาวน์โหลด PDF</a>
-        </div>
+        <!-- Export Button -->
+        <a href="#" class="btn-export"><i class="fas fa-download"></i> ดาวน์โหลดรายงาน</a>
     </div>
 
-    <!-- Bottom Navigation Bar -->
-    <div class="bottom-nav">
-        <a href="dashboard.html">
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
             <i class="fas fa-home"></i>
-            <span>หน้าแรก<br>Dashboard</span>
+            หน้าแรก
         </a>
-        <a href="tasks.html">
+        <a href="tasks.html" class="nav-item">
             <i class="fas fa-briefcase"></i>
-            <span>งาน<br>Tasks</span>
+            งาน
         </a>
-        <a href="income.html" class="active">
-            <i class="fas fa-wallet"></i>
-            <span>รายได้<br>Income</span>
-        </a>
-        <a href="profile.html">
-            <i class="fas fa-user-circle"></i>
-            <span>โปรไฟล์<br>Profile</span>
-        </a>
-        <a href="performance.html">
+        <a href="performance.html" class="nav-item">
             <i class="fas fa-chart-line"></i>
-            <span>ผลงาน<br>Performance</span>
+            ผลงาน
+        </a>
+        <a href="income.html" class="nav-item active">
+            <i class="fas fa-wallet"></i>
+            รายได้
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            โปรไฟล์
         </a>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/income.js"></script>
-    <script src="js/report.js"></script>
+    <!-- โหลด Firebase SDK -->
+    <script src="env.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: window.env.FIREBASE_API_KEY,
+            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+            projectId: window.env.FIREBASE_PROJECT_ID,
+            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+            appId: window.env.FIREBASE_APP_ID
+        });
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ตัวอย่างกราฟ (ต้องคำนวณจาก Firestore จริง)
+        const ctxIncome = document.getElementById('incomeChart').getContext('2d');
+        new Chart(ctxIncome, {
+            type: 'bar',
+            data: {
+                labels: ['จ่ายแล้ว', 'รอจ่าย', 'ระงับ'],
+                datasets: [{
+                    label: 'Commission',
+                    data: [15000, 5000, 2000],
+                    backgroundColor: ['#28a745', '#ffcc00', '#ff4d4d']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'สรุป Commission'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // โหลดข้อมูลรายได้จาก Firestore (ตัวอย่าง)
+        const incomeTable = document.getElementById('incomeTable').getElementsByTagName('tbody')[0];
+        const disputeAlert = document.getElementById('disputeAlert');
+        db.collection('income').get().then((querySnapshot) => {
+            incomeTable.innerHTML = '';
+            querySnapshot.forEach((doc) => {
+                const income = doc.data();
+                const row = `
+                    <tr>
+                        <td>${doc.id}</td>
+                        <td>${income.commission || '0'} บาท</td>
+                        <td>${income.status || 'รอจ่าย'}</td>
+                        <td>${income.paymentDate || '-'}</td>
+                        <td><input type="text" value="${income.comment || ''}" placeholder="พิมพ์คอมเมนต์..." style="width: 100%; padding: 5px; border-radius: 5px; border: 1px solid #ccc;"></td>
+                    </tr>
+                `;
+                incomeTable.innerHTML += row;
+                if (income.comment) {
+                    disputeAlert.style.display = 'block';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
