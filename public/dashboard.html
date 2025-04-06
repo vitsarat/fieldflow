@@ -45,6 +45,14 @@
             border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            position: relative;
+        }
+        .cookie-warning .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 18px;
         }
         .smart-alert {
             background: #ffcc00;
@@ -131,6 +139,7 @@
         </div>
         <div class="cookie-warning" id="cookieWarning">
             คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+            <span class="close-btn" onclick="dismissCookieWarning()">✖</span>
         </div>
         <div class="smart-alert" id="smartAlert">
             <i class="fas fa-lightbulb"></i>
@@ -190,6 +199,10 @@
                 }
             });
 
+            function dismissCookieWarning() {
+                document.getElementById('cookieWarning').style.display = 'none';
+            }
+
             if (navigator.cookieEnabled) {
                 document.getElementById('cookieWarning').style.display = 'block';
             }
@@ -199,7 +212,7 @@
                     const tip = doc.data();
                     document.getElementById('smartAlert').innerHTML = `
                         <i class="fas fa-lightbulb"></i>
-                        <div>AI Tip: ${tip.message}</div>
+                        <div>AI Tip: ${tip.message || 'ไม่มีคำแนะนำในขณะนี้'}</div>
                     `;
                 } else {
                     document.getElementById('smartAlert').innerHTML = `
