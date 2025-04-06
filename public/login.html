@@ -85,12 +85,12 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc", // แทนที่ด้วย API Key จริง
+            apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc",
             authDomain: "fieldflow-b3ee5.firebaseapp.com",
             projectId: "fieldflow-b3ee5",
-            storageBucket: "fieldflow-b3ee5.appspot.com",
-            messagingSenderId: "384778621124", // แทนที่ด้วย Messaging Sender ID จริง
-            appId: "1:384778621124:web:ea912e4770f1811ec63991" // แทนที่ด้วย App ID จริง
+            storageBucket: "fieldflow-b3ee5.firebasestorage.app",
+            messagingSenderId: "384778621124",
+            appId: "1:384778621124:web:ea912e4770f1811ec63991"
         };
 
         // Initialize Firebase
@@ -99,8 +99,8 @@
 
         // ฟังก์ชันล็อกอิน
         async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value.trim(); // ลบช่องว่างหน้า-หลัง
+            const password = document.getElementById('password').value.trim(); // ลบช่องว่างหน้า-หลัง
             const errorDiv = document.getElementById('error');
 
             if (!username || !password) {
@@ -109,11 +109,15 @@
             }
 
             try {
+                console.log('กำลังตรวจสอบผู้ใช้:', username, password); // ดีบัก
+
                 // ตรวจสอบผู้ใช้ใน Firestore คอลเลกชัน 'users'
                 const userSnapshot = await db.collection('users')
                     .where('username', '==', username)
                     .where('password', '==', password)
                     .get();
+
+                console.log('ผลลัพธ์จาก Firestore:', userSnapshot.size, 'รายการ'); // ดีบัก
 
                 if (userSnapshot.empty) {
                     errorDiv.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
@@ -121,8 +125,10 @@
                 }
 
                 // ล็อกอินสำเร็จ
-                // เก็บข้อมูลผู้ใช้ใน localStorage (เพื่อใช้ในหน้าอื่น ๆ)
                 const userDoc = userSnapshot.docs[0];
+                console.log('ข้อมูลผู้ใช้:', userDoc.data()); // ดีบัก
+
+                // เก็บข้อมูลผู้ใช้ใน localStorage (เพื่อใช้ในหน้าอื่น ๆ)
                 localStorage.setItem('user', JSON.stringify({
                     username: userDoc.data().username,
                     userId: userDoc.id
@@ -131,6 +137,7 @@
                 // นำไปยังหน้า dashboard
                 window.location.href = 'dashboard.html';
             } catch (error) {
+                console.error('ข้อผิดพลาด:', error); // ดีบัก
                 errorDiv.textContent = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ: ' + error.message;
             }
         }
