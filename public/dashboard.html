@@ -14,7 +14,7 @@
             background-color: #f0f2f5;
             margin: 0;
             padding: 0;
-            padding-bottom: 80px; /* ปรับที่ว่างสำหรับแถบเมนูด้านล่าง */
+            padding-bottom: 80px;
         }
         .container {
             max-width: 100%;
@@ -28,7 +28,6 @@
             font-size: 22px;
             font-weight: bold;
         }
-        /* Task Overview */
         .task-overview {
             display: flex;
             justify-content: space-between;
@@ -52,7 +51,6 @@
             font-size: 24px;
             margin-bottom: 8px;
         }
-        /* Smart Alert */
         .smart-alert {
             background: #ffcc00;
             color: #333;
@@ -68,7 +66,6 @@
             margin-right: 10px;
             font-size: 20px;
         }
-        /* Urgent Tasks */
         .urgent-tasks {
             margin-bottom: 20px;
         }
@@ -104,7 +101,6 @@
         .urgent-task-table a:hover {
             background: #e63939;
         }
-        /* Map */
         #map {
             height: 250px;
             width: 100%;
@@ -112,7 +108,6 @@
             margin-bottom: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        /* Navigation Bar */
         .nav-bar {
             position: fixed;
             bottom: 0;
@@ -252,17 +247,76 @@
             if (!user) {
                 window.location.href = 'index.html';
             } else {
-                loadUserDebts(user.uid);
                 loadTaskOverview(user.uid);
+                loadUserDebts(user.uid);
+                loadJsonData(); // เพิ่มการดึงข้อมูลจาก JSON
             }
         });
 
-        // ฟังก์ชันโหลดข้อมูลภาพรวมงาน
+        // ฟังก์ชันดึงข้อมูลจากไฟล์ JSON
+        async function loadJsonData() {
+            try {
+                const response = await fetch('debts.json'); // ปรับพาธให้ตรงกับตำแหน่งไฟล์ JSON
+                if (!response.ok) {
+                    throw new Error('ไม่สามารถโหลดไฟล์ JSON ได้');
+                }
+                const debts = await response.json();
+                console.log('ข้อมูลจาก JSON:', debts);
+
+                // อัปเดต Task Overview จาก JSON
+                let pendingCount = 0;
+                let completedCount = 0;
+                let seizedCount = 0;
+
+                debts.forEach(debt => {
+                    if (debt.status === 'ค้างชำระ') {
+                        pendingCount++;
+                    } else if (debt.status === 'ชำระแล้ว') {
+                        completedCount++;
+                    } else if (debt.status === 'รอยึด') {
+                        seizedCount++;
+                    }
+                });
+
+                document.getElementById('pendingCount').textContent = pendingCount;
+                document.getElementById('completedCount').textContent = completedCount;
+                document.getElementById('seizedCount').textContent = seizedCount;
+
+                // อัปเดต Urgent Tasks จาก JSON
+                const today = new Date().toISOString().split('T')[0];
+                const urgentTasksBody = document.getElementById('urgentTasksBody');
+                urgentTasksBody.innerHTML = '';
+
+                const urgentDebts = debts.filter(debt => debt.dueDate <= today && debt.status === 'ค้างชำระ');
+                if (urgentDebts.length === 0) {
+                    urgentTasksBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">ไม่มีงานด่วนวันนี้</td></tr>';
+                    return;
+                }
+
+                urgentDebts.forEach(debt => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${debt.id}</td>
+                        <td>${debt.creditor}</td>
+                        <td>${debt.amount.toLocaleString()} บาท</td>
+                        <td>${debt.dueDate}</td>
+                        <td><a href="task-details.html?debtId=${debt.id}">ดูรายละเอียด</a></td>
+                    `;
+                    urgentTasksBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading JSON data:', error);
+            }
+        }
+
+        // ฟังก์ชันโหลดข้อมูลภาพรวมงานจาก Firestore
         async function loadTaskOverview(userId) {
             try {
                 const debtsSnapshot = await db.collection('debts')
                     .where('userId', '==', userId)
                     .get();
+
+                console.log('ผลลัพธ์จาก Firestore (Task Overview):', debtsSnapshot.size, 'รายการ');
 
                 let pendingCount = 0;
                 let completedCount = 0;
@@ -279,15 +333,18 @@
                     }
                 });
 
-                document.getElementById('pendingCount').textContent = pendingCount;
-                document.getElementById('completedCount').textContent = completedCount;
-                document.getElementById('seizedCount').textContent = seizedCount;
+                // อัปเดต Task Overview จาก Firestore (ถ้าไม่ใช้ JSON)
+                if (document.getElementById('pendingCount').textContent === '0') {
+                    document.getElementById('pendingCount').textContent = pendingCount;
+                    document.getElementById('completedCount').textContent = completedCount;
+                    document.getElementById('seizedCount').textContent = seizedCount;
+                }
             } catch (error) {
-                console.error('Error loading task overview:', error);
+                console.error('Error loading task overview from Firestore:', error);
             }
         }
 
-        // ฟังก์ชันโหลดข้อมูลหนี้ของผู้ใช้
+        // ฟังก์ชันโหลดข้อมูลหนี้ของผู้ใช้จาก Firestore
         async function loadUserDebts(userId) {
             try {
                 const today = new Date().toISOString().split('T')[0];
@@ -297,8 +354,10 @@
                     .where('status', '==', 'ค้างชำระ')
                     .get();
 
+                console.log('ผลลัพธ์จาก Firestore (Urgent Tasks):', debtsSnapshot.size, 'รายการ');
+
                 const urgentTasksBody = document.getElementById('urgentTasksBody');
-                urgentTasksBody.innerHTML = '';
+                if (urgentTasksBody.innerHTML !== '') return; // ถ้ามีข้อมูลจาก JSON แล้ว ไม่ต้องโหลดซ้ำ
 
                 if (debtsSnapshot.empty) {
                     urgentTasksBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">ไม่มีงานด่วนวันนี้</td></tr>';
@@ -319,7 +378,7 @@
                     urgentTasksBody.appendChild(row);
                 });
             } catch (error) {
-                console.error('Error loading user debts:', error);
+                console.error('Error loading user debts from Firestore:', error);
                 document.getElementById('urgentTasksBody').innerHTML = '<tr><td colspan="5" style="text-align: center;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
             }
         }
@@ -391,6 +450,25 @@
                     });
                 }).catch((error) => {
                     console.error('Error fetching debts:', error);
+                });
+
+                // ดึงข้อมูลตำแหน่งจาก JSON (ถ้ามี)
+                fetch('debts.json').then(response => response.json()).then(debts => {
+                    debts.forEach(debt => {
+                        if (debt.location) {
+                            const position = {
+                                lat: debt.location.lat,
+                                lng: debt.location.lng
+                            };
+                            new google.maps.marker.AdvancedMarkerElement({
+                                position: position,
+                                map: map,
+                                title: debt.creditor
+                            });
+                        }
+                    });
+                }).catch(error => {
+                    console.error('Error loading JSON for map:', error);
                 });
             } catch (error) {
                 console.error('Error initializing Google Maps:', error);
