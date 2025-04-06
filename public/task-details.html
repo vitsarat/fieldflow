@@ -292,6 +292,7 @@
                     document.getElementById('color').value = task.color || '';
                     document.getElementById('licensePlate').value = task.licensePlate || '';
                 } else {
+                    console.error('ไม่พบเอกสารใน Firestore สำหรับ taskId:', taskId);
                     alert('ไม่พบข้อมูลงาน');
                     window.location.href = 'dashboard.html';
                 }
