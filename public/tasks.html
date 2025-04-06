@@ -37,6 +37,14 @@
             text-decoration: none;
             font-size: 16px;
         }
+        .cookie-warning {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
         .task-list {
             display: grid;
             gap: 20px;
@@ -115,7 +123,12 @@
             <h1>งาน - DebtFlow</h1>
             <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
-        <div class="task-list" id="taskList"></div>
+        <div class="cookie-warning" id="cookieWarning">
+            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+        </div>
+        <div class="task-list" id="taskList">
+            <div style="text-align: center;">กำลังโหลดงาน...</div>
+        </div>
         <a href="task-details.html" class="btn-add">+ เพิ่มงานใหม่</a>
     </div>
     <div class="navbar">
@@ -148,6 +161,7 @@
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
+
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -157,31 +171,42 @@
                         .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
             db.collection('tasks').orderBy('createdAt', 'desc').get().then((querySnapshot) => {
                 const taskList = document.getElementById('taskList');
-                querySnapshot.forEach((doc) => {
-                    const task = doc.data();
-                    const status = task.status || 'pending';
-                    const taskCard = `
-                        <div class="task-card">
-                            <div class="task-header">
-                                <i class="fas fa-file-contract"></i>
-                                <h4>${doc.id}</h4>
-                                <span class="priority-dot status-${status}" style="width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 10px;"></span>
+                if (querySnapshot.empty) {
+                    taskList.innerHTML = '<div style="text-align: center;">ไม่มีงานในขณะนี้</div>';
+                } else {
+                    taskList.innerHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const task = doc.data();
+                        const status = task.status || 'pending';
+                        const taskCard = `
+                            <div class="task-card">
+                                <div class="task-header">
+                                    <i class="fas fa-file-contract"></i>
+                                    <h4>${doc.id}</h4>
+                                    <span class="priority-dot status-${status}" style="width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 10px;"></span>
+                                </div>
+                                <div class="task-details">
+                                    <p><strong>ลูกหนี้:</strong> ${task.debtor || '-'}</p>
+                                    <p><strong>สถานะ:</strong> ${task.status || 'รอดำเนินการ'}</p>
+                                    <p><strong>ยอดหนี้:</strong> ${task.principle || '0'} บาท</p>
+                                </div>
                             </div>
-                            <div class="task-details">
-                                <p><strong>ลูกหนี้:</strong> ${task.debtor || '-'}</p>
-                                <p><strong>สถานะ:</strong> ${task.status || 'รอดำเนินการ'}</p>
-                                <p><strong>ยอดหนี้:</strong> ${task.principle || '0'} บาท</p>
-                            </div>
-                        </div>
-                    `;
-                    taskList.innerHTML += taskCard;
-                });
+                        `;
+                        taskList.innerHTML += taskCard;
+                    });
+                }
             }).catch((error) => {
                 console.error('ข้อผิดพลาดในการดึงข้อมูลงาน:', error);
-                alert('เกิดข้อผิดพลาดในการดึงข้อมูลงาน: ' + error.message);
+                document.getElementById('taskList').innerHTML = '<div style="text-align: center; color: #ff4d4d;">ไม่สามารถโหลดงานได้ กรุณาลองใหม่อีกครั้ง</div>';
             });
+
             function logout() {
                 auth.signOut().then(() => window.location.href = 'index.html')
                     .catch((error) => {
