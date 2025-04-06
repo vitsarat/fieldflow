@@ -25,86 +25,38 @@
             margin-bottom: 15px;
             font-size: 20px;
         }
-        /* Filter and Sort */
-        .filter-sort {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        .filter-sort select {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-        .task-counter {
-            font-size: 14px;
-            color: #666;
-        }
-        /* Task Card */
-        .task-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .task-item {
+            background: white;
             border-radius: 10px;
             padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        .task-card:hover {
-            transform: translateY(-5px);
-        }
-        .task-header {
-            display: flex;
-            align-items: center;
             margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .task-header i {
-            margin-right: 10px;
-            font-size: 18px;
-            color: #1e3c72;
-        }
-        .task-header h4 {
-            margin: 0;
-            font-size: 16px;
-            color: #1e3c72;
-        }
-        .task-info {
+        .task-item p {
+            margin: 5px 0;
             font-size: 14px;
             color: #333;
-            margin-bottom: 5px;
         }
-        .task-info i {
+        .task-item p i {
             margin-right: 8px;
-            color: #666;
+            color: #1e3c72;
         }
-        .status-tag {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        .status-pending { background: #ffcc00; color: #333; }
-        .status-contacted { background: #1e90ff; color: #fff; }
-        .status-completed { background: #28a745; color: #fff; }
         .task-actions {
             display: flex;
             justify-content: space-between;
             margin-top: 10px;
         }
-        .task-actions a {
+        .task-actions button, .task-actions a {
             padding: 8px 15px;
             border-radius: 5px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
             text-decoration: none;
-            font-size: 12px;
         }
-        .btn-details { background: #1e3c72; color: #fff; }
+        .btn-details { background: #1e90ff; color: #fff; }
         .btn-accept { background: #28a745; color: #fff; }
         .btn-forward { background: #ffcc00; color: #333; }
-        /* Navigation Bar */
         .nav-bar {
             position: fixed;
             bottom: 0;
@@ -140,43 +92,7 @@
 <body>
     <div class="container">
         <h3>งาน - DebtFlow</h3>
-
-        <!-- Filter and Sort -->
-        <div class="filter-sort">
-            <select id="filterStatus">
-                <option value="">ทั้งหมด</option>
-                <option value="pending">ติดต่อไม่ได้</option>
-                <option value="contacted">นัดหมาย</option>
-                <option value="completed">จบงานสำเร็จ</option>
-            </select>
-            <div class="task-counter">จำนวนงาน: <span id="taskCount">0</span></div>
-        </div>
-
-        <!-- Task List -->
-        <div id="taskList">
-            <!-- ตัวอย่างการ์ดงาน -->
-            <div class="task-card">
-                <div class="task-header">
-                    <i class="fas fa-file-contract"></i>
-                    <h4>232016580880</h4>
-                </div>
-                <div class="task-info">
-                    <i class="fas fa-user"></i> พูลทรัพย์ พลชารี
-                </div>
-                <div class="task-info">
-                    <i class="fas fa-home"></i> 119 หมู่ที่ 1 ต.สร้อยพร้าว อ.หนองหาน จ.อุดรธานี
-                </div>
-                <div class="task-info">
-                    <i class="fas fa-map-marker-alt"></i> ระยะ: 2.5 กม.
-                </div>
-                <div class="status-tag status-pending">ติดต่อไม่ได้</div>
-                <div class="task-actions">
-                    <a href="task-details.html" class="btn-details">ดูรายละเอียด</a>
-                    <a href="#" class="btn-accept">รับงาน</a>
-                    <a href="#" class="btn-forward">ฝากงาน</a>
-                </div>
-            </div>
-        </div>
+        <div id="taskList"></div>
     </div>
 
     <!-- Navigation Bar -->
@@ -205,6 +121,12 @@
 
     <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
+    <script>
+        if (!window.env) {
+            console.error('Error: env.js not loaded or window.env is undefined');
+            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
+        }
+    </script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
@@ -225,58 +147,59 @@
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'index.html';
+            } else {
+                loadTasks();
             }
         });
 
-        // โหลดงานจาก Firestore
-        const taskList = document.getElementById('taskList');
-        const taskCount = document.getElementById('taskCount');
-        const filterStatus = document.getElementById('filterStatus');
+        // ฟังก์ชันโหลดรายการงาน
+        async function loadTasks() {
+            try {
+                const tasksSnapshot = await db.collection('tasks').get();
+                console.log('ผลลัพธ์จาก Firestore (Tasks):', tasksSnapshot.size, 'รายการ');
 
-        function loadTasks() {
-            db.collection('tasks').get().then((querySnapshot) => {
+                const taskList = document.getElementById('taskList');
                 taskList.innerHTML = '';
-                let count = 0;
-                querySnapshot.forEach((doc) => {
+
+                if (tasksSnapshot.empty) {
+                    taskList.innerHTML = '<p style="text-align: center;">ไม่มีงานในขณะนี้</p>';
+                    return;
+                }
+
+                tasksSnapshot.forEach(doc => {
                     const task = doc.data();
-                    const status = task.status || 'pending';
-                    if (!filterStatus.value || filterStatus.value === status) {
-                        const taskCard = `
-                            <div class="task-card">
-                                <div class="task-header">
-                                    <i class="fas fa-file-contract"></i>
-                                    <h4>${doc.id}</h4>
-                                </div>
-                                <div class="task-info">
-                                    <i class="fas fa-user"></i> ${task.name || 'ไม่ระบุ'}
-                                </div>
-                                <div class="task-info">
-                                    <i class="fas fa-home"></i> ${task.address || 'ไม่ระบุ'}
-                                </div>
-                                <div class="task-info">
-                                    <i class="fas fa-map-marker-alt"></i> ระยะ: ${task.distance || 'ไม่ระบุ'} กม.
-                                </div>
-                                <div class="status-tag status-${status}">${status === 'pending' ? 'ติดต่อไม่ได้' : status === 'contacted' ? 'นัดหมาย' : 'จบงานสำเร็จ'}</div>
-                                <div class="task-actions">
-                                    <a href="task-details.html?id=${doc.id}" class="btn-details">ดูรายละเอียด</a>
-                                    <a href="#" class="btn-accept">รับงาน</a>
-                                    <a href="#" class="btn-forward">ฝากงาน</a>
-                                </div>
-                            </div>
-                        `;
-                        taskList.innerHTML += taskCard;
-                        count++;
-                    }
+                    const taskId = doc.id;
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-item';
+                    taskItem.innerHTML = `
+                        <p><i class="fas fa-file-alt"></i> ${taskId}</p>
+                        <p><i class="fas fa-user"></i> ${task.debtor || 'ไม่ระบุ'}</p>
+                        <p><i class="fas fa-map-marker-alt"></i> สถานะ: ${task.status || 'ไม่ระบุ'}</p>
+                        <div class="task-actions">
+                            <a href="task-details.html?taskId=${taskId}" class="btn-details"><i class="fas fa-eye"></i> ดูรายละเอียด</a>
+                            <button class="btn-accept" onclick="updateTaskStatus('${taskId}', 'completed')"><i class="fas fa-check"></i> รับงาน</button>
+                            <button class="btn-forward" onclick="updateTaskStatus('${taskId}', 'forwarded')"><i class="fas fa-share"></i> ฝากงาน</button>
+                        </div>
+                    `;
+                    taskList.appendChild(taskItem);
                 });
-                taskCount.textContent = count;
-            });
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                document.getElementById('taskList').innerHTML = '<p style="text-align: center; color: red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+            }
         }
 
-        // เรียกโหลดงานเมื่อหน้าโหลด
-        loadTasks();
-
-        // ฟังก์ชันกรองสถานะ
-        filterStatus.addEventListener('change', loadTasks);
+        // ฟังก์ชันอัปเดตสถานะงาน
+        async function updateTaskStatus(taskId, status) {
+            try {
+                await db.collection('tasks').doc(taskId).update({ status: status });
+                alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
+                loadTasks(); // รีโหลดรายการงาน
+            } catch (error) {
+                console.error('Error updating task status:', error);
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+            }
+        }
     </script>
 </body>
 </html>
