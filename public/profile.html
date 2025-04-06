@@ -38,6 +38,14 @@
             text-decoration: none;
             font-size: 16px;
         }
+        .cookie-warning {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
         .profile-info {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -98,6 +106,9 @@
             <h1>โปรไฟล์ - DebtFlow</h1>
             <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
+        <div class="cookie-warning" id="cookieWarning">
+            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+        </div>
         <div class="profile-info">
             <p><strong>รหัสพนักงาน:</strong> F4012</p>
             <p><strong>สถานะ:</strong> ใช้งาน</p>
@@ -105,7 +116,7 @@
             <p><strong>ระดับ:</strong> Level 3</p>
         </div>
         <canvas id="progressChart"></canvas>
-        <a href="#" class="btn-share">แชร์ผลงาน</a>
+        <a href="#" class="btn-share" onclick="shareProfile()">แชร์ผลงาน</a>
     </div>
     <div class="navbar">
         <a href="dashboard.html"><i class="fas fa-home"></i>หน้าแรก</a>
@@ -137,6 +148,7 @@
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
+
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -146,6 +158,11 @@
                         .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
             const progressData = [60, 64, 68, 72, 76, 80];
             const ctx = document.getElementById('progressChart').getContext('2d');
             new Chart(ctx, {
@@ -170,8 +187,8 @@
                     }
                 }
             });
-            document.querySelector('.btn-share').addEventListener('click', (event) => {
-                event.preventDefault();
+
+            function shareProfile() {
                 const shareData = {
                     title: 'ผลงานของฉัน - DebtFlow',
                     text: 'ดูผลงานของฉันใน DebtFlow: เปอร์เซ็นต์จบงาน 80%!',
@@ -179,12 +196,16 @@
                 };
                 if (navigator.share) {
                     navigator.share(shareData)
-                        .then(() => console.log('แชร์สำเร็จ'))
-                        .catch((error) => console.error('การแชร์ล้มเหลว:', error));
+                        .then(() => alert('แชร์ผลงานสำเร็จ'))
+                        .catch((error) => {
+                            console.error('การแชร์ล้มเหลว:', error);
+                            alert('เกิดข้อผิดพลาดในการแชร์: ' + error.message);
+                        });
                 } else {
                     alert('ฟังก์ชันแชร์ไม่รองรับในเบราว์เซอร์นี้ กรุณาคัดลอกลิงก์: ' + shareData.url);
                 }
-            });
+            }
+
             function logout() {
                 auth.signOut().then(() => window.location.href = 'index.html')
                     .catch((error) => {
