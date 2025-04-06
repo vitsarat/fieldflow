@@ -29,6 +29,14 @@
             font-size: 24px;
             margin: 0;
         }
+        .cookie-warning {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
         .task-details {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -114,6 +122,9 @@
         <div class="header">
             <h1>รายละเอียดงาน - DebtFlow</h1>
         </div>
+        <div class="cookie-warning" id="cookieWarning">
+            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+        </div>
         <div class="task-details">
             <p><strong>รหัส:</strong> <input type="text" id="taskId" value="F4012" readonly></p>
             <p><strong>สถานะ:</strong> <select id="status">
@@ -171,6 +182,7 @@
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
+
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -180,9 +192,31 @@
                         .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
+            function validateTaskData(taskData) {
+                const phonePattern = /^[0-9]{9,10}$/;
+                if (!taskData.debtor) {
+                    alert('กรุณากรอกชื่อลูกหนี้');
+                    return false;
+                }
+                if (!phonePattern.test(taskData.phone.replace(/\s/g, ''))) {
+                    alert('เบอร์โทรศัพท์ไม่ถูกต้อง กรุณากรอก 9-10 หลัก');
+                    return false;
+                }
+                if (isNaN(taskData.principle) || taskData.principle <= 0) {
+                    alert('ยอดหนี้ต้องเป็นตัวเลขและมากกว่า 0');
+                    return false;
+                }
+                return true;
+            }
+
             function saveTask() {
-                const taskId = document.getElementById('taskId').value;
                 const taskData = {
+                    taskId: document.getElementById('taskId').value,
                     status: document.getElementById('status').value,
                     address: document.getElementById('address').value,
                     contractNo: document.getElementById('contractNo').value,
@@ -197,7 +231,10 @@
                     financeAmount: document.getElementById('financeAmount').value,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
-                db.collection('tasks').doc(taskId).set(taskData)
+
+                if (!validateTaskData(taskData)) return;
+
+                db.collection('tasks').doc(taskData.taskId).set(taskData)
                     .then(() => {
                         alert('บันทึกงานสำเร็จ');
                         window.location.href = 'tasks.html';
@@ -207,6 +244,7 @@
                         alert('เกิดข้อผิดพลาดในการบันทึกงาน: ' + error.message);
                     });
             }
+
             function toggleDetails() {
                 const additionalDetails = document.getElementById('additionalDetails');
                 if (additionalDetails.classList.contains('show')) {
