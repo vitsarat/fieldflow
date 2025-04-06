@@ -117,4 +117,104 @@
     <script>
         if (!window.env) {
             console.error('ข้อผิดพลาด: ไม่สามารถโหลด env.js หรือ window.env ไม่ได้กำหนดค่า');
-            alert('ไม่สามารถโหลดการ
+            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
+        }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script>
+        try {
+            const firebaseConfig = {
+                apiKey: window.env.FIREBASE_API_KEY,
+                authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+                projectId: window.env.FIREBASE_PROJECT_ID,
+                storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+                messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+                appId: window.env.FIREBASE_APP_ID
+            };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                } else {
+                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                        .then(() => console.log('ตั้งค่าการคงสถานะเซสชันสำเร็จ'))
+                        .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
+                }
+            });
+
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
+            db.collection('performance').doc('summary').get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('performanceSummary').innerHTML = `
+                        <p>งานที่จบแล้ว (วันนี้): ${data.completedTasks || 0} งาน</p>
+                        <p>ยอด Principle คงเหลือ: ${data.principle || 0} บาท</p>
+                        <p>เปอร์เซ็นต์จบงาน (6090): ${data.percentage6090 || 0}%</p>
+                        <p>เปอร์เซ็นต์จบงาน (NPL): ${data.percentageNPL || 0}%</p>
+                    `;
+                    const ctx6090 = document.getElementById('performanceChart6090').getContext('2d');
+                    new Chart(ctx6090, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['สำเร็จ', 'ไม่สำเร็จ'],
+                            datasets: [{
+                                data: [data.percentage6090 || 0, 100 - (data.percentage6090 || 0)],
+                                backgroundColor: ['#28a745', '#ff4d4d']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'เปอร์เซ็นต์จบงาน (6090) - Target 88%' }
+                            }
+                        }
+                    });
+                    const ctxNPL = document.getElementById('performanceChartNPL').getContext('2d');
+                    new Chart(ctxNPL, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['สำเร็จ', 'ไม่สำเร็จ'],
+                            datasets: [{
+                                data: [data.percentageNPL || 0, 100 - (data.percentageNPL || 0)],
+                                backgroundColor: ['#28a745', '#ff4d4d']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: { display: true, text: 'เปอร์เซ็นต์จบงาน (NPL) - Target 40%' }
+                            }
+                        }
+                    });
+                } else {
+                    document.getElementById('summaryError').style.display = 'block';
+                }
+            }).catch((error) => {
+                console.error('ข้อผิดพลาดในการดึงข้อมูลผลงาน:', error);
+                document.getElementById('summaryError').style.display = 'block';
+            });
+
+            function logout() {
+                auth.signOut().then(() => window.location.href = 'index.html')
+                    .catch((error) => {
+                        console.error('ข้อผิดพลาดในการออกจากระบบ:', error);
+                        alert('เกิดข้อผิดพลาดในการออกจากระบบ: ' + error.message);
+                    });
+            }
+        } catch (error) {
+            console.error('การกำหนดค่า Firebase ล้มเหลว:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ Firebase: ' + error.message);
+        }
+    </script>
+</body>
+</html>
