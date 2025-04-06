@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ด - FieldFlow</title>
+    <title>หน้าแรก - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <!-- โหลด Google Maps API -->
@@ -13,50 +13,179 @@
             font-family: 'Arial', sans-serif;
             background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            padding-bottom: 70px; /* ให้มีที่ว่างสำหรับแถบเมนูด้านล่าง */
         }
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
         }
         h3 {
             color: #333;
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
+            margin-bottom: 15px;
+            font-size: 20px;
         }
+        /* Task Overview */
+        .task-overview {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .task-box {
+            flex: 1;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px;
+            margin: 0 5px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .task-box i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        /* Smart Alert */
+        .smart-alert {
+            background: #ffcc00;
+            color: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        .smart-alert i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        /* Urgent Tasks */
+        .urgent-tasks {
+            margin-bottom: 15px;
+        }
+        .urgent-task-card {
+            background: linear-gradient(135deg, #ff4d4d, #ff6666);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .urgent-task-card a {
+            background: #fff;
+            color: #ff4d4d;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        /* Map */
         #map {
-            height: 500px;
+            height: 200px;
             width: 100%;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-        .logout-button {
-            display: block;
-            width: fit-content;
-            margin: 0 auto;
-            padding: 12px 30px;
-            background-color: #ff4d4d;
-            color: white;
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .nav-item {
+            color: #666;
+            text-align: center;
+            font-size: 12px;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
         }
-        .logout-button:hover {
-            background-color: #e60000;
+        .nav-item.active {
+            color: #1e3c72;
+        }
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h3>แดชบอร์ด - ตำแหน่งงาน</h3>
+        <h3>หน้าแรก - DebtFlow</h3>
+
+        <!-- Task Overview -->
+        <div class="task-overview">
+            <div class="task-box">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>ค้างชำระ: 10 งาน</div>
+            </div>
+            <div class="task-box">
+                <i class="fas fa-check-circle"></i>
+                <div>ชำระแล้ว: 5 งาน</div>
+            </div>
+            <div class="task-box">
+                <i class="fas fa-car"></i>
+                <div>รอยึด: 3 งาน</div>
+            </div>
+        </div>
+
+        <!-- Smart Alert -->
+        <div class="smart-alert">
+            <i class="fas fa-lightbulb"></i>
+            <div>AI Tip: ติดตามลูกค้า X วันนี้ มีโอกาสชำระสูง!</div>
+        </div>
+
+        <!-- Urgent Tasks -->
+        <div class="urgent-tasks">
+            <h3 style="font-size: 16px; text-align: left;">งานด่วนวันนี้</h3>
+            <div class="urgent-task-card">
+                <div>232016580880 - พูลทรัพย์ พลชารี</div>
+                <a href="tasks.html">ดูรายละเอียด</a>
+            </div>
+        </div>
+
+        <!-- Map -->
         <div id="map"></div>
-        <a href="#" class="logout-button" id="logoutButton">ออกจากระบบ</a>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            หน้าแรก
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-briefcase"></i>
+            งาน
+        </a>
+        <a href="performance.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            ผลงาน
+        </a>
+        <a href="income.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            รายได้
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            โปรไฟล์
+        </a>
     </div>
 
     <!-- โหลด Firebase SDK -->
@@ -89,31 +218,18 @@
         // ตรวจสอบสถานะการล็อกอิน
         auth.onAuthStateChanged((user) => {
             if (!user) {
-                // ถ้าไม่ได้ล็อกอิน ให้ redirect ไปหน้า login
                 window.location.href = 'index.html';
             }
-        });
-
-        // ฟังก์ชันออกจากระบบ
-        document.getElementById('logoutButton').addEventListener('click', (event) => {
-            event.preventDefault();
-            auth.signOut().then(() => {
-                localStorage.removeItem('userEmail');
-                window.location.href = 'index.html';
-            }).catch((error) => {
-                console.error('Logout failed:', error);
-                alert('ออกจากระบบล้มเหลว: ' + error.message);
-            });
         });
 
         // ฟังก์ชันเริ่มต้น Google Maps
         function initMap() {
             const map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 13.7563, lng: 100.5018 }, // ตัวอย่าง: กรุงเทพฯ
+                center: { lat: 13.7563, lng: 100.5018 },
                 zoom: 12
             });
 
-            // ดึงข้อมูลตำแหน่งจาก Firestore (เช่น งานที่พนักงานต้องไป)
+            // ดึงข้อมูลตำแหน่งจาก Firestore
             db.collection('tasks').get().then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     const task = doc.data();
@@ -121,27 +237,23 @@
                         let position;
                         try {
                             if (typeof task.location === 'string') {
-                                // ถ้า location เป็น string ให้ parse เป็น object
                                 const parsedLocation = JSON.parse(task.location);
                                 position = {
                                     lat: parsedLocation.lat,
                                     lng: parsedLocation.lng
                                 };
                             } else if (task.location.latitude && task.location.longitude) {
-                                // ถ้าเป็น GeoPoint
                                 position = {
                                     lat: task.location.latitude,
                                     lng: task.location.longitude
                                 };
                             } else {
-                                // ถ้าเป็น object ธรรมดา
                                 position = {
                                     lat: task.location.lat,
                                     lng: task.location.lng
                                 };
                             }
 
-                            // ตรวจสอบว่า position.lat และ position.lng เป็นตัวเลข
                             if (typeof position.lat !== 'number' || typeof position.lng !== 'number') {
                                 throw new Error('Invalid lat or lng: not a number');
                             }
