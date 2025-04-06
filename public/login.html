@@ -54,10 +54,21 @@
             margin-top: 10px;
             font-size: 14px;
         }
+        .register-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
     </style>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="login-container">
@@ -66,57 +77,62 @@
         <input type="password" id="password" placeholder="รหัสผ่าน" required>
         <button onclick="login()">เข้าสู่ระบบ</button>
         <div id="error" class="error"></div>
+        <div class="register-link">
+            ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a>
+        </div>
     </div>
 
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_ACTUAL_API_KEY", // แทนที่ด้วย API Key จริง
+            apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc", // แทนที่ด้วย API Key จริง
             authDomain: "fieldflow-b3ee5.firebaseapp.com",
             projectId: "fieldflow-b3ee5",
             storageBucket: "fieldflow-b3ee5.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // แทนที่ด้วย Messaging Sender ID จริง
-            appId: "YOUR_APP_ID" // แทนที่ด้วย App ID จริง
+            messagingSenderId: "384778621124", // แทนที่ด้วย Messaging Sender ID จริง
+            appId: "1:384778621124:web:ea912e4770f1811ec63991" // แทนที่ด้วย App ID จริง
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // ตรวจสอบสถานะการล็อกอิน
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                window.location.href = 'dashboard.html'; // หากล็อกอินแล้ว ให้ไปที่หน้า dashboard
-            }
-        });
+        const db = firebase.firestore();
 
         // ฟังก์ชันล็อกอิน
-        function login() {
+        async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('error');
 
-            // ตรวจสอบข้อมูลผู้ใช้ (ตัวอย่าง: a001, password123)
-            // ในแอปจริงควรใช้ Firebase Authentication ด้วย email/password
-            const email = `${username}@debtflow.com`; // สร้าง email จาก username (เช่น a001@debtflow.com)
+            if (!username || !password) {
+                errorDiv.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
+                return;
+            }
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then(userCredential => {
-                    // ล็อกอินสำเร็จ
-                    window.location.href = 'dashboard.html';
-                })
-                .catch(error => {
-                    // จัดการข้อผิดพลาด
-                    let errorMessage = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
-                    if (error.code === 'auth/user-not-found') {
-                        errorMessage = 'ไม่พบผู้ใช้';
-                    } else if (error.code === 'auth/wrong-password') {
-                        errorMessage = 'รหัสผ่านไม่ถูกต้อง';
-                    } else if (error.code === 'auth/invalid-email') {
-                        errorMessage = 'ชื่อผู้ใช้ไม่ถูกต้อง';
-                    }
-                    errorDiv.textContent = errorMessage;
-                });
+            try {
+                // ตรวจสอบผู้ใช้ใน Firestore คอลเลกชัน 'users'
+                const userSnapshot = await db.collection('users')
+                    .where('username', '==', username)
+                    .where('password', '==', password)
+                    .get();
+
+                if (userSnapshot.empty) {
+                    errorDiv.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+                    return;
+                }
+
+                // ล็อกอินสำเร็จ
+                // เก็บข้อมูลผู้ใช้ใน localStorage (เพื่อใช้ในหน้าอื่น ๆ)
+                const userDoc = userSnapshot.docs[0];
+                localStorage.setItem('user', JSON.stringify({
+                    username: userDoc.data().username,
+                    userId: userDoc.id
+                }));
+
+                // นำไปยังหน้า dashboard
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                errorDiv.textContent = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ: ' + error.message;
+            }
         }
 
         // เพิ่มการกด Enter เพื่อล็อกอิน
