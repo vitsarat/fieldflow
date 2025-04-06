@@ -44,17 +44,17 @@
     <script>
         // ตรวจสอบว่าผู้ใช้ล็อกอินหรือไม่
         const user = localStorage.getItem('user');
-        console.log('ข้อมูลผู้ใช้จาก localStorage:', user); // ดีบัก
+        console.log('ข้อมูลผู้ใช้จาก localStorage:', user);
 
         if (!user) {
-            console.log('ไม่พบข้อมูลผู้ใช้ กำลังเปลี่ยนหน้าไปยัง login.html'); // ดีบัก
+            console.log('ไม่พบข้อมูลผู้ใช้ กำลังเปลี่ยนหน้าไปยัง login.html');
             window.location.href = 'login.html';
             return;
         }
 
         // แปลงข้อมูลผู้ใช้จาก JSON
         const userData = JSON.parse(user);
-        console.log('ข้อมูลผู้ใช้ที่แปลงแล้ว:', userData); // ดีบัก
+        console.log('ข้อมูลผู้ใช้ที่แปลงแล้ว:', userData);
 
         // แสดงชื่อผู้ใช้
         document.getElementById('username').textContent = userData.username;
