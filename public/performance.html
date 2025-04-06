@@ -38,6 +38,14 @@
             text-decoration: none;
             font-size: 16px;
         }
+        .cookie-warning {
+            background: #ff4d4d;
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
         .summary {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -86,6 +94,9 @@
             <h1>ผลงาน - DebtFlow</h1>
             <a href="#" class="logout-btn" onclick="logout()">ออกจากระบบ</a>
         </div>
+        <div class="cookie-warning" id="cookieWarning">
+            คำเตือน: เบราว์เซอร์ของคุณอาจปิดการใช้งาน Third-Party Cookies ซึ่งอาจส่งผลต่อการทำงานของแอปในอนาคต
+        </div>
         <div class="summary" id="performanceSummary">
             <p>กำลังโหลดข้อมูล...</p>
         </div>
@@ -125,6 +136,7 @@
             firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
+
             auth.onAuthStateChanged((user) => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -134,6 +146,11 @@
                         .catch((error) => console.error('ข้อผิดพลาดในการตั้งค่าการคงสถานะเซสชัน:', error));
                 }
             });
+
+            if (navigator.cookieEnabled) {
+                document.getElementById('cookieWarning').style.display = 'block';
+            }
+
             db.collection('performance').doc('summary').get().then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
@@ -186,6 +203,7 @@
                 console.error('ข้อผิดพลาดในการดึงข้อมูลผลงาน:', error);
                 document.getElementById('summaryError').style.display = 'block';
             });
+
             function logout() {
                 auth.signOut().then(() => window.location.href = 'index.html')
                     .catch((error) => {
