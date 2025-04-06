@@ -3,40 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>งาน - FieldFlow</title>
+    <title>งาน - DebtFlow</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 70px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        /* Filter and Sort */
+        .filter-sort {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .filter-sort select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        .task-counter {
+            font-size: 14px;
+            color: #666;
+        }
+        /* Task Card */
+        .task-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-5px);
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .task-header i {
+            margin-right: 10px;
+            font-size: 18px;
+            color: #1e3c72;
+        }
+        .task-header h4 {
+            margin: 0;
+            font-size: 16px;
+            color: #1e3c72;
+        }
+        .task-info {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .task-info i {
+            margin-right: 8px;
+            color: #666;
+        }
+        .status-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .status-pending { background: #ffcc00; color: #333; }
+        .status-contacted { background: #1e90ff; color: #fff; }
+        .status-completed { background: #28a745; color: #fff; }
+        .task-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .task-actions a {
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .btn-details { background: #1e3c72; color: #fff; }
+        .btn-accept { background: #28a745; color: #fff; }
+        .btn-forward { background: #ffcc00; color: #333; }
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .nav-item {
+            color: #666;
+            text-align: center;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .nav-item.active {
+            color: #1e3c72;
+        }
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <h3><i class="fas fa-briefcase"></i> งานทั้งหมด: <span id="taskCounter">0</span></h3>
-            <div class="input-group">
-                <i class="fas fa-filter"></i>
-                <select id="statusFilter" onchange="loadTasks()">
-                    <option value="">ทั้งหมด</option>
-                    <option value="pending">ติดต่อไม่ได้</option>
-                    <option value="appointed">นัดหมาย</option>
-                    <option value="completed">จบงานสำเร็จ</option>
-                </select>
+        <h3>งาน - DebtFlow</h3>
+
+        <!-- Filter and Sort -->
+        <div class="filter-sort">
+            <select id="filterStatus">
+                <option value="">ทั้งหมด</option>
+                <option value="pending">ติดต่อไม่ได้</option>
+                <option value="contacted">นัดหมาย</option>
+                <option value="completed">จบงานสำเร็จ</option>
+            </select>
+            <div class="task-counter">จำนวนงาน: <span id="taskCount">0</span></div>
+        </div>
+
+        <!-- Task List -->
+        <div id="taskList">
+            <!-- ตัวอย่างการ์ดงาน -->
+            <div class="task-card">
+                <div class="task-header">
+                    <i class="fas fa-file-contract"></i>
+                    <h4>232016580880</h4>
+                </div>
+                <div class="task-info">
+                    <i class="fas fa-user"></i> พูลทรัพย์ พลชารี
+                </div>
+                <div class="task-info">
+                    <i class="fas fa-home"></i> 119 หมู่ที่ 1 ต.สร้อยพร้าว อ.หนองหาน จ.อุดรธานี
+                </div>
+                <div class="task-info">
+                    <i class="fas fa-map-marker-alt"></i> ระยะ: 2.5 กม.
+                </div>
+                <div class="status-tag status-pending">ติดต่อไม่ได้</div>
+                <div class="task-actions">
+                    <a href="task-details.html" class="btn-details">ดูรายละเอียด</a>
+                    <a href="#" class="btn-accept">รับงาน</a>
+                    <a href="#" class="btn-forward">ฝากงาน</a>
+                </div>
             </div>
-            <div id="taskList"></div>
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <a href="dashboard.html"><i class="fas fa-home"></i><span>หน้าแรก<br>Dashboard</span></a>
-        <a href="tasks.html" class="active"><i class="fas fa-briefcase"></i><span>งาน<br>Tasks</span></a>
-        <a href="income.html"><i class="fas fa-wallet"></i><span>รายได้<br>Income</span></a>
-        <a href="profile.html"><i class="fas fa-user-circle"></i><span>โปรไฟล์<br>Profile</span></a>
-        <a href="performance.html"><i class="fas fa-chart-line"></i><span>ผลงาน<br>Performance</span></a>
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            หน้าแรก
+        </a>
+        <a href="tasks.html" class="nav-item active">
+            <i class="fas fa-briefcase"></i>
+            งาน
+        </a>
+        <a href="performance.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            ผลงาน
+        </a>
+        <a href="income.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            รายได้
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user-circle"></i>
+            โปรไฟล์
+        </a>
     </div>
 
+    <!-- โหลด Firebase SDK -->
     <script src="env.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/tasks.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+    <script>
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: window.env.FIREBASE_API_KEY,
+            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
+            projectId: window.env.FIREBASE_PROJECT_ID,
+            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
+            appId: window.env.FIREBASE_APP_ID
+        });
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ตรวจสอบสถานะการล็อกอิน
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // โหลดงานจาก Firestore
+        const taskList = document.getElementById('taskList');
+        const taskCount = document.getElementById('taskCount');
+        const filterStatus = document.getElementById('filterStatus');
+
+        function loadTasks() {
+            db.collection('tasks').get().then((querySnapshot) => {
+                taskList.innerHTML = '';
+                let count = 0;
+                querySnapshot.forEach((doc) => {
+                    const task = doc.data();
+                    const status = task.status || 'pending';
+                    if (!filterStatus.value || filterStatus.value === status) {
+                        const taskCard = `
+                            <div class="task-card">
+                                <div class="task-header">
+                                    <i class="fas fa-file-contract"></i>
+                                    <h4>${doc.id}</h4>
+                                </div>
+                                <div class="task-info">
+                                    <i class="fas fa-user"></i> ${task.name || 'ไม่ระบุ'}
+                                </div>
+                                <div class="task-info">
+                                    <i class="fas fa-home"></i> ${task.address || 'ไม่ระบุ'}
+                                </div>
+                                <div class="task-info">
+                                    <i class="fas fa-map-marker-alt"></i> ระยะ: ${task.distance || 'ไม่ระบุ'} กม.
+                                </div>
+                                <div class="status-tag status-${status}">${status === 'pending' ? 'ติดต่อไม่ได้' : status === 'contacted' ? 'นัดหมาย' : 'จบงานสำเร็จ'}</div>
+                                <div class="task-actions">
+                                    <a href="task-details.html?id=${doc.id}" class="btn-details">ดูรายละเอียด</a>
+                                    <a href="#" class="btn-accept">รับงาน</a>
+                                    <a href="#" class="btn-forward">ฝากงาน</a>
+                                </div>
+                            </div>
+                        `;
+                        taskList.innerHTML += taskCard;
+                        count++;
+                    }
+                });
+                taskCount.textContent = count;
+            });
+        }
+
+        // เรียกโหลดงานเมื่อหน้าโหลด
+        loadTasks();
+
+        // ฟังก์ชันกรองสถานะ
+        filterStatus.addEventListener('change', loadTasks);
+    </script>
 </body>
 </html>
