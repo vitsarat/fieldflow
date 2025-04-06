@@ -259,43 +259,46 @@
         // ฟังก์ชันดึงข้อมูลงานจาก Firestore
         function loadTaskDetails() {
             const urlParams = new URLSearchParams(window.location.search);
-            const taskId = urlParams.get('taskId'); // เปลี่ยนจาก 'id' เป็น 'taskId' ให้สอดคล้องกับ dashboard.html
-            if (taskId) {
-                currentTaskId = taskId;
-                db.collection('tasks').doc(taskId).get().then((doc) => {
-                    if (doc.exists) {
-                        const task = doc.data();
-                        console.log('ข้อมูลงานจาก Firestore:', task);
+            const taskId = urlParams.get('taskId');
+            console.log('taskId จาก URL:', taskId);
 
-                        // เติมข้อมูลในฟอร์ม
-                        document.getElementById('contractNumber').value = task.contractNo || task.taskId || '';
-                        document.getElementById('customerName').value = task.debtor || '';
-                        document.getElementById('principle').value = task.principle ? `${parseFloat(task.principle).toLocaleString()} บาท` : '';
-                        document.getElementById('address').value = task.address || '';
-                        document.getElementById('phone').value = task.phone || '';
-                        document.getElementById('brand').value = task.brand || '';
-                        document.getElementById('model').value = task.model || '';
-                        document.getElementById('engineNo').value = task.engineNo || '';
-                        document.getElementById('chassisNo').value = task.chassisNo || '';
-                        document.getElementById('note').value = task.note || '';
-
-                        // ฟิลด์ที่ไม่มีใน Firestore แต่สามารถกำหนดค่าเริ่มต้นได้
-                        document.getElementById('overdueInstallments').value = task.overdueInstallments || '';
-                        document.getElementById('installmentAmount').value = task.installmentAmount || '';
-                        document.getElementById('color').value = task.color || '';
-                        document.getElementById('licensePlate').value = task.licensePlate || '';
-                    } else {
-                        alert('ไม่พบข้อมูลงาน');
-                        window.location.href = 'tasks.html';
-                    }
-                }).catch((error) => {
-                    console.error('Error loading task details:', error);
-                    alert('เกิดข้อผิดพลาดในการโหลดข้อมูลงาน');
-                });
-            } else {
-                alert('ไม่พบรหัสงาน');
-                window.location.href = 'tasks.html';
+            if (!taskId) {
+                alert('ไม่พบรหัสงาน กรุณาเลือกงานจากหน้าแดชบอร์ด');
+                window.location.href = 'dashboard.html';
+                return;
             }
+
+            currentTaskId = taskId;
+            db.collection('tasks').doc(taskId).get().then((doc) => {
+                if (doc.exists) {
+                    const task = doc.data();
+                    console.log('ข้อมูลงานจาก Firestore:', task);
+
+                    // เติมข้อมูลในฟอร์ม
+                    document.getElementById('contractNumber').value = task.contractNo || task.taskId || '';
+                    document.getElementById('customerName').value = task.debtor || '';
+                    document.getElementById('principle').value = task.principle ? `${parseFloat(task.principle).toLocaleString()} บาท` : '';
+                    document.getElementById('address').value = task.address || '';
+                    document.getElementById('phone').value = task.phone || '';
+                    document.getElementById('brand').value = task.brand || '';
+                    document.getElementById('model').value = task.model || '';
+                    document.getElementById('engineNo').value = task.engineNo || '';
+                    document.getElementById('chassisNo').value = task.chassisNo || '';
+                    document.getElementById('note').value = task.note || '';
+
+                    // ฟิลด์ที่ไม่มีใน Firestore แต่สามารถกำหนดค่าเริ่มต้นได้
+                    document.getElementById('overdueInstallments').value = task.overdueInstallments || '';
+                    document.getElementById('installmentAmount').value = task.installmentAmount || '';
+                    document.getElementById('color').value = task.color || '';
+                    document.getElementById('licensePlate').value = task.licensePlate || '';
+                } else {
+                    alert('ไม่พบข้อมูลงาน');
+                    window.location.href = 'dashboard.html';
+                }
+            }).catch((error) => {
+                console.error('Error loading task details:', error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลงาน');
+            });
         }
 
         // ฟังก์ชันแสดง/ซ่อนรายละเอียดเพิ่มเติม
@@ -343,7 +346,7 @@
             try {
                 await db.collection('tasks').doc(currentTaskId).update({ status: status });
                 alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
-                window.location.href = 'tasks.html'; // กลับไปหน้า tasks หลังอัปเดต
+                window.location.href = 'dashboard.html'; // กลับไปหน้า dashboard หลังอัปเดต
             } catch (error) {
                 console.error('Error updating task status:', error);
                 alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
