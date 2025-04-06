@@ -92,12 +92,12 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc", // แทนที่ด้วย API Key จริง
+            apiKey: "AIzaSyDyOLP6v2mw5CRPMwVwynTU-qAAq8QMrlc",
             authDomain: "fieldflow-b3ee5.firebaseapp.com",
             projectId: "fieldflow-b3ee5",
-            storageBucket: "fieldflow-b3ee5.appspot.com",
-            messagingSenderId: "384778621124", // แทนที่ด้วย Messaging Sender ID จริง
-            appId: "1:384778621124:web:ea912e4770f1811ec63991" // แทนที่ด้วย App ID จริง
+            storageBucket: "fieldflow-b3ee5.firebasestorage.app",
+            messagingSenderId: "384778621124",
+            appId: "1:384778621124:web:ea912e4770f1811ec63991"
         };
 
         // Initialize Firebase
@@ -106,9 +106,9 @@
 
         // ฟังก์ชันสมัครสมาชิก
         async function register() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            const username = document.getElementById('username').value.trim(); // ลบช่องว่างหน้า-หลัง
+            const password = document.getElementById('password').value.trim(); // ลบช่องว่างหน้า-หลัง
+            const confirmPassword = document.getElementById('confirmPassword').value.trim(); // ลบช่องว่างหน้า-หลัง
             const errorDiv = document.getElementById('error');
             const successDiv = document.getElementById('success');
 
@@ -128,10 +128,14 @@
             }
 
             try {
+                console.log('กำลังตรวจสอบชื่อผู้ใช้:', username); // ดีบัก
+
                 // ตรวจสอบว่า username ซ้ำหรือไม่
                 const userSnapshot = await db.collection('users')
                     .where('username', '==', username)
                     .get();
+
+                console.log('ผลลัพธ์การตรวจสอบชื่อผู้ใช้:', userSnapshot.size, 'รายการ'); // ดีบัก
 
                 if (!userSnapshot.empty) {
                     errorDiv.textContent = 'ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว';
@@ -145,6 +149,8 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
+                console.log('บันทึกข้อมูลสำเร็จ:', { username, password }); // ดีบัก
+
                 // แสดงข้อความสำเร็จ
                 successDiv.textContent = 'สมัครสมาชิกสำเร็จ! กำลังนำคุณไปยังหน้าเข้าสู่ระบบ...';
 
@@ -153,6 +159,7 @@
                     window.location.href = 'login.html';
                 }, 2000);
             } catch (error) {
+                console.error('ข้อผิดพลาด:', error); // ดีบัก
                 errorDiv.textContent = 'เกิดข้อผิดพลาดในการสมัครสมาชิก: ' + error.message;
             }
         }
