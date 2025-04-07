@@ -196,7 +196,6 @@
         </div>
     </div>
 
-    <!-- Navigation Bar -->
     <div class="nav-bar">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-home"></i>
@@ -221,16 +220,11 @@
     </div>
 
     <script>
-        // ตัวแปรสำหรับ Google Sheets API
-        const SPREADSHEET_ID = "1anUGI1NyL33MxBJbkx-rbc38UEndbQbiR-YjZlAO_B4";
-        const API_KEY = "AIzaSyAia9rTL7aJ_q-04yduO40QN2G4XSBy9co";
-        const SHEET_NAME = "Tasks";
+        const WEB_APP_URL = "YOUR_WEB_APP_URL"; // แทนด้วย URL ของ Web App
 
-        // ตัวแปรเก็บ taskId
         let currentTaskId = null;
         let currentRowIndex = -1;
 
-        // ฟังก์ชันดึงข้อมูลงานจาก Google Sheets
         async function loadTaskDetails() {
             const urlParams = new URLSearchParams(window.location.search);
             const taskId = urlParams.get('taskId');
@@ -245,46 +239,18 @@
             currentTaskId = taskId;
 
             try {
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A2:L?key=${API_KEY}`;
-                const response = await fetch(url);
-                const result = await response.json();
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "fetchTaskDetails", taskId: taskId })
+                });
+                const task = await response.json();
 
-                if (result.error) {
-                    throw new Error(result.error.message);
+                if (task.error) {
+                    throw new Error(task.error);
                 }
 
-                const tasks = result.values || [];
-                let task = null;
+                currentRowIndex = task.rowIndex;
 
-                // ค้นหาแถวที่มี taskId ตรงกัน
-                for (let i = 0; i < tasks.length; i++) {
-                    if (tasks[i][0] === taskId) {
-                        currentRowIndex = i + 2; // +2 เพราะเริ่มจากแถวที่ 2 และมีส่วนหัว
-                        task = {
-                            taskId: tasks[i][0] || '',
-                            debtor: tasks[i][1] || '',
-                            contractNo: tasks[i][2] || '',
-                            principle: tasks[i][3] || '',
-                            address: tasks[i][4] || '',
-                            phone: tasks[i][5] || '',
-                            brand: tasks[i][6] || '',
-                            model: tasks[i][7] || '',
-                            status: tasks[i][8] || '',
-                            note: tasks[i][9] || '',
-                            lastUpdated: tasks[i][10] || '',
-                            attachment: tasks[i][11] || ''
-                        };
-                        break;
-                    }
-                }
-
-                if (!task) {
-                    alert('ไม่พบข้อมูลงาน');
-                    window.location.href = 'dashboard.html';
-                    return;
-                }
-
-                // เติมข้อมูลในฟอร์ม
                 document.getElementById('contractNumber').value = task.contractNo;
                 document.getElementById('customerName').value = task.debtor;
                 document.getElementById('principle').value = task.principle ? `${parseFloat(task.principle).toLocaleString()} บาท` : '';
@@ -293,25 +259,23 @@
                 document.getElementById('brand').value = task.brand;
                 document.getElementById('model').value = task.model;
                 document.getElementById('note').value = task.note;
-                document.getElementById('overdueInstallments').value = ''; // ไม่มีใน Google Sheets แต่สามารถเพิ่มฟิลด์ได้
+                document.getElementById('overdueInstallments').value = '';
                 document.getElementById('installmentAmount').value = '';
                 document.getElementById('color').value = '';
                 document.getElementById('licensePlate').value = '';
-                document.getElementById('engineNo').value = ''; // ไม่มีใน Google Sheets แต่สามารถเพิ่มฟิลด์ได้
-                document.getElementById('chassisNo').value = ''; // ไม่มีใน Google Sheets แต่สามารถเพิ่มฟิลด์ได้
+                document.getElementById('engineNo').value = '';
+                document.getElementById('chassisNo').value = '';
             } catch (error) {
                 console.error('Error loading task details:', error);
                 alert('เกิดข้อผิดพลาดในการโหลดข้อมูลงาน: ' + error.message);
             }
         }
 
-        // ฟังก์ชันแสดง/ซ่อนรายละเอียดเพิ่มเติม
         function toggleDetails() {
             const additionalDetails = document.getElementById('additionalDetails');
             additionalDetails.style.display = additionalDetails.style.display === 'block' ? 'none' : 'block';
         }
 
-        // ฟังก์ชันบันทึกข้อมูลเพิ่มเติม
         async function saveAdditionalDetails() {
             if (!currentTaskId || currentRowIndex === -1) {
                 alert('ไม่พบรหัสงาน');
@@ -331,29 +295,26 @@
                     document.getElementById('status')?.value || '',
                     document.getElementById('note').value,
                     new Date().toLocaleString(),
-                    '' // Attachment (ถ้ามีการอัปโหลดไฟล์)
+                    ''
                 ];
 
-                const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A${currentRowIndex}:L${currentRowIndex}?valueInputOption=RAW&key=${API_KEY}`;
-                const updateResponse = await fetch(updateUrl, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ values: [additionalData] })
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "saveDetails", taskId: currentTaskId, data: additionalData })
                 });
-
-                if (!updateResponse.ok) {
-                    throw new Error('Failed to update data');
+                const result = await response.json();
+                if (result.success) {
+                    alert('บันทึกข้อมูลสำเร็จ!');
+                    toggleDetails();
+                } else {
+                    alert('ไม่พบงาน');
                 }
-
-                alert('บันทึกข้อมูลสำเร็จ!');
-                toggleDetails(); // ซ่อนฟอร์มหลังบันทึก
             } catch (error) {
                 console.error('Error saving additional details:', error);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message);
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
             }
         }
 
-        // ฟังก์ชันอัปเดตสถานะงาน
         async function updateTaskStatus(status) {
             if (!currentTaskId || currentRowIndex === -1) {
                 alert('ไม่พบรหัสงาน');
@@ -361,26 +322,23 @@
             }
 
             try {
-                const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!I${currentRowIndex}?valueInputOption=RAW&key=${API_KEY}`;
-                const updateResponse = await fetch(updateUrl, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ values: [[status]] })
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "updateStatus", taskId: currentTaskId, status: status })
                 });
-
-                if (!updateResponse.ok) {
-                    throw new Error('Failed to update status');
+                const result = await response.json();
+                if (result.success) {
+                    alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('ไม่พบงาน');
                 }
-
-                alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
-                window.location.href = 'dashboard.html'; // กลับไปหน้า dashboard หลังอัปเดต
             } catch (error) {
                 console.error('Error updating task status:', error);
-                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + error.message);
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
             }
         }
 
-        // โหลดข้อมูลเมื่อหน้าโหลด
         window.onload = loadTaskDetails;
     </script>
 </body>
