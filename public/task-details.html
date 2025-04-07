@@ -222,8 +222,8 @@
 
     <script>
         // ตัวแปรสำหรับ Google Sheets API
-        const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID"; // แทนด้วย Spreadsheet ID
-        const API_KEY = "YOUR_GOOGLE_API_KEY"; // แทนด้วย Google API Key
+        const SPREADSHEET_ID = "1anUGI1NyL33MxBJbkx-rbc38UEndbQbiR-YjZlAO_B4";
+        const API_KEY = "AIzaSyAia9rTL7aJ_q-04yduO40QN2G4XSBy9co";
         const SHEET_NAME = "Tasks";
 
         // ตัวแปรเก็บ taskId
@@ -301,7 +301,7 @@
                 document.getElementById('chassisNo').value = ''; // ไม่มีใน Google Sheets แต่สามารถเพิ่มฟิลด์ได้
             } catch (error) {
                 console.error('Error loading task details:', error);
-                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลงาน');
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลงาน: ' + error.message);
             }
         }
 
@@ -335,17 +335,21 @@
                 ];
 
                 const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A${currentRowIndex}:L${currentRowIndex}?valueInputOption=RAW&key=${API_KEY}`;
-                await fetch(updateUrl, {
+                const updateResponse = await fetch(updateUrl, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ values: [additionalData] })
                 });
 
+                if (!updateResponse.ok) {
+                    throw new Error('Failed to update data');
+                }
+
                 alert('บันทึกข้อมูลสำเร็จ!');
                 toggleDetails(); // ซ่อนฟอร์มหลังบันทึก
             } catch (error) {
                 console.error('Error saving additional details:', error);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message);
             }
         }
 
@@ -358,17 +362,21 @@
 
             try {
                 const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!I${currentRowIndex}?valueInputOption=RAW&key=${API_KEY}`;
-                await fetch(updateUrl, {
+                const updateResponse = await fetch(updateUrl, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ values: [[status]] })
                 });
 
+                if (!updateResponse.ok) {
+                    throw new Error('Failed to update status');
+                }
+
                 alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
                 window.location.href = 'dashboard.html'; // กลับไปหน้า dashboard หลังอัปเดต
             } catch (error) {
                 console.error('Error updating task status:', error);
-                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + error.message);
             }
         }
 
