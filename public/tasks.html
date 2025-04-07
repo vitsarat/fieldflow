@@ -119,66 +119,60 @@
         </a>
     </div>
 
-    <!-- โหลด Firebase SDK -->
-    <script src="env.js"></script>
     <script>
-        if (!window.env) {
-            console.error('Error: env.js not loaded or window.env is undefined');
-            alert('ไม่สามารถโหลดการตั้งค่า Firebase ได้ กรุณาติดต่อผู้ดูแลระบบ');
-        }
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
-    <script>
-        // Initialize Firebase
-        firebase.initializeApp({
-            apiKey: window.env.FIREBASE_API_KEY,
-            authDomain: window.env.FIREBASE_AUTH_DOMAIN,
-            projectId: window.env.FIREBASE_PROJECT_ID,
-            storageBucket: window.env.FIREBASE_STORAGE_BUCKET,
-            messagingSenderId: window.env.FIREBASE_MESSAGING_SENDER_ID,
-            appId: window.env.FIREBASE_APP_ID
-        });
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // ตัวแปรสำหรับ Google Sheets API
+        const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID"; // แทนด้วย Spreadsheet ID
+        const API_KEY = "YOUR_GOOGLE_API_KEY"; // แทนด้วย Google API Key
+        const SHEET_NAME = "Tasks";
 
-        // ตรวจสอบสถานะการล็อกอิน
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-            } else {
-                loadTasks();
-            }
-        });
-
-        // ฟังก์ชันโหลดรายการงาน
+        // ฟังก์ชันโหลดรายการงานจาก Google Sheets
         async function loadTasks() {
             try {
-                const tasksSnapshot = await db.collection('tasks').get();
-                console.log('ผลลัพธ์จาก Firestore (Tasks):', tasksSnapshot.size, 'รายการ');
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A2:L?key=${API_KEY}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+
+                const tasks = result.values || [];
+                console.log('ผลลัพธ์จาก Google Sheets:', tasks.length, 'รายการ');
 
                 const taskList = document.getElementById('taskList');
                 taskList.innerHTML = '';
 
-                if (tasksSnapshot.empty) {
+                if (tasks.length === 0) {
                     taskList.innerHTML = '<p style="text-align: center;">ไม่มีงานในขณะนี้</p>';
                     return;
                 }
 
-                tasksSnapshot.forEach(doc => {
-                    const task = doc.data();
-                    const taskId = doc.id;
+                tasks.forEach(row => {
+                    const task = {
+                        taskId: row[0] || '',
+                        debtor: row[1] || '',
+                        contractNo: row[2] || '',
+                        principle: row[3] || '',
+                        address: row[4] || '',
+                        phone: row[5] || '',
+                        brand: row[6] || '',
+                        model: row[7] || '',
+                        status: row[8] || '',
+                        note: row[9] || '',
+                        lastUpdated: row[10] || '',
+                        attachment: row[11] || ''
+                    };
+
                     const taskItem = document.createElement('div');
                     taskItem.className = 'task-item';
                     taskItem.innerHTML = `
-                        <p><i class="fas fa-file-alt"></i> ${taskId}</p>
+                        <p><i class="fas fa-file-alt"></i> ${task.taskId}</p>
                         <p><i class="fas fa-user"></i> ${task.debtor || 'ไม่ระบุ'}</p>
                         <p><i class="fas fa-map-marker-alt"></i> สถานะ: ${task.status || 'ไม่ระบุ'}</p>
                         <div class="task-actions">
-                            <a href="task-details.html?taskId=${taskId}" class="btn-details"><i class="fas fa-eye"></i> ดูรายละเอียด</a>
-                            <button class="btn-accept" onclick="updateTaskStatus('${taskId}', 'completed')"><i class="fas fa-check"></i> รับงาน</button>
-                            <button class="btn-forward" onclick="updateTaskStatus('${taskId}', 'forwarded')"><i class="fas fa-share"></i> ฝากงาน</button>
+                            <a href="task-details.html?taskId=${task.taskId}" class="btn-details"><i class="fas fa-eye"></i> ดูรายละเอียด</a>
+                            <button class="btn-accept" onclick="updateTaskStatus('${task.taskId}', 'completed')"><i class="fas fa-check"></i> รับงาน</button>
+                            <button class="btn-forward" onclick="updateTaskStatus('${task.taskId}', 'forwarded')"><i class="fas fa-share"></i> ฝากงาน</button>
                         </div>
                     `;
                     taskList.appendChild(taskItem);
@@ -192,7 +186,39 @@
         // ฟังก์ชันอัปเดตสถานะงาน
         async function updateTaskStatus(taskId, status) {
             try {
-                await db.collection('tasks').doc(taskId).update({ status: status });
+                // ดึงข้อมูลทั้งหมดจาก Google Sheets
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A2:L?key=${API_KEY}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+
+                const tasks = result.values || [];
+                let rowIndex = -1;
+
+                // ค้นหาแถวที่มี taskId ตรงกัน
+                for (let i = 0; i < tasks.length; i++) {
+                    if (tasks[i][0] === taskId) {
+                        rowIndex = i + 2; // +2 เพราะเริ่มจากแถวที่ 2 และมีส่วนหัว
+                        break;
+                    }
+                }
+
+                if (rowIndex === -1) {
+                    alert('ไม่พบงาน');
+                    return;
+                }
+
+                // อัปเดตสถานะใน Google Sheets
+                const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!I${rowIndex}?valueInputOption=RAW&key=${API_KEY}`;
+                await fetch(updateUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ values: [[status]] })
+                });
+
                 alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
                 loadTasks(); // รีโหลดรายการงาน
             } catch (error) {
@@ -200,6 +226,9 @@
                 alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
             }
         }
+
+        // โหลดข้อมูลเมื่อหน้าโหลด
+        window.onload = loadTasks;
     </script>
 </body>
 </html>
