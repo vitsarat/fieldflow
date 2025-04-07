@@ -95,7 +95,6 @@
         <div id="taskList"></div>
     </div>
 
-    <!-- Navigation Bar -->
     <div class="nav-bar">
         <a href="dashboard.html" class="nav-item">
             <i class="fas fa-home"></i>
@@ -120,20 +119,16 @@
     </div>
 
     <script>
-        // ตัวแปรสำหรับ Google Sheets API
-        const SPREADSHEET_ID = "1anUGI1NyL33MxBJbkx-rbc38UEndbQbiR-YjZlAO_B4";
-        const API_KEY = "AIzaSyAia9rTL7aJ_q-04yduO40QN2G4XSBy9co";
-        const SHEET_NAME = "Tasks";
+        const WEB_APP_URL = "YOUR_WEB_APP_URL"; // แทนด้วย URL ของ Web App
 
-        // ฟังก์ชันโหลดรายการงานจาก Google Sheets
         async function loadTasks() {
             try {
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A2:L?key=${API_KEY}`;
+                const url = `${WEB_APP_URL}?action=fetchTasks`;
                 const response = await fetch(url);
                 const result = await response.json();
 
                 if (result.error) {
-                    throw new Error(result.error.message);
+                    throw new Error(result.error);
                 }
 
                 const tasks = result.values || [];
@@ -183,55 +178,25 @@
             }
         }
 
-        // ฟังก์ชันอัปเดตสถานะงาน
         async function updateTaskStatus(taskId, status) {
             try {
-                // ดึงข้อมูลทั้งหมดจาก Google Sheets
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A2:L?key=${API_KEY}`;
-                const response = await fetch(url);
-                const result = await response.json();
-
-                if (result.error) {
-                    throw new Error(result.error.message);
-                }
-
-                const tasks = result.values || [];
-                let rowIndex = -1;
-
-                // ค้นหาแถวที่มี taskId ตรงกัน
-                for (let i = 0; i < tasks.length; i++) {
-                    if (tasks[i][0] === taskId) {
-                        rowIndex = i + 2; // +2 เพราะเริ่มจากแถวที่ 2 และมีส่วนหัว
-                        break;
-                    }
-                }
-
-                if (rowIndex === -1) {
-                    alert('ไม่พบงาน');
-                    return;
-                }
-
-                // อัปเดตสถานะใน Google Sheets
-                const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!I${rowIndex}?valueInputOption=RAW&key=${API_KEY}`;
-                const updateResponse = await fetch(updateUrl, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ values: [[status]] })
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "updateStatus", taskId: taskId, status: status })
                 });
-
-                if (!updateResponse.ok) {
-                    throw new Error('Failed to update status');
+                const result = await response.json();
+                if (result.success) {
+                    alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
+                    loadTasks();
+                } else {
+                    alert('ไม่พบงาน');
                 }
-
-                alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
-                loadTasks(); // รีโหลดรายการงาน
             } catch (error) {
                 console.error('Error updating task status:', error);
-                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + error.message);
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
             }
         }
 
-        // โหลดข้อมูลเมื่อหน้าโหลด
         window.onload = loadTasks;
     </script>
 </body>
