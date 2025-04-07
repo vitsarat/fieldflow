@@ -121,8 +121,8 @@
 
     <script>
         // ตัวแปรสำหรับ Google Sheets API
-        const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID"; // แทนด้วย Spreadsheet ID
-        const API_KEY = "YOUR_GOOGLE_API_KEY"; // แทนด้วย Google API Key
+        const SPREADSHEET_ID = "1anUGI1NyL33MxBJbkx-rbc38UEndbQbiR-YjZlAO_B4";
+        const API_KEY = "AIzaSyAia9rTL7aJ_q-04yduO40QN2G4XSBy9co";
         const SHEET_NAME = "Tasks";
 
         // ฟังก์ชันโหลดรายการงานจาก Google Sheets
@@ -213,17 +213,21 @@
 
                 // อัปเดตสถานะใน Google Sheets
                 const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!I${rowIndex}?valueInputOption=RAW&key=${API_KEY}`;
-                await fetch(updateUrl, {
+                const updateResponse = await fetch(updateUrl, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ values: [[status]] })
                 });
 
+                if (!updateResponse.ok) {
+                    throw new Error('Failed to update status');
+                }
+
                 alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ!`);
                 loadTasks(); // รีโหลดรายการงาน
             } catch (error) {
                 console.error('Error updating task status:', error);
-                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: ' + error.message);
             }
         }
 
